@@ -16,7 +16,7 @@ This repository helps lab members quickly set up a standardized directory struct
   - [1. Clone the Repository](#1-clone-the-repository)
   - [2. Set Up Your Project Directory on-hpc](#2-set-up-your-project-directory-on-hpc)
   - [3. Update the NCBI Database (Optional)](#3-update-the-ncbi-database-optional)
- - [Running Pipeline](#running-pipeline)-
+- [Running Pipeline](#running-pipeline)
   - [4. Run the nf-coreampliseq Pipeline](#4-run-the-nf-coreampliseq-pipeline)
   - [5. BLAST Unknown ASVs (Optional)](#5-blast-unknown-asvs-optional)
   - [6. Decontaminate ASVs and apply read thresholds (Optional)](#6-decontaminate-asvs-and-apply-read-thresholds)
