@@ -45,7 +45,7 @@ cd Metabarcoding
 ```bash
 bash setup_metabarcoding_directory.sh
 ```
-- Your projectdirectory structure will look like:
+- Your project directory structure will look like:
 ```bash
 Metabarcoding/
 └── <project_name>/
