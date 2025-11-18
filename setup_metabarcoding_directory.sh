@@ -26,13 +26,19 @@ B12A2_02	A2	1,2,4	Sample	Browns_Island	February	2023
 B12A3_02	A3	1,2,4	Sample	Browns_Island	February	2023
 EOT
 
-echo "Directory structure created:"
+# Make the .txt files executable
+chmod +x "Metabarcoding/$PROJECT/input/Example_samplesheet.txt"
+chmod +x "Metabarcoding/$PROJECT/input/Example_metadata.txt"
+chmod +x "Metabarcoding/$PROJECT/input/Example_RSD.txt"
+
+echo "Directory structure and files created and set as executable:"
 echo "Metabarcoding/"
 echo "+-- $PROJECT/"
 echo "¦   +-- input/"
 echo "¦       +-- fastq/"
 echo "¦       +-- Example_samplesheet.txt"
 echo "¦       +-- Example_metadata.txt"
+echo "¦       +-- Example_RSD.txt"
 echo "¦   +-- output/"
 echo "¦       +-- intermediates_logs_cache/"
 echo "¦           +-- singularity/"
