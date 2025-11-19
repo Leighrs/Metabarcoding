@@ -90,7 +90,7 @@ sbatch blast_asv.slurm
 #### Available scripts include:
 | Script | Description |
 |------|-------------|
-| `GVL_metabarcoding_cleanup_main.R` | Master script to run all ASV cleanup steps below |
+| `GVL_metabarcoding_cleanup_main.R` | Master script to run all ASV cleanup steps below. |
 | `1_Data_Analyses_decontam_removal_251106.R` | Removes reads found in control samples from samples assigned to those controls. |
 | `2_Data_Analyses_presence_absence_after_decontam_removal_251106.R` | Produces a presence/absence matrix after decontamination removal. |
 | `3_Data_Analyses_sample_threshold_251106.R` | Applies an optional per-sample ASV abundance threshold. |
@@ -99,4 +99,4 @@ sbatch blast_asv.slurm
 | `6_Data_Analyses_presence_absence_after_total_threshold_251106.R` | Produces a final presence/absence matrix after minimum sequencing depth threshold. |
 
 - These scripts are optional but extremely helpful for producing clean, analysis ready ASV tables.
-- You should only need to enter the `GVL_metabarcoding_cleanup_main.R` script to run this pipeline. To avoid breaking the script, only edit the **"User-defined parameters"** in the script.
+- You should only need to open the `GVL_metabarcoding_cleanup_main.R` script to run this pipeline. To avoid breaking the script, only edit the **"User-defined parameters"** in the script.
