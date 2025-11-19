@@ -40,7 +40,7 @@ This repository contains scripts and configuration files to:
 | `setup_metabarcoding_directory.sh` | Shell script to create your project directory with example samplesheets, metadata, and RSD files. |
 | `update_blast_db.slurm` | SLURM batch script to download/update the NCBI core nucleotide database. |
 | `blast_asv.slurm` | SLURM batch script to BLAST unknown ASVs. |
-| `run_ampliseq.slurm` | SLURM batch script to execute the nf-core/ampliseq pipeline. |
+| `run_nf-core_ampliseq.slurm` | SLURM batch script to execute the nf-core/ampliseq pipeline. |
 | `R_ASV_cleanup_scripts/` | Folder containing R scripts for cleaning and formatting ASV tables after nf-core/ampliseq and optional BLAST. |
 
 > More scripts will be added over time to streamline additional steps.
