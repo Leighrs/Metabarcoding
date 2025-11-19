@@ -53,11 +53,10 @@ This repository contains scripts and configuration files to:
 
 ```bash
 git clone https://github.com/Leighrs/Metabarcoding.git
-cd Metabarcoding
 ```
 ### 2. Set Up Your Project Directory on HPC
 ```bash
-bash setup_metabarcoding_directory.sh
+./Metabarcoding/setup_metabarcoding_directory.sh
 ```
 - Your project directory structure will look like:
 ```bash
