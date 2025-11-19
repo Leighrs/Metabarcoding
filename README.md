@@ -72,6 +72,7 @@ Metabarcoding/
         └── intermediates_logs_cache/
             └── singularity/
 ```
+- This script will also generate a txt file in your Metabarcoding folder containing your project name. Other SLURM scripts will need to access this, do not edit it.
 ### 3. Update the NCBI Database (Optional)
 ```bash
 sbatch update_blast_db.slurm
