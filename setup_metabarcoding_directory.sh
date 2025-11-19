@@ -42,3 +42,5 @@ echo "¦       +-- Example_RSD.txt"
 echo "¦   +-- output/"
 echo "¦       +-- intermediates_logs_cache/"
 echo "¦           +-- singularity/"
+
+echo "$PROJECT" > "$HOME/Metabarcoding/current_project_name.txt"
