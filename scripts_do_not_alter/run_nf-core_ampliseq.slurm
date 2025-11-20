@@ -6,8 +6,8 @@
 #SBATCH --cpus-per-task=20
 #SBATCH --mem=120G
 #SBATCH --time=10:00:00
-#SBATCH --output=$HOME/Metabarcoding/Logs_archive/update_ncbi_db_%j.out
-#SBATCH --error=$HOME/Metabarcoding/Logs_archive/update_ncbi_db_%j.err
+#SBATCH --output=Metabarcoding/Logs_archive/run_nfcore_ampliseq_%j.out
+#SBATCH --error=Metabarcoding/Logs_archive/run_nfcore_ampliseq_%j.err
 
 # ------------------------------------
 # 1. Get project name created earlier
@@ -35,7 +35,7 @@ mkdir -p "$HOME/Metabarcoding/Containers"
 BASE_OUT="$HOME/Metabarcoding/$PROJECT/output"
 CACHE_DIR="${BASE_OUT}/intermediates_logs_cache"
 SINGULARITY_CACHE="${CACHE_DIR}/singularity"
-PARAMS_FILE="$HOME/Metabarcoding/nf-params.json"
+PARAMS_FILE="$HOME/Metabarcoding/$PROJECT/scripts/${PROJECT}_nf-params.json"
 
 CONTAINER="$HOME/Metabarcoding/Containers/GVL_metabarcoding.sif"
 CONTAINER_URL="oras://community.wave.seqera.io/library/nextflow_nf-core_apptainer_conda_pruned:0f9c913ab4de9751"
@@ -68,11 +68,12 @@ export NXF_APPTAINER_CACHEDIR="$SINGULARITY_CACHE"
 # 7. Run NF-core Ampliseq
 # ------------------------------------
 echo "Starting nf-core/ampliseq pipeline..."
-nextflow run nf-core/ampliseq \
-    -r 2.15.0 \
-    -profile apptainer \
-    -work-dir "$CACHE_DIR" \
-    -params-file "$PARAMS_FILE" \
-    -c <(echo "apptainer { pullTimeout = '20 min' }")
+apptainer exec "$CONTAINER" \
+    nextflow run nf-core/ampliseq \
+        -r 2.15.0 \
+        -profile apptainer \
+        -work-dir "$CACHE_DIR" \
+        -params-file "$PARAMS_FILE" \
+        -c <(echo "apptainer { pullTimeout = '20 min' }")
 
 echo "nf-core/ampliseq pipeline completed successfully."
