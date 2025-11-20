@@ -38,15 +38,15 @@
     "min_len_asv": 150,
     "max_len_asv": 190,
     
-    "filter_codons": true,
+    "filter_codons": false,
     "stop_codons": "TAA,TAG",
 
     "dada_ref_taxonomy": null,
     "dada_ref_tax_custom": "PATH/to/reference_taxonomy.txt",
     "dada_ref_tax_custom_sp": null,
-    "dada_taxonomy_rc": true,
+    "dada_taxonomy_rc": false,
     "dada_min_boot": 80,
-    "dada_assign_taxlevels": "Kingdom,Phylum,Class,Order,Family,Genus,Species",
+    "dada_assign_taxlevels": "Kingdom,Phylum,Class,Order,Family,Genus,Species,Common",
     
     "exclude_taxa": "none",
 
@@ -67,7 +67,7 @@
     "skip_fastqc": false,
     "skip_cutadapt": false,
     "skip_dada_quality": false,
-    "skip_qiime": true,
+    "skip_qiime": false,
     "skip_taxonomy": false,
     "skip_dada_taxonomy": false,
     "skip_dada_addspecies": true,
