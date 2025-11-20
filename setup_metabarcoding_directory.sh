@@ -26,6 +26,19 @@ B12A2_02	A2	1,2,4	Sample	Browns_Island	February	2023
 B12A3_02	A3	1,2,4	Sample	Browns_Island	February	2023
 EOT
 
+# Create Example_RSD.txt in the input folder
+cat <<EOT > "Metabarcoding/$PROJECT/input/Example_RSD.txt"
+>Animalia;Chordata;Actinopterygii;Cypriniformes;Catostomidae;Catostomus;Catostomus occidentalis; Sacramento Sucker;
+CACCGCGGTTATACGAGAGGCCCTAGTTGATAGGCACGGCGTAAAGGGTGGTTAAGGGAGTACACAAATAAAGCCGAAGGACCCTCTGGCCGTTATACGCTTCTGGACGCCCGAAGCCCAAATACGAAAGTAGCTTTAATTTAGCCCACCTGACCCCACGAAAACTGAGAAA
+>Animalia;Chordata;Actinopterygii;Cypriniformes;Cobitidae;Paramisgurnus;Paramisgurnus dabryanus;Large-scale Loach;
+CACCGCGGTTATACGAGAGGCCCCAGTTGATGAACACGGCGTAAAGGGTGGTTAAGGTTTAACTAAAATAAAGTCAAAAGACTTCTTGGCCGTCATACGCCCCTGAACATCTGAAGCTCATATACGAAAGTAACTTTAATATTAGCCCACCTGACCCCACGAAAACTGAGAAA
+>Animalia;Chordata;Actinopterygii;Cypriniformes;Cyprinidae;Carassius;Carassius auratus;Goldfish;
+CACCGCGGTTAGACGAGAGGCCCTAGTTGATATTACAACGGCGTAAAGGGTGGTTAAGGATAAATAAAAATAAAGTCAAATGGCCCCTTGGCCGTCATACGCTTCTAGGCGTCCGAAGCCCTAATACGAAAGTAACTTTAATGAACCCACCTGACCCCACGAAAGCTGAGGAA
+>Animalia;Chordata;Actinopterygii;Cypriniformes;Cyprinidae;Cyprinella;Cyprinella lutrensis;Red Shiner;
+CACCGCGGTTAGACGAGAGGCCCTAGTTGATAGAACAACGGCGTAAAGGGTGGTTAAGGATAGCGAGATAATAAAGTCGAATGGCCCTTTGGCTGTCATACGCTTCTAGGAGTCTGAAGCCCAATATACGAAAGTAACTTTAATAACGTCCACCTGACCCCACGAAAACTGAGAAA
+>Animalia;Chordata;Actinopterygii;Cypriniformes;Cyprinidae;Cyprinus;Cyprinus carpio;Common Carp;
+EOT
+
 # Make the .txt files executable
 chmod +x "Metabarcoding/$PROJECT/input/Example_samplesheet.txt"
 chmod +x "Metabarcoding/$PROJECT/input/Example_metadata.txt"
@@ -42,5 +55,6 @@ echo "¦       +-- Example_RSD.txt"
 echo "¦   +-- output/"
 echo "¦       +-- intermediates_logs_cache/"
 echo "¦           +-- singularity/"
+echo "+-- current_project_name.txt"
 
 echo "$PROJECT" > "$HOME/Metabarcoding/current_project_name.txt"

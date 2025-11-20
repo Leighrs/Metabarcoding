@@ -74,7 +74,8 @@ Metabarcoding/
 - This script will also generate a txt file in your Metabarcoding folder containing your project name. Other SLURM scripts will need to access this, do not edit it.
 ### 3. Update the NCBI Database (Optional)
 ```bash
-sbatch update_blast_db.slurm
+sbatch update_ncbi_db.sh --delete-old # Will delete old database. Recommended to save space in group folder. Only keep old folder if you need for something.
+sbatch update_blast_db.slurm # Will not delete old database.
 ```
 ## Running pipeline
 ### 4. Run the nf-core/ampliseq Pipeline

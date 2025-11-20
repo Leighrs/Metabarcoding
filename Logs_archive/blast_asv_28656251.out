@@ -1,0 +1,66 @@
+############### Job 28656251 prolog ###############
+SLURM_NODELIST: bm2
+############### Job 28656251 prolog ###############
+Checking for Apptainer container: Metabarcoding/Containers/GVL_blast_unassigned_ASVs.sif
+Container found: Metabarcoding/Containers/GVL_blast_unassigned_ASVs.sif
+Loading apptainer/latest
+Job running on node: bm2
+Starting BLAST directly from /group/ database...
+Using database: /group/ajfingergrp/NCBI_core_nt_20251118/core_nt
+BLAST completed.
+Results written to: /home/leighrs/blast_results_COI.tsv
+Job finished. SLURM logs are in /home/leighrs/Metabarcoding/Logs_archive
+
+############### Job 28656251 summary from bm2 ###############
+Name                : blast_asv
+User                : leighrs
+Account             : millermrgrp
+Partition           : bmh
+Nodes               : bm2
+Cores               : 8
+GPUs                : 0
+State               : COMPLETED
+ExitCode            : 0:0
+Submit              : 2025-11-19T09:28:29
+Start               : 2025-11-19T09:28:29
+End                 : 2025-11-19T10:18:28
+Reserved walltime   : 10:00:00
+Used walltime       : 00:49:59
+Used CPU time       : 03:53:48
+% User (Computation): 90.70%
+% System (I/O)      :  9.30%
+Mem reserved        : 32G
+Max Mem used        : 32.00G (bm2)
+Max Disk Write      : 117.08M (bm2)
+Max Disk Read       : 68.32M (bm2)
+
+############### Job 28656251 info ###############
+JobId=28656251 JobName=blast_asv
+   UserId=leighrs(784901) GroupId=leighrs(784901) MCS_label=N/A
+   Priority=8468 Nice=0 Account=millermrgrp QOS=millermrgrp-bmh-qos
+   JobState=COMPLETING Reason=None Dependency=(null)
+   Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0
+   RunTime=00:49:58 TimeLimit=10:00:00 TimeMin=N/A
+   SubmitTime=2025-11-19T09:28:29 EligibleTime=2025-11-19T09:28:29
+   AccrueTime=2025-11-19T09:28:29
+   StartTime=2025-11-19T09:28:29 EndTime=2025-11-19T10:18:27 Deadline=N/A
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2025-11-19T09:28:29 Scheduler=Main
+   Partition=bmh AllocNode:Sid=farm:1101432
+   ReqNodeList=(null) ExcNodeList=(null)
+   NodeList=bm2
+   BatchHost=bm2
+   NumNodes=1 NumCPUs=8 NumTasks=1 CPUs/Task=8 ReqB:S:C:T=0:0:*:*
+   ReqTRES=cpu=8,mem=32G,node=1,billing=8
+   AllocTRES=cpu=8,mem=32G,node=1,billing=8
+   Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=*
+   MinCPUsNode=8 MinMemoryNode=32G MinTmpDiskNode=0
+   Features=(null) DelayBoot=00:00:00
+   OverSubscribe=OK Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null)
+   Command=/home/leighrs/blast_asv.slurm
+   WorkDir=/home/leighrs
+   StdErr=/home/leighrs/Metabarcoding/Logs_archive/blast_asv_28656251.err
+   StdIn=/dev/null
+   StdOut=/home/leighrs/Metabarcoding/Logs_archive/blast_asv_28656251.out
+   TresPerTask=cpu=8
+   
+

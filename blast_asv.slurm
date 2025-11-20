@@ -73,8 +73,8 @@ echo "Using database: $DB"
 # -------------------------------
 # 4. Set user-editable paths
 # -------------------------------
-QUERY="/home/leighrs/test/output/dada2/ASV_seqs.fasta"
-OUTFILE="/home/leighrs/test/output/blast_results.tsv"
+QUERY="/home/leighrs/ASV_seqs_AT.fasta"
+OUTFILE="/home/leighrs/blast_results_AT_v2.tsv"
 
 # -------------------------------
 # 5. Run BLAST using the group database
@@ -85,7 +85,7 @@ apptainer exec --bind /group/ajfingergrp:/group/ajfingergrp "$CONTAINER" \
                -query $QUERY \
                -db $DB \
                -out $OUTFILE \
-               -outfmt '6 qseqid qcovs sseqid pident length qlen slen mismatch gapopen qstart qend sstart send evalue bitscore stitle sscinames sblastnames scomnames' \
+               -outfmt '6 qseqid qcovs sseqid pident length qlen slen mismatch gapopen qstart qend sstart send evalue bitscore stitle sscinames sblastnames scomnames staxids' \
                -max_target_seqs 5 \
                -perc_identity 97 \
                -num_threads 8"
