@@ -42,8 +42,9 @@ This repository contains scripts and configuration files to:
 | `blast_asv.slurm` | SLURM batch script to BLAST unknown ASVs. |
 | `run_nf-core_ampliseq.slurm` | SLURM batch script to execute the nf-core/ampliseq pipeline. |
 | `R_ASV_cleanup_scripts/` | Folder containing R scripts for cleaning and formatting ASV tables after nf-core/ampliseq and optional BLAST. |
-
-> More scripts will be added over time to streamline additional steps.
+| `generate_samplesheet_table.sh` | Shell script to generate a samplesheet for your project that will work with the nf-core/ampliseq pipeline. |
+| `ncbi_taxonomy.slurm` | SLURM batch script to run a python taxonomy-processing script on BLAST output. |
+| `ncbi_pipeline.py` | This script fetches NCBI taxonomy for BLAST hits, determines each ASV’s best and consensus taxonomy, and outputs the merged, ranked results. |
 
 ---
 
@@ -59,7 +60,7 @@ git clone https://github.com/Leighrs/Metabarcoding.git
 cd ~
 ./Metabarcoding/setup_metabarcoding_directory.sh
 ```
-- Your project directory structure will look like:
+Your project directory structure will look like:
 ```bash
 Metabarcoding/
 └── <project_name>/
@@ -94,111 +95,200 @@ Logs_archive/
 ```bash
 cd ~
 PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
-sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_update_ncbi_db.sh" --delete-old --delete-old # Will delete old database. Recommended to save space in group folder. Only keep old folder if you need for something.
-sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_update_ncbi_db.sh" # Will not delete old database.
+sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_update_ncbi_db.sh" --delete-old
+# OR to keep previous database, run
+sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_update_ncbi_db.sh"
 ```
+Adding `--delete-old` will remove the previous nucleotide database. This option is recommended to save space in the group folder. Only keep previous folder if you need it for something.
+
 ## Running pipeline
-### 4. Run the nf-core/ampliseq Pipeline
-#### A. Import fastq files into $HOME/Metabarcoding/<project_name>/input/fastq/
-        - If you are using a termianal, such as MobaXterm, you can drag and drop the files.
-        - Other terminals may require you using code to transfer the files in. Online resources for this process can be found here: https://docs.hpc.ucdavis.edu/data-transfer/
-        - If you are unsure of your <project_name>, run this code:
-```bash
-$HOME/Metabarcoding/current_project_name.txt
-```   
-#### B. Generate a samplesheet file.
+### 1. Run the nf-core/ampliseq Pipeline
+> **A. Import fastq files:**
+>    - Import location: `$HOME/Metabarcoding/<project_name>/input/fastq/`
+>    - If you are using a terminal, such as MobaXterm, you can drag and drop the files.
+>    - Other terminals may require you using code to transfer the files in. Online resources for this process can be found here: https://docs.hpc.ucdavis.edu/data-transfer/
+>    - If you are unsure of your <project_name>, run this code:
+>```bash
+>$HOME/Metabarcoding/current_project_name.txt
+>```
+ 
+> **B. Generate a samplesheet file:**
+>    - Import location: `$HOME/Metabarcoding/<project_name>/input/fastq/`
+>```bash
+>cd ~
+>PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+>"$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_generate_samplesheet_table.sh" 
+>```
+>  - This script will autopopulate the PATHs for each of your fastq files, extrapolate sample names from those files, and prompt you to specify how many metabarcoding runs these samples were sequenced in.
+>  - The script's default is to extrapolate sample names from the forward reads (R1) using the first two fields of the file name separated by and underscore ("_").
+>    - For example:
+>        B12A1_02_4_S14_L001_R1_001.fastq.gz  ->  B12A1_02
+>  - If you wish to extrapolate a different part of the file name, you can edit the following code chunk from the `${PROJECT_NAME}_generate_samplesheet_table.sh` file:
+>```bash
+>PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+>nano $HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_generate_samplesheet_table.sh
+>
+>#Replace this code chunk:
+>extract_sample_id() {
+>   local filename="$1"
+>    
+>    # Remove R1/R2 etc. suffix from filename
+>    local base="${filename%_R1_001.fastq.gz}"
+>
+>    # --- DEFAULT RULE ---
+>    # Extract the first TWO underscore-separated fields
+>    # e.g. B12A1_02_4_S14 ? B12A1_02
+>    echo "$base" | awk -F'_' '{print $1"_"$2}'
+>}
+> # with code, like below, specifying new extraploation rules. For example, this code below specifies to only take the first part of file name as the sample ID. 
+> ## For example: B12A1_02_4_S14_L001_R1_001.fastq.gz  ->  B12A1
+> ### If you are unsure how to alter this code, please contact Leigh Sanders (lrsanders@ucdavis.edu)
+>extract_sample_id() {
+>    local filename="$1"
+>    
+>    # Remove R1/R2 etc. suffix from filename
+>    local base="${filename%_R1_001.fastq.gz}"
+>
+>    # Extract ONLY the first underscore-separated field
+>    echo "$base" | awk -F'_' '{print $1}'
+>}
+>```
 
-```bash
-cd ~
-PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
-"$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_generate_samplesheet_table.sh" 
-```
-- The script will autopopulate the PATHs for each of your fastq files, extrapolate sample names from those files, and prompt you to specify how many metabarcoding runs these samples were sequenced in.
-- The script's default is to extrapolate sample names from the forward reads (R1) using the first two fields of the file name separated by and underscore ("_").
-  - For example:
-      B12A1_02_4_S14_L001_R1_001.fastq.gz  ->  B12A1_02
-  - If you wish to extrapolate a different part of the file name, you can edit the following code chunk from the ${PROJECT_NAME}_generate_samplesheet_table.sh file:
+> **C. Upload Metadata:**
+>    - Import location: `$HOME/Metabarcoding/<project_name>/input/fastq/`
+>    - Rules:
+>      - Needs to be a tab-deliminated text file or a .tsv file.
+>      - First column is labeled "ID" for your sample IDs. These IDs match the sample IDs in your samplesheet you just made.
+>      - If you wish to use a decontamination protocol later, add a column called "Control_Assign" to assign which controls are paired with which samples.
+>        - For example:
+>          
+>| sampleID | Control_Assign | Sample_or_Control | Notes |
+>|----------|----------------|-------------------|-------|
+>| BROA1 | 1,2,4 | Sample | ← Controls 1,2,4 need to be subtracted |
+>| FLYA2 | 2,3,4 | Sample | ← Controls 2,3,4 need to be subtracted |
+>| BROAB | 1     | Control | ← Control ID = 1 |
+>| FLYAB | 3     | Control | ← Control ID = 3 |
+>| EXT1  | 2     | Control | ← Control ID = 2 |
+>| PCR1  | 4     | Control | ← Control ID = 4 |
+>
+> - Add any other columns for metadata you wish to attach to these samples for downstream analyses.
+> - Drag and drop metadata file in, or use the directions here: https://docs.hpc.ucdavis.edu/data-transfer/
 
-```bash
-#Replace this code chunk (lines 47-57) from the ${PROJECT_NAME}_generate_samplesheet_table.sh file:
-PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
-nano $HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_generate_samplesheet_table.sh
+> **D. Upload a Reference Sequence Database [Optional, but highly recommended]:**
+>    - Import location: `$HOME/Metabarcoding/<project_name>/input/fastq/`
+>    - Rules:
+>      - There is an example RSD .txt file found in your project input folder.
+>      - Needs to be a tab-deliminated text file or a .tsv file.
+>   - Drag and drop RSD file in, or use the directions here: https://docs.hpc.ucdavis.edu/data-transfer/  
 
-extract_sample_id() {
-    local filename="$1"
-    
-    # Remove R1/R2 etc. suffix from filename
-    local base="${filename%_R1_001.fastq.gz}"
+> **E. Edit run parameters:**
+> 
+> Open the parameter file for the nf-core/ampliseq pipeline:
+>```bash
+>PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+>nano $HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_nf-params.json
+>```
+>  - The `${PROJECT_NAME}_nf-params.json` file contains all the parameters needed to run the `nf-core/ampliseq` workflow for your specific project. 
+>  - Edit this file so that the input paths, primer sequences, and filtering settings match your dataset.
+>  - Notes:
+>    - All paths *must be absolute (full paths)*, not environment variables or relative paths.
+>    - If you do want to set a parameter (e.g., `trunclenf`), use `null` or remove parameter line entirely. Leaving it blank will cause a JSON parsing error.
+>    - Booleans must be written without quotes:
+>        - `true` / `false` ← correct!
+>        - `"true"` / `"false"` ← invalid!
+>    - Primer sequences must include only the *target-specific* portion, not the adapters.
+>      
+>  - **Quick Start: Parameters You *Must* Edit:**
+>    - *Most projects only need to adjust the following parameters:*
+>        - **Input Files**
+>          - `input`: Path to sample sheet (`*.txt`).
+>          - `metadata`: Path to metadata (`*.txt`).
+>        - **Primer Sequences**
+>          - `FW_primer`: Forward primer sequence (target-specific region only).
+>          - `RV_primer`: Reverse primer sequence (target-specific region only).
+>              - **Do not** include Illumina tails, adapters, barcodes, or indexes.
+>        - **Output Directory**
+>          - `outdir`: Output directory in project folder.
+>        - **Optional: Read Trimming**
+>          -  Use only if quality profiles suggest specific truncation lengths.
+>          - `trunclenf`: Truncate forward reads at fixed length (or `null`).
+>          - `trunclenr`: Truncate reverse reads at fixed length (or `null`).
+>            -  If unsure, leave as **`null`**.
+>  - **Other Parameters (for more advanced users)**
+>    - Below are explanations for *all other parameters included in your JSON file*.
+>      - **Primer Removal & Cutadapt Settings**
+>        - `illumina_pe_its`: Whether to treat reads as ITS paired-end Illumina amplicons.
+>        - `cutadapt_min_overlap`: Minimum primer/read overlap required for trimming.
+>        - `cutadapt_max_error_rate`: Allowed mismatch rate during primer matching.
+>        - `double_primer`: Trim primers twice (commonly used for ITS workflows).
+>        - `ignore_failed_trimming`: Retain reads even if primer trimming fails.
+>      - **Filtering & DADA2 Settings**
+>        - `min_read_counts`: Minimum number of reads required per sample.
+>        - `ignore_empty_input_files`: Skip empty FASTQ files rather than failing.
+>        - `seed`: Random seed for reproducibility.
+>        - `trunq`: Quality trimming threshold at the 3′ end.
+>        - `trunclenf`, `trunclenr`: Truncate reads to fixed lengths (or set to `null` to disable).
+>        - `trunc_qmin`: Minimum per-base quality threshold.
+>        - `trunc_rmin`: Fraction of reads required to retain a truncation.
+>        - `max_ee`: Maximum expected errors allowed per read.
+>        - `min_len`: Minimum read length allowed after filtering.
+>        - `ignore_failed_filtering`: Keep samples even if filtering is insufficient.
+>      - **ASV Inference (DADA2)**
+>        - `sample_inference`: Choose `"independent"` or `"pooled"`.
+>        - `mergepairs_strategy`: Strategy to merge paired-end reads (`"merge"` or `"consensus"`).
+>      - **Consensus merger parameters:** *These control alignment scoring in consensus merging.*
+>        - `mergepairs_consensus_match`
+>        - `mergepairs_consensus_mismatch`
+>        - `mergepairs_consensus_gap`
+>        - `mergepairs_consensus_mino`
+>        - `mergepairs_consensus_percentile_cutoff`
+>      - **ASV Length Filtering**
+>        - `min_len_asv`, `max_len_asv`: Set allowable ASV lengths (e.g., 150–190 bp for 12S minibarcodes).
+>      - **Codon-Based Filtering**
+>        - `filter_codons`: Enable or disable codon frame filtering.
+>        - `stop_codons`: Stops used to detect unrealistic coding sequences.
+>      - **Taxonomy Assignment**
+>        - `dada_ref_taxonomy`: DADA2 classifier reference database.
+>        - `dada_ref_tax_custom`: Path to a custom taxonomy file.
+>        - `dada_ref_tax_custom_sp`: Optional species-level taxonomy.
+>        - `dada_taxonomy_rc`: Reverse complement handling.
+>        - `dada_min_boot`: Minimum bootstrap threshold (confidence cutoff).
+>        - `dada_assign_taxlevels`: Comma-separated taxonomic levels to assign.
+>        - `exclude_taxa`: Taxa to be removed.
+>      - **ITS-Specific Options**
+>        - `cut_its`: ITS extraction tool (or `"none"` to disable).
+>        - `its_partial`: Allow partial ITS extraction (or `null`).
+>      - **QIIME2 & Diversity Analysis**
+>        - `min_frequency`: Feature count threshold.
+>        - `min_samples`: Minimum number of samples required for a feature.
+>        - `metadata_category`: Metadata ID used for grouping (optional).
+>        - `metadata_category_barplot`: Column used for QIIME2 barplots.
+>        - `picrust`: Enable predicted functional profiles.
+>        - `diversity_rarefaction_depth`: Depth used for rarefaction.
+>        - `tax_agglom_min`, `tax_agglom_max`: Taxonomic levels to aggregate.
+>      - **Skip Flags (Workflow Control)**
+>        - `skip_fastqc`: Skip FastQC.
+>        - `skip_cutadapt`: Skip primer trimming.
+>        - `skip_dada_quality`: Skip DADA2 quality plots.
+>        - `skip_qiime`: Skip all QIIME2 steps.
+>        - `skip_taxonomy`: Skip taxonomy assignment.
+>        - `skip_dada_taxonomy`: Skip DADA2 taxonomy.
+>        - `skip_dada_addspecies`: Skip species refinement.
+>        - `skip_barplot`: Skip QIIME barplots.
+>        - `skip_abundance_tables`: Skip feature tables.
+>        - `skip_alpha_rarefaction`: Skip rarefaction analyses.
+>        - `skip_diversity_indices`: Skip diversity metrics.
+>        - `skip_phyloseq`: Skip phyloseq output.
+>        - `skip_tse`: Skip TSE output.
+>        - `skip_report`: Skip MultiQC report.
 
-    # --- DEFAULT RULE ---
-    # Extract the first TWO underscore-separated fields
-    # e.g. B12A1_02_4_S14 ? B12A1_02
-    echo "$base" | awk -F'_' '{print $1"_"$2}'
-}
+> **F. Run pipeline:**
+>```bash
+>cd ~
+>PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+>sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_run_nf-core_ampliseq.slurm"
+>```
 
-# with code specifying new extraploation rules. For example, this code specifies to only take the first part of file name as the sample ID. 
-## For example: B12A1_02_4_S14_L001_R1_001.fastq.gz  ->  B12A1
-### If you are unsure how to alter this code, please contact Leigh Sanders (lrsanders@ucdavis.edu)
-
-
-extract_sample_id() {
-    local filename="$1"
-    
-    # Remove R1/R2 etc. suffix from filename
-    local base="${filename%_R1_001.fastq.gz}"
-
-    # Extract ONLY the first underscore-separated field
-    echo "$base" | awk -F'_' '{print $1}'
-}
-
-```
-
-#### C. Upload Metadata to $HOME/Metabarcoding/<project_name>/input/
-- There is an example metadata .txt file found in your project input folder.
-- Rules:
-  - Needs to be a tab-deliminated text file or a .tsv file.
-  - First column is labeled "ID" for your sample IDs. These IDs match the sample IDs in your samplesheet you just made.
-  - If you wish to use a decontamination protocol later, add a column called "Control_Assign" to assign which controls are paired with which samples.
-    - For example:
-                        sampleID         Control_Assign       Sample_or_Control
-                          BROA1               1,2,4               Sample          <- Controls 1,2,4 need to be subtracted from this sample
-                          FLYA2               2,3,4               Sample          <- Controls 2,3,4 need to be subtracted from this sample
-                          BROAB               1                   Control         <- The ID of this control is 1
-                          FLYAB               3                   Control         <- The ID of this control is 2
-                          EXT1                2                   Control         <- The ID of this control is 3
-                          PCR1                4                   Control         <- The ID of this control is 4
-  - Add any other columns for metadata you wish to attach to these samples for downstream analyses.
-- Drag and drop metadata file in, or use the directions here: https://docs.hpc.ucdavis.edu/data-transfer/
-
-#### D. Upload a Reference Sequence Database to $HOME/Metabarcoding/<project_name>/input/ [Optional, but highly recommended]
-- Rules:
-- There is an example RSD .txt file found in your project input folder.
-  - Needs to be a tab-deliminated text file or a .tsv file.
-- Drag and drop RSD file in, or use the directions here: https://docs.hpc.ucdavis.edu/data-transfer/  
-
-#### D. Edit run parameters:
-```bash
-PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
-nano $HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_nf-params.json
-```
-- The `${PROJECT_NAME}_nf-params.json` file contains all the parameters needed to run the `nf-core/ampliseq` workflow for your specific project. 
-- Edit this file so that the input paths, primer sequences, and filtering settings match your dataset.
-- Notes:
-    - All paths *must be absolute (full paths), not environment variables or relative paths.
-    - If you do want to set a parameter (e.g., `trunclenf`), use `null`. Leaving it blank will cause a JSON parsing error.
-    - Booleans must be written without quotes:
-      - `true` / `false` correct!
-      - `"true"` / `"false"` invalid!
-    - Primer sequences must include only the *target-specific* portion, not the adapters.
-
-
-
-#### E. Run pipeline:
-```bash
-cd ~
-PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
-sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_run_nf-core_ampliseq.slurm"
-```
 ### 5. BLAST Unknown ASVs (Optional)
 ```bash
 sbatch blast_asv.slurm
