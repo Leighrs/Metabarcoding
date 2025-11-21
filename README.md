@@ -109,7 +109,7 @@ Adding `--delete-old` will remove the previous nucleotide database. This option 
 >    - Other terminals may require you using code to transfer the files in. Online resources for this process can be found here: https://docs.hpc.ucdavis.edu/data-transfer/
 >    - If you are unsure of your <project_name>, run this code:
 >```bash
->$HOME/Metabarcoding/current_project_name.txt
+>cat $HOME/Metabarcoding/current_project_name.txt
 >```
  
 > **B. Generate a samplesheet file:**
