@@ -6,76 +6,22 @@
     "metadata": "PATH/to/your/metadata.txt",
     "outdir": "PATH/to/output/directory",
     
-    "illumina_pe_its": false,
-    
-    "min_read_counts": 1,
-    "ignore_empty_input_files": true,
-    
-    "cutadapt_min_overlap": 3,
-    "cutadapt_max_error_rate": 0.1,
-    "double_primer": false,
-    "ignore_failed_trimming": true,
-
     "seed": 13,
-    "trunq": 2,
-
-    "trunclenf": null,
-    "trunclenr": null,
-    "trunc_qmin": 25,
-    "trunc_rmin": 0.75,
-    "max_ee": 2,
-    "min_len": 50,
+    
+    "ignore_failed_trimming": true,
     "ignore_failed_filtering": true,
-    
-    "sample_inference": "independent",
-    "mergepairs_strategy": "merge",
-    "mergepairs_consensus_match": 1,
-    "mergepairs_consensus_mismatch": -2,
-    "mergepairs_consensus_gap": -4,
-    "mergepairs_consensus_mino": 12,
-    "mergepairs_consensus_percentile_cutoff": 0.001,
 
-    "min_len_asv": 150,
-    "max_len_asv": 190,
-    
-    "filter_codons": false,
-    "stop_codons": "TAA,TAG",
-
-    "dada_ref_taxonomy": null,
+    "dada_ref_taxonomy": false,
+    "skip_dada_addspecies": true,
     "dada_ref_tax_custom": "PATH/to/reference_taxonomy.txt",
-    "dada_ref_tax_custom_sp": null,
-    "dada_taxonomy_rc": false,
     "dada_min_boot": 80,
     "dada_assign_taxlevels": "Kingdom,Phylum,Class,Order,Family,Genus,Species,Common",
     
     "exclude_taxa": "none",
 
-    "cut_its": "none",
-    "its_partial": null,
-
-    "min_frequency": 1,
-    "min_samples": 1,
-    
-    "metadata_category": null,
-    "metadata_category_barplot": null,
-    
-    "picrust": false,
-    "diversity_rarefaction_depth": 500,
-    "tax_agglom_min": 2,
-    "tax_agglom_max": 6,
-
-    "skip_fastqc": false,
-    "skip_cutadapt": false,
-    "skip_dada_quality": false,
-    "skip_qiime": false,
-    "skip_taxonomy": false,
-    "skip_dada_taxonomy": false,
+    "skip_qiime": true,
+    "skip_barrnap": true,
     "skip_dada_addspecies": true,
-    "skip_barplot": false,
-    "skip_abundance_tables": false,
-    "skip_alpha_rarefaction": false,
-    "skip_diversity_indices": false,
-    "skip_phyloseq": false,
-    "skip_tse": false,
-    "skip_report": false
+    "skip_tse": true
 }
+
