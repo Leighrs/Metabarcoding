@@ -60,7 +60,7 @@ fi
 export PROJECT_NAME
 export BLAST_DIR
 
-export INPUT_FILE="$BLAST_DIR/${PROJECT_NAME}_blast_results.tsv"
+export INPUT_FILE="$BLAST_DIR/${PROJECT_NAME}_raw_blast_results.tsv"
 export FASTA_FILE="$HOME/Metabarcoding/$PROJECT_NAME/output/dada2/ASV_seqs.fasta"
 
 export OUTPUT_FILE="$BLAST_DIR/${PROJECT_NAME}_ncbi_taxonomy_results.tsv"
@@ -88,7 +88,7 @@ fi
 # ------------------------------------------------------------
 # Run Python inside container
 # ------------------------------------------------------------
-PYTHON_SCRIPT="$HOME/Metabarcoding/ncbi_pipeline.py"
+PYTHON_SCRIPT="$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_ncbi_pipeline.py"
 
 if [[ ! -f "$PYTHON_SCRIPT" ]]; then
     echo "ERROR: Python script not found: $PYTHON_SCRIPT"

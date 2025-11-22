@@ -22,7 +22,7 @@
     "trunclenf": null,
     "trunclenr": null,
     "trunc_qmin": 25,
-    "trunc_rmin" 0.75,
+    "trunc_rmin": 0.75,
     "max_ee": 2,
     "min_len": 50,
     "ignore_failed_filtering": true,

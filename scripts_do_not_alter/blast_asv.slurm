@@ -9,23 +9,42 @@
 #SBATCH --output=Metabarcoding/Logs_archive/blast_asv_%j.out
 #SBATCH --error=Metabarcoding/Logs_archive/blast_asv_%j.err
 
+
+###############################################
+# DO NOT EDIT ANYTHING ELSE unless you know what you are doing. :)
+# The script automatically finds the newest NCBI database folder and pulls in scripths.
+###############################################
+
 # -----------------------------
 # Make sure the log and container directories exists.
 # -----------------------------
 mkdir -p "$HOME/Metabarcoding/Logs_archive"
 mkdir -p "$HOME/Metabarcoding/Containers"
 
-###############################################
-# NOTES — ONLY EDIT THE FOLLOWING FIELDS:
-#
-# 1. QUERY   ? Path to your input FASTA file
-# 2. OUTFILE ? Path/file name for BLAST results
-# 3. job-name (optional) ? #SBATCH --job-name=
-# 4. resource requests (optional) ? cpus, mem, time
-#
-# DO NOT EDIT ANYTHING ELSE unless you know what you are doing. :)
-# The script automatically finds the newest NCBI database folder.
-###############################################
+# ------------------------------------------------------------
+# Read project name
+# ------------------------------------------------------------
+PROJECT_FILE="$HOME/Metabarcoding/current_project_name.txt"
+
+if [[ ! -f "$PROJECT_FILE" ]]; then
+    echo "ERROR: Project name file does not exist: $PROJECT_FILE"
+    exit 1
+fi
+
+PROJECT_NAME=$(cat "$PROJECT_FILE")
+
+if [[ -z "$PROJECT_NAME" ]]; then
+    echo "ERROR: Project name file is empty."
+    exit 1
+fi
+
+echo "Detected project: $PROJECT_NAME"
+
+# -----------------------------
+# Create a directory for BLAST output
+# -----------------------------
+mkdir -p "$HOME/Metabarcoding/$PROJECT_NAME/output/BLAST"
+
 
 # -------------------------------
 # 1. Ensure BLAST container exists
@@ -71,10 +90,14 @@ DB="${LATEST_DB_DIR}/core_nt"
 echo "Using database: $DB"
 
 # -------------------------------
-# 4. Set user-editable paths
+# 4. Set query and outfile paths
 # -------------------------------
-QUERY="/home/leighrs/ASV_seqs_AT.fasta"
-OUTFILE="/home/leighrs/blast_results_AT_v2.tsv"
+PROJECT_DIR="$HOME/Metabarcoding/$PROJECT_NAME"
+BLAST_DIR="$PROJECT_DIR/output/BLAST"
+
+
+QUERY="$PROJECT_DIR/output/dada2/ASV_seqs.fasta"
+OUTFILE="$BLAST_DIR/${PROJECT_NAME}_raw_blast_results.tsv"
 
 # -------------------------------
 # 5. Run BLAST using the group database
