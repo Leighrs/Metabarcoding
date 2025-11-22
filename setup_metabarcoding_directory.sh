@@ -33,10 +33,10 @@ while true; do
     else
         echo -e "${RED}Invalid input. Please type 'yes' or 'no'.${RESET}"
     fi
+
 done
 
 echo "Custom RSD selection: $USE_RSD" >> "$LOGFILE"
-
 
 # ---------------------------
 #  CREATE DIRECTORIES
@@ -49,7 +49,6 @@ mkdir -p "Metabarcoding/$PROJECT/output/intermediates_logs_cache/singularity"
 
 echo -e "${GREEN}Directory structure created.${RESET}"
 echo "Directories created" >> "$LOGFILE"
-
 
 # ---------------------------
 #  CREATE EXAMPLE FILES
@@ -68,16 +67,21 @@ B12A2_02	A2	1,2,4	Sample	Browns_Island	February	2023
 B12A3_02	A3	1,2,4	Sample	Browns_Island	February	2023
 EOT
 
+if [[ "$USE_RSD" == "yes" ]]; then
 cat <<EOT > "Metabarcoding/$PROJECT/input/Example_RSD.txt"
 >Animalia;Chordata;Actinopterygii;Cypriniformes;Catostomidae;Catostomus;Catostomus occidentalis;
 CACCGCGGTTATACGAGAGGCCCTAGTTGATA...
 EOT
 
+chmod +x "Metabarcoding/$PROJECT/input/Example_RSD.txt"
+echo -e "${GREEN}Example RSD file created.${RESET}"
+echo "Example RSD file created" >> "$LOGFILE"
+fi
+
 chmod +x "Metabarcoding/$PROJECT/input/"*.txt
 
 echo -e "${GREEN}Example input files created.${RESET}"
 echo "Example files created" >> "$LOGFILE"
-
 
 # ---------------------------
 #  COPY CORRECT nf-params.json
@@ -106,7 +110,6 @@ else
     fi
 fi
 
-
 # ---------------------------
 #  COPY OTHER PIPELINE SCRIPTS
 # ---------------------------
@@ -133,7 +136,6 @@ for SRCFILE in "${!FILES[@]}"; do
     fi
 done
 
-
 # ---------------------------
 #  COPY R CLEANUP SCRIPTS
 # ---------------------------
@@ -156,13 +158,11 @@ else
     echo "MISSING: R_ASV_cleanup_scripts" >> "$LOGFILE"
 fi
 
-
 # ---------------------------
 #  SAVE CURRENT PROJECT NAME
 # ---------------------------
 echo "$PROJECT" > "$HOME/Metabarcoding/current_project_name.txt"
 echo "Project name saved." >> "$LOGFILE"
-
 
 # ---------------------------
 #  PRINT COLORIZED DIRECTORY TREE
