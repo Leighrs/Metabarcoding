@@ -8,20 +8,27 @@ Welcome to the **Metabarcoding** repository for the **Genomic Variation Laborato
 This repository helps lab members quickly set up a standardized directory structure on the HPC for running metabarcoding analyses using the **nf-core/ampliseq pipeline**.
 
 ---
-## Table of Contents
+<details>
+<summary><h2>Table of Contents</h2></summary>
+  
+<br>
 
 - [Repository Overview](#repository-overview)
-- [Current Files](#current-files)
+- [Current Repository Files](#current-repository-files)
 - [Getting Started](#getting-started)
-  - [1. Clone the Repository](#1-clone-the-repository)
-  - [2. Set Up Your Project Directory on-hpc](#2-set-up-your-project-directory-on-hpc)
-  - [3. Update the NCBI Database (Optional)](#3-update-the-ncbi-database-optional)
+  - [1. Clone the Repository](1.-clone-the-repository)
+  - [2. Set Up Your Project Directory on-hpc](2.-set-up-your-project-directory-on-hpc)
+  - [3. Update the NCBI Database (Optional)](3.-update-the-ncbi-database-optional)
 - [Running Pipeline](#running-pipeline)
-  - [4. Run the nf-coreampliseq Pipeline](#4-run-the-nf-coreampliseq-pipeline)
-  - [5. BLAST Unknown ASVs (Optional)](#5-blast-unknown-asvs-optional)
-  - [6. Decontaminate ASVs and apply read thresholds (Optional)](#6-decontaminate-asvs-and-apply-read-thresholds)
+  - [4. Run the nf-coreampliseq Pipeline](4.-run-the-nf-coreampliseq-pipeline)
+  - [5. BLAST Unknown ASVs (Optional)](5.-blast-unknown-asvs-optional)
+  - [6. Decontaminate ASVs and apply read thresholds (Optional)](6.-decontaminate-asvs-and-apply-read-thresholds)
+</details>
 
-## Repository Overview
+<details>
+<summary><h2>Repository Overview</h2></summary>
+  
+<br>
 
 This repository contains scripts and configuration files to:
 
@@ -29,14 +36,19 @@ This repository contains scripts and configuration files to:
 2. Provide example files (samplesheets, metadata, and RSD sequences) for testing and reference.
 3. Run the nf-core/ampliseq pipeline on your data.
 4. Perform BLAST searches for unknown ASVs.
-5. Update and download the NCBI core nucleotide database.
+5. Update and download the NCBI core nucleotide database (if needed).
 6. Clean and process ASV tables using downstream R scripts.
+</details>
 
-### Current Files
+<details>
+<summary><h2>Current Repository Files</h2></summary>
+  
+<br>
 
 | File | Description |
 |------|-------------|
-| `nf-params.json` | Parameter file for the nf-core/ampliseq pipeline. Customize for your project. |
+| `nf-params_no_RSD.json` | Contents of this parameter file for the nf-core/ampliseq pipeline will be uploaded to project directory if user specifies no RSD. Customize for your project. |
+| `nf-params_with_RSD.json` | Contents of this arameter file for the nf-core/ampliseq pipeline will be uploaded to project directory if user specifies the use of an RSD. Customize for your project. |
 | `setup_metabarcoding_directory.sh` | Shell script to create your project directory with example samplesheets, metadata, and RSD files. |
 | `update_blast_db.slurm` | SLURM batch script to download/update the NCBI core nucleotide database. |
 | `blast_asv.slurm` | SLURM batch script to BLAST unknown ASVs. |
@@ -45,61 +57,97 @@ This repository contains scripts and configuration files to:
 | `generate_samplesheet_table.sh` | Shell script to generate a samplesheet for your project that will work with the nf-core/ampliseq pipeline. |
 | `ncbi_taxonomy.slurm` | SLURM batch script to run a python taxonomy-processing script on BLAST output. |
 | `ncbi_pipeline.py` | This script fetches NCBI taxonomy for BLAST hits, determines each ASV’s best and consensus taxonomy, and outputs the merged, ranked results. |
+</details>
 
 ---
 
-## Getting Started
+<details>
+<summary><h2>Getting Started</h2></summary>
+  
+<br>
 
-### 1. Clone the Repository
+<details>
+<summary><strong>1. Clone the Repository</strong></summary>
 
-```bash
-git clone https://github.com/Leighrs/Metabarcoding.git
-```
-### 2. Set Up Your Project Directory on HPC
-```bash
-cd ~
-./Metabarcoding/setup_metabarcoding_directory.sh
-```
-Your project directory structure will look like:
-```bash
-Metabarcoding/
-└── <project_name>/
-    ├── input/
-    │   ├── fastq/
-    │   ├── Example_samplesheet.txt
-    │   ├── Example_metadata.txt
-    │   └── Example_RSD.txt
-    ├── output/
-    │   └── intermediates_logs_cache/
-    │       └── singularity/
-    └── scripts/ # If you need alter any scripts, edit these. I recommend leaving the originals alone in case you need to revert back to them.
-        ├── <project_name>_ncbi_taxonomy.slurm
-        ├── <project_name>_nf-params.json
-        ├── <project_name>_ncbi_pipeline.py
-        ├── <project_name>_blast_asv.slurm
-        ├── <project_name>_generate_samplesheet_table.sh
-        ├── <project_name>_run_nf-core_ampliseq.slurm
-        ├── <project_name>_update_blast_db.slurm
-        └── <project_name>_R_ASV_cleanup_scripts/
-            ├── <project_name>_1_Data_Analyses_decontam_removal_251106.R
-            ├── <project_name>_2_Data_Analyses_presence_absence_after_decontam_removal_251106.R
-            ├── <project_name>_3_Data_Analyses_sample_threshold_251106.R
-            ├── <project_name>_4_Data_Analyses_presence_absence_after_sample_threshold_251106.R
-            ├── <project_name>_5_Data_Analyses_total_threshold_251106.R
-            ├── <project_name>_6_Data_Analyses_presence_absence_after_total_threshold_251106.R
-            └── <project_name>_GVL_metabarcoding_cleanup_main.R
-current_project_name.txt # Do not edit this file. Other SLURM scripts need access to it.
-Logs_archive/
-```
-### 3. Update the NCBI Database (Optional)
-```bash
-cd ~
-PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
-sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_update_ncbi_db.sh" --delete-old
-# OR to keep previous database, run
-sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_update_ncbi_db.sh"
-```
-Adding `--delete-old` will remove the previous nucleotide database. This option is recommended to save space in the group folder. Only keep previous folder if you need it for something.
+<br>
+
+>Ensure you are in your home directory and clone in the **Metabarcoding** repository from Github.
+>
+>```bash
+>cd ~
+>git clone https://github.com/Leighrs/Metabarcoding.git
+>```
+
+</details>
+
+<details>
+<summary><strong>2. Set Up Your Project Directory on HPC</strong></summary>
+
+<br>
+
+>Ensure you are in your home directory and execute a shell script that will set up a project directory for you.
+>
+>```bash
+>cd ~
+>./Metabarcoding/setup_metabarcoding_directory.sh
+>```
+>When prompted, type ${\color{green}yes}$ if you are using a custom reference sequence database (RSD) or ${\color{red}no}$ if you are not using a custom RSD.
+>
+><details>
+><summary><strong>📁 Your project directory structure will look like this (click to expand).</strong></summary>
+>
+><br>
+>
+>```bash
+>Metabarcoding/
+>└── <project_name>/
+>    ├── input/
+>    │   ├── fastq/
+>    │   ├── Example_samplesheet.txt
+>    │   ├── Example_metadata.txt
+>    │   └── Example_RSD.txt # Will not import if you answer "no" to having a custom RSD.
+>    ├── output/
+>    │   └── intermediates_logs_cache/
+>    │       └── singularity/
+>    └── scripts/ # If you need alter any scripts, edit these. I recommend leaving the originals alone in case you need to revert back to them.
+>        ├── <project_name>_ncbi_taxonomy.slurm
+>        ├── <project_name>_nf-params.json
+>        ├── <project_name>_ncbi_pipeline.py
+>        ├── <project_name>_blast_asv.slurm
+>        ├── <project_name>_generate_samplesheet_table.sh
+>        ├── <project_name>_run_nf-core_ampliseq.slurm
+>        ├── <project_name>_update_blast_db.slurm
+>        └── <project_name>_R_ASV_cleanup_scripts/
+>            ├── <project_name>_1_Data_Analyses_decontam_removal_251106.R
+>            ├── <project_name>_2_Data_Analyses_presence_absence_after_decontam_removal_251106.R
+>            ├── <project_name>_3_Data_Analyses_sample_threshold_251106.R
+>            ├── <project_name>_4_Data_Analyses_presence_absence_after_sample_threshold_251106.R
+>            ├── <project_name>_5_Data_Analyses_total_threshold_251106.R
+>            ├── <project_name>_6_Data_Analyses_presence_absence_after_total_threshold_251106.R
+>            └── <project_name>_GVL_metabarcoding_cleanup_main.R
+>current_project_name.txt # Do not edit this file. Other SLURM scripts need access to it.
+>Logs_archive/
+>```
+></details>
+</details>
+
+<details>
+<summary><strong>3. Update the NCBI Database (Optional)</strong></summary>
+
+<br>
+
+>```bash
+>cd ~
+>PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+>sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_update_ncbi_db.sh" --delete-old
+>```
+>This script will generate a new NCBI database with today's current date in its file name.
+>
+>Adding `--delete-old` will remove the previous nucleotide database. This option is recommended to save space in the group folder.
+>
+>If you wish to keep the old database for some purpose, omit `--delete-old`.
+</details>
+</details>
 
 ## Running pipeline
 ### 4. Run the nf-core/ampliseq Pipeline
