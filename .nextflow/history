@@ -1,1 +1,0 @@
-2025-11-20 16:14:44	-	festering_ptolemy	-	d8dd15d5e7760752691357c177bed2e35a2e413f	9d21834a-1011-457d-9c75-b4c2fddf4db8	nextflow run nf-core/ampliseq -r 2.15.0 -profile apptainer -work-dir /home/leighrs/Metabarcoding/DSP_12S/output/intermediates_logs_cache -params-file /home/leighrs/Metabarcoding/DSP_12S/DSP_12S_nf-params.json -c /dev/fd/63
