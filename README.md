@@ -22,8 +22,11 @@ This repository helps lab members quickly set up a standardized directory struct
 - [Running Pipeline](#running-pipeline)
   - [4. Run the nf-coreampliseq Pipeline](4.-run-the-nf-coreampliseq-pipeline)
   - [5. BLAST Unknown ASVs (Optional)](5.-blast-unknown-asvs-optional)
-  - [6. Decontaminate ASVs and apply read thresholds (Optional)](6.-decontaminate-asvs-and-apply-read-thresholds)
+  - [6. Clean up NCBI BLAST Taxonomy Information](6.-clean-up-ncbi-blast-taxonomy-information)
+  - [7. Decontaminate ASVs and apply read thresholds (Optional)](6.-decontaminate-asvs-and-apply-read-thresholds)
 </details>
+
+---
 
 <details>
 <summary><h2>Repository Overview</h2></summary>
@@ -39,6 +42,8 @@ This repository contains scripts and configuration files to:
 5. Update and download the NCBI core nucleotide database (if needed).
 6. Clean and process ASV tables using downstream R scripts.
 </details>
+
+---
 
 <details>
 <summary><h2>Current Repository Files</h2></summary>
@@ -149,34 +154,72 @@ This repository contains scripts and configuration files to:
 </details>
 </details>
 
-## Running pipeline
-### 4. Run the nf-core/ampliseq Pipeline
-> **A. Import fastq files:**
->    - Import location: `$HOME/Metabarcoding/<project_name>/input/fastq/`
->    - If you are using a terminal, such as MobaXterm, you can drag and drop the files.
->    - Other terminals may require you using code to transfer the files in. Online resources for this process can be found here: https://docs.hpc.ucdavis.edu/data-transfer/
->    - If you are unsure of your <project_name>, run this code:
+---
+
+<details>
+<summary><h2>Run the nf-core/ampliseq Pipeline</h2></summary>
+  
+<br>
+
+<details>
+<summary><strong>4. Create and import required files to run the pipeline.</strong></summary>
+
+<br>
+
+<details>
+<summary><strong>A. Import fastq files:</strong></summary>
+
+<br>
+
+> Import location: `$HOME/Metabarcoding/<project_name>/input/fastq/`
+> 
+> If you are using a terminal, such as MobaXterm, you can drag and drop the files.
+> 
+> Other terminals may require you using code to transfer the files in. Online resources for this process can be found here: https://docs.hpc.ucdavis.edu/data-transfer/
+> 
+> If you are unsure of your `<project_name>`, run this code to print it to the terminal:
+> 
 >```bash
 >cat $HOME/Metabarcoding/current_project_name.txt
 >```
+
+</details>
+
+<details>
+<summary><strong>B. Generate a samplesheet file:</strong></summary>
+
+<br>
  
-> **B. Generate a samplesheet file:**
->    - Import location: `$HOME/Metabarcoding/<project_name>/input/fastq/`
+> Import location: `$HOME/Metabarcoding/<project_name>/input/fastq/`
+>
+>Ensure you are in your home directory and execute a shell script to generate a samplesheet.
+>
+> The samplesheet is required for the pipeline to locate you fastq files.
 >```bash
 >cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 >"$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_generate_samplesheet_table.sh" 
 >```
->  - This script will autopopulate the PATHs for each of your fastq files, extrapolate sample names from those files, and prompt you to specify how many metabarcoding runs these samples were sequenced in.
->  - The script's default is to extrapolate sample names from the forward reads (R1) using the first two fields of the file name separated by and underscore ("_").
->    - For example:
->        B12A1_02_4_S14_L001_R1_001.fastq.gz  ->  B12A1_02
->  - If you wish to extrapolate a different part of the file name, you can edit the following code chunk from the `${PROJECT_NAME}_generate_samplesheet_table.sh` file:
+>
+> This script will autopopulate the PATHs for each of your fastq files, extrapolate sample names from those files, and prompt you to specify how many metabarcoding runs these samples were sequenced in.
+> 
+> The script's default is to extrapolate sample names from the forward reads (R1) using the first two fields of the `_R1_001.fastq.gz` file names separated by and underscore ("_").
+> 
+> For example:
+> 
+>        File name: B12A1_02_4_S14_L001_R1_001.fastq.gz  ->  Sample ID: B12A1_02
+> 
+> If you wish to extrapolate a different part of the file name or if your fastq files have a different file name ending than `_R1_001.fastq.gz`, you can edit the following code chunk from the `${PROJECT_NAME}_generate_samplesheet_table.sh` file:
+>
+> First, open sample sheet generation shell script:
 >```bash
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 >nano $HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_generate_samplesheet_table.sh
+>```
 >
->#Replace this code chunk:
+> Second, locate the following code chunk in the script:
+> 
+> ```bash
 >extract_sample_id() {
 >   local filename="$1"
 >    
@@ -188,27 +231,44 @@ This repository contains scripts and configuration files to:
 >    # e.g. B12A1_02_4_S14 ? B12A1_02
 >    echo "$base" | awk -F'_' '{print $1"_"$2}'
 >}
-> # with code, like below, specifying new extraploation rules. For example, this code below specifies to only take the first part of file name as the sample ID. 
-> ## For example: B12A1_02_4_S14_L001_R1_001.fastq.gz  ->  B12A1
-> ### If you are unsure how to alter this code, please contact Leigh Sanders (lrsanders@ucdavis.edu)
->extract_sample_id() {
->    local filename="$1"
->    
->    # Remove R1/R2 etc. suffix from filename
->    local base="${filename%_R1_001.fastq.gz}"
+> ```
 >
+> Third, if you have a different forward fastq file ending than `_R1_001.fasq.gz`, edit this field with the appropiate ending:
+>
+> ```bash
+> local base="${filename%_R1_001.fastq.gz}"
+> ```
+>
+> Lastly, if you need to extrapolate a different part of the file name for your sample IDs, edit this field:
+> ```bash
 >    # Extract ONLY the first underscore-separated field
 >    echo "$base" | awk -F'_' '{print $1}'
->}
 >```
+> When using awk, the input line is automatically split into fields based on a delimiter (also called the field separator). In this case the delimiter is set to be an underscore.
+>
+> Fields are numbered from left to right in the file name, and each field is referred to using a dollar sign ($) plus its number.
+>
+> Examples:
+> `echo "$base" | awk -F'_' '{print $1}'`: prints text before the first underscore
+> 
+> `echo "$base" | awk -F'_' '{print $2}'`: prints text between 1st and 2nd underscore
+> 
+> `echo "$base" | awk -F'_' '{print $2_$3}'`: prints text between 1st and 2nd underscore, and between 2nd and 3rd underscore. Connect text with an underscore.
+> 
+> `echo "$base" | awk -F'_' '{print $2_$4}'`: prints text between 1st and 2nd underscore, and between 3rd and 4th underscore. Connect text with an underscore.
+</details>
 
-> **C. Upload Metadata:**
->    - Import location: `$HOME/Metabarcoding/<project_name>/input/fastq/`
->    - Rules:
->      - Needs to be a tab-deliminated text file or a .tsv file.
->      - First column is labeled "ID" for your sample IDs. These IDs match the sample IDs in your samplesheet you just made.
->      - If you wish to use a decontamination protocol later, add a column called "Control_Assign" to assign which controls are paired with which samples.
->        - For example:
+<details>
+<summary><strong>C. Upload Metadata:</strong></summary>
+
+<br>
+
+> Import location: `$HOME/Metabarcoding/<project_name>/input/fastq/`
+> Rules:
+>  - Needs to be a tab-deliminated text file or a .tsv file.
+>  - First column is labeled "ID" for your sample IDs. These IDs match the sample IDs in your samplesheet you just made.
+>  - If you wish to use a decontamination protocol later, add a column called "Control_Assign" to assign which controls are paired with which samples.
+>    - For example:
 >          
 >| sampleID | Control_Assign | Sample_or_Control | Notes |
 >|----------|----------------|-------------------|-------|
@@ -219,18 +279,28 @@ This repository contains scripts and configuration files to:
 >| EXT1  | 2     | Control | ← Control ID = 2 |
 >| PCR1  | 4     | Control | ← Control ID = 4 |
 >
-> - Add any other columns for metadata you wish to attach to these samples for downstream analyses.
-> - Drag and drop metadata file in, or use the directions here: https://docs.hpc.ucdavis.edu/data-transfer/
-
-> **D. Upload a Reference Sequence Database [Optional, but highly recommended]:**
->    - Import location: `$HOME/Metabarcoding/<project_name>/input/fastq/`
->    - Rules:
->      - There is an example RSD .txt file found in your project input folder.
->      - Needs to be a tab-deliminated text file or a .tsv file.
->   - Drag and drop RSD file in, or use the directions here: https://docs.hpc.ucdavis.edu/data-transfer/  
-
-> **E. Edit run parameters:**
+> Add any other columns for metadata you wish to attach to these samples for downstream analyses.
 > 
+> Drag and drop metadata file in, or use the directions here: https://docs.hpc.ucdavis.edu/data-transfer/
+</details>
+
+<details>
+<summary><strong>D. Upload a Reference Sequence Database [Optional, but highly recommended]:</strong></summary>
+
+<br>
+>Import location: `$HOME/Metabarcoding/<project_name>/input/fastq/`
+>  - Rules:
+>    - There is an example RSD .txt file found in your project input folder.
+>    - Needs to be a tab-deliminated text file or a .tsv file.
+>Drag and drop RSD file in, or use the directions here: https://docs.hpc.ucdavis.edu/data-transfer/  
+</details>
+</details>
+
+<details>
+<summary><strong>5. Edit run parameters.</strong></summary>
+
+<br>
+
 > Open the parameter file for the nf-core/ampliseq pipeline:
 >```bash
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
@@ -329,28 +399,58 @@ This repository contains scripts and configuration files to:
 >        - `skip_phyloseq`: Skip phyloseq output.
 >        - `skip_tse`: Skip TSE output.
 >        - `skip_report`: Skip MultiQC report.
+</details>
 
-> **F. Run pipeline:**
+<details>
+<summary><strong>6. Run pipeline.</strong></summary>
+
+<br>
+
 >```bash
 >cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 >sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_run_nf-core_ampliseq.slurm"
 >```
+></details>
 
-### 5. BLAST Unknown ASVs
+
+
+---
+
+
+<details>
+<summary><h2>BLAST Unknown ASVs</h2></summary>
+  
+<br>
+
 ```bash
 cd ~
 PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_blast_asv.slurm"
 ```
-### 6. 
+</details>
+
+---
+
+<details>
+<summary><h2>Clean up NCBI BLAST Taxonomy Information</h2></summary>
+  
+<br>
+
 ```bash
 cd ~
 PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_ncbi_taxonomy.slurm"
 ```
+</details>
 
-### 7. Decontaminate ASVs and apply read thresholds
+---
+
+<details>
+<summary><h2>Decontaminate ASVs and Apply Read Thresholds</h2></summary>
+  
+<br>
+
 - The folder `R_ASV_cleanup_scripts/` contains a collection of R scripts used for cleaning ASV data generated by the nf-core/ampliseq pipeline to prepare finalized datasets for analyses.
 #### Available scripts include:
 | Script | Description |
@@ -365,3 +465,7 @@ sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_ncbi_taxonomy.
 
 - These scripts are optional but extremely helpful for producing clean, analysis ready ASV tables.
 - You should only need to open the `GVL_metabarcoding_cleanup_main.R` script to run this pipeline. To avoid breaking the script, only edit the **"User-defined parameters"** in the script.
+
+</details>
+
+---
