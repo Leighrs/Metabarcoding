@@ -15,13 +15,6 @@ RESET="\e[0m"
 read -p "Enter project name: " PROJECT
 
 # ---------------------------
-#  LOG FILE
-# ---------------------------
-LOGFILE="setup_${PROJECT}.log"
-echo "Setup log for project: $PROJECT" > "$LOGFILE"
-echo "----------------------------------------" >> "$LOGFILE"
-
-# ---------------------------
 #  YES/NO INPUT VALIDATION
 # ---------------------------
 while true; do
@@ -36,7 +29,6 @@ while true; do
 
 done
 
-echo "Custom RSD selection: $USE_RSD" >> "$LOGFILE"
 
 # ---------------------------
 #  CREATE DIRECTORIES
@@ -48,7 +40,6 @@ mkdir -p "Metabarcoding/$PROJECT/input/fastq"
 mkdir -p "Metabarcoding/$PROJECT/output/intermediates_logs_cache/singularity"
 
 echo -e "${GREEN}Directory structure created.${RESET}"
-echo "Directories created" >> "$LOGFILE"
 
 # ---------------------------
 #  CREATE EXAMPLE FILES
@@ -75,13 +66,11 @@ EOT
 
 chmod +x "Metabarcoding/$PROJECT/input/Example_RSD.txt"
 echo -e "${GREEN}Example RSD file created.${RESET}"
-echo "Example RSD file created" >> "$LOGFILE"
 fi
 
 chmod +x "Metabarcoding/$PROJECT/input/"*.txt
 
 echo -e "${GREEN}Example input files created.${RESET}"
-echo "Example files created" >> "$LOGFILE"
 
 # ---------------------------
 #  COPY CORRECT nf-params.json
@@ -94,19 +83,15 @@ if [[ "$USE_RSD" == "yes" ]]; then
     if [[ -f "$SRC_WITH_RSD" ]]; then
         cp "$SRC_WITH_RSD" "$DEST_JSON"
         echo -e "${GREEN}Using custom RSD → nf-params_with_RSD.json copied.${RESET}"
-        echo "Copied: nf-params_with_RSD.json" >> "$LOGFILE"
     else
         echo -e "${RED}WARNING: nf-params_with_RSD.json missing!${RESET}"
-        echo "MISSING: nf-params_with_RSD.json" >> "$LOGFILE"
     fi
 else
     if [[ -f "$SRC_NO_RSD" ]]; then
         cp "$SRC_NO_RSD" "$DEST_JSON"
         echo -e "${GREEN}No RSD → nf-params_no_RSD.json copied.${RESET}"
-        echo "Copied: nf-params_no_RSD.json" >> "$LOGFILE"
     else
         echo -e "${RED}WARNING: nf-params_no_RSD.json missing!${RESET}"
-        echo "MISSING: nf-params_no_RSD.json" >> "$LOGFILE"
     fi
 fi
 
@@ -129,10 +114,8 @@ for SRCFILE in "${!FILES[@]}"; do
     if [[ -f "$SRC" ]]; then
         cp "$SRC" "$DEST"
         echo -e "${GREEN}Copied $SRCFILE${RESET}"
-        echo "Copied: $SRCFILE → ${FILES[$SRCFILE]}" >> "$LOGFILE"
     else
         echo -e "${YELLOW}WARNING: $SRCFILE missing.${RESET}"
-        echo "MISSING: $SRCFILE" >> "$LOGFILE"
     fi
 done
 
@@ -149,20 +132,17 @@ if [[ -d "$SRC_CON" ]]; then
     for f in "$DEST_CON"/*; do
         base=$(basename "$f")
         mv "$f" "$DEST_CON/${PROJECT}_$base"
-        echo "Renamed: $base → ${PROJECT}_$base" >> "$LOGFILE"
     done
 
     echo -e "${GREEN}R cleanup scripts copied and renamed.${RESET}"
 else
     echo -e "${YELLOW}WARNING: R_ASV_cleanup_scripts folder missing.${RESET}"
-    echo "MISSING: R_ASV_cleanup_scripts" >> "$LOGFILE"
 fi
 
 # ---------------------------
 #  SAVE CURRENT PROJECT NAME
 # ---------------------------
 echo "$PROJECT" > "$HOME/Metabarcoding/current_project_name.txt"
-echo "Project name saved." >> "$LOGFILE"
 
 # ---------------------------
 #  PRINT COLORIZED DIRECTORY TREE
@@ -179,5 +159,4 @@ tree -C Metabarcoding/"$PROJECT"
 #  SUMMARY
 # ---------------------------
 echo -e "${BLUE}Summary of copied files:${RESET}"
-cat "$LOGFILE"
 echo -e "${GREEN}Setup finished successfully.${RESET}"
