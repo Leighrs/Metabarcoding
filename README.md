@@ -412,7 +412,7 @@ This repository contains scripts and configuration files to:
 >sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_run_nf-core_ampliseq.slurm"
 >```
 ></details>
-
+</details>
 
 
 ---
