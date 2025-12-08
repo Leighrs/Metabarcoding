@@ -94,7 +94,7 @@ This repository contains scripts and configuration files to:
 >
 >```bash
 >cd ~
->./Metabarcoding/setup_metabarcoding_directory.sh
+>./Metabarcoding/scripts_do_not_alter/setup_metabarcoding_directory.sh
 >```
 >When prompted, type ${\color{green}yes}$ if you are using a custom reference sequence database (RSD) or ${\color{red}no}$ if you are not using a custom RSD.
 >
