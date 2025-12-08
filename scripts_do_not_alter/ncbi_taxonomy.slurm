@@ -55,12 +55,41 @@ if [[ ! -f "$CONTAINER" ]]; then
 fi
 
 # ------------------------------------------------------------
+# Read FASTA/BLAST mode from command-line argument
+# ------------------------------------------------------------
+MODE="$1"
+
+if [[ -z "$MODE" ]]; then
+    echo "ERROR: No mode supplied."
+    echo "Usage: sbatch ${PROJECT_NAME}_ncbi_taxonomy.slurm <option1|option2>"
+    echo "  option1 = FASTA from nf-core/ampliseq pipeline"
+    echo "  option2 = FASTA from unassigned ASVs pulled from phyloseq object"
+    exit 1
+fi
+
+case "$MODE" in
+    option1)
+        INPUT_FILE_SUFFIX="${PROJECT_NAME}_blast_results.tsv"
+        echo "Selected mode: option1 (standard ampliseq FASTA)"
+        ;;
+    option2)
+        INPUT_FILE_SUFFIX="${PROJECT_NAME}_raw_blast_results_from_phyloseq_obj.tsv"
+        echo "Selected mode: option2 (phyloseq-derived FASTA)"
+        ;;
+    *)
+        echo "ERROR: Invalid mode: $MODE"
+        echo "Valid options: option1 or option2"
+        exit 1
+        ;;
+esac
+
+# ------------------------------------------------------------
 # Export variables for Python script
 # ------------------------------------------------------------
 export PROJECT_NAME
 export BLAST_DIR
 
-export INPUT_FILE="$BLAST_DIR/${PROJECT_NAME}_raw_blast_results.tsv"
+export INPUT_FILE="$BLAST_DIR/$INPUT_FILE_SUFFIX"
 export FASTA_FILE="$HOME/Metabarcoding/$PROJECT_NAME/output/dada2/ASV_seqs.fasta"
 
 export OUTPUT_FILE="$BLAST_DIR/${PROJECT_NAME}_ncbi_taxonomy_results.tsv"
