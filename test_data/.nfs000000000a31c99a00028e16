@@ -1,9 +1,0 @@
-ID	Num	Site	Sub_Site	Site_Abr	Replicate_Group1	Replicate_Group2	Replicate_Group3	Sample_or_Control	Amplicon_type	Month	Year	Sub_Season	Season	Season_Group	Month_Group	Pool_Name	Wetland_Type	Paired_ID	Control_Assign
-B12A1_02	1	Browns_Island	Browns_A	1BRO	A	A1	1	Sample	Sample	A_Feb	2023	Late_Winter	Winter	Late_Winter_Early_Spring_23	1_Feb_Mar_2023	LS004	Reference	Paired_Sites_1	"A2,6,T1,T2,I1,I2"
-B12A2_02	4	Browns_Island	Browns_A	1BRO	A	A2	1	Sample	Sample	A_Feb	2023	Late_Winter	Winter	Late_Winter_Early_Spring_23	1_Feb_Mar_2023	LS004	Reference	Paired_Sites_1	"A2,6,T1,T2,I1,I2"
-B12A3_02	7	Browns_Island	Browns_A	1BRO	A	A3	1	Sample	Sample	A_Feb	2023	Late_Winter	Winter	Late_Winter_Early_Spring_23	1_Feb_Mar_2023	LS004	Reference	Paired_Sites_1	"A2,6,T1,T2,I1,I2"
-B12AB_02	10	Browns_Island	Browns_A	1BRO	A	AB	Control	Control	Control_field	A_Feb	2023	Late_Winter	Winter	Late_Winter_Early_Spring_23	1_Feb_Mar_2023	LS004	Reference	Paired_Sites_1	A2
-B12EB_02	37	Control	Control	Control	Control	Control	Control	Control	Control_ext	Control	Control	Control	Control	Control	Control	LS004	Control	Control	6
-IND12A	97	Control	Control	Control	Control	Control	Control	Control	Control_ind	Control	Control	Control	Control	Control	Control	LS004	Control	Control	I1
-PCR12A	176	Control	Control	Control	Control	Control	Control	Control	Control_tar	Control	Control	Control	Control	Control	Control	LS004	Control	Control	T1
-PCR12B	177	Control	Control	Control	Control	Control	Control	Control	Control_tar	Control	Control	Control	Control	Control	Control	LS004	Control	Control	T2
