@@ -315,11 +315,13 @@ cp $HOME/Metabarcoding/test_data/test_fastq/test_metadata.txt $HOME/Metabarcodin
 <summary><strong>D. Upload a Reference Sequence Database [Optional, but highly recommended]:</strong></summary>
 
 <br>
+
 >Import location: `$HOME/Metabarcoding/<project_name>/input/fastq/`
 >  - Rules:
 >    - There is an example RSD .txt file found in your project input folder.
 >    - Needs to be a tab-deliminated text file or a .tsv file.
->Drag and drop RSD file in, or use the directions here: https://docs.hpc.ucdavis.edu/data-transfer/  
+>Drag and drop RSD file in, or use the directions here: https://docs.hpc.ucdavis.edu/data-transfer/
+ 
 </details>
 </details>
 
