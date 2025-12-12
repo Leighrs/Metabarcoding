@@ -65,6 +65,7 @@ This repository contains scripts and configuration files to:
 </details>
 
 ---
+
 <details>
 <summary><h2>Running Test Data</h2></summary>
   
@@ -72,8 +73,8 @@ This repository contains scripts and configuration files to:
 
 - Follow the directions in the modules below with the following modifications:
     - When setting up your project directory on the HPC:
-      - Project name: test
-      - Using a reference sequence database: yes
+      - **Project name**: test
+      - **Using a reference sequence database**: yes
     - To import test fastq files, metadata, and reference sequence database use the following code:
 ```
 cd ~
@@ -82,8 +83,16 @@ cp $HOME/Metabarcoding/test_data/test_fastq/12S_SFE_250811_common_names.txt $HOM
 cp $HOME/Metabarcoding/test_data/test_fastq/test_metadata.txt $HOME/Metabarcoding/test/input/
 ```
 
+  - When creating your samplesheet:
+    - **Multiple sequencing runs**: no
+  - When adding primer sequences to your nf-params.json file:
+    - FWD: ﻿GTCGGTAAAACTCGTGCCAGC
+    - RV: ﻿CATAGTGGGGTATCTAATCCCAGTTTG
+
 </details>
+
 ---
+
 <details>
 <summary><h2>Getting Started</h2></summary>
   
