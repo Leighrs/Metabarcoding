@@ -15,6 +15,7 @@ This repository helps lab members quickly set up a standardized directory struct
 
 - [Repository Overview](#repository-overview)
 - [Current Repository Files](#current-repository-files)
+- [Running Test Data](#running-test-data)
 - [Getting Started](#getting-started)
   - [1. Clone the Repository](1.-clone-the-repository)
   - [2. Set Up Your Project Directory on-hpc](2.-set-up-your-project-directory-on-hpc)
@@ -78,7 +79,7 @@ This repository contains scripts and configuration files to:
     - To import test fastq files, metadata, and reference sequence database use the following code:
 ```
 cd ~
-cp $HOME/Metabarcoding/test_data/test_fastq/. $HOME/Metabarcoding/test/input/fastq/
+cp -r $HOME/Metabarcoding/test_data/test_fastq/. $HOME/Metabarcoding/test/input/fastq/
 cp $HOME/Metabarcoding/test_data/test_fastq/12S_SFE_250811_common_names.txt $HOME/Metabarcoding/test/input/
 cp $HOME/Metabarcoding/test_data/test_fastq/test_metadata.txt $HOME/Metabarcoding/test/input/
 ```
