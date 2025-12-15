@@ -80,8 +80,8 @@ This repository contains scripts and configuration files to:
 ```
 cd ~
 cp -r $HOME/Metabarcoding/test_data/test_fastq/. $HOME/Metabarcoding/test/input/fastq/
-cp $HOME/Metabarcoding/test_data/test_fastq/12S_SFE_250811_common_names.txt $HOME/Metabarcoding/test/input/
-cp $HOME/Metabarcoding/test_data/test_fastq/test_metadata.txt $HOME/Metabarcoding/test/input/
+cp $HOME/Metabarcoding/test_data/12S_SFE_250811_common_names.txt $HOME/Metabarcoding/test/input/
+cp $HOME/Metabarcoding/test_data/test_metadata.txt $HOME/Metabarcoding/test/input/
 ```
 
   - When creating your samplesheet:
