@@ -75,8 +75,8 @@ echo -e "${GREEN}Example input files created.${RESET}"
 # ---------------------------
 #  COPY CORRECT nf-params.json
 # ---------------------------
-SRC_WITH_RSD="$HOME/Metabarcoding/scripts_do_not_alter/nf-params_with_RSD.json"
-SRC_NO_RSD="$HOME/Metabarcoding/scripts_do_not_alter/nf-params_no_RSD.json"
+SRC_WITH_RSD="$HOME/Metabarcoding/DWR_Azure_scripts_do_not_alter/nf-params_with_RSD.json"
+SRC_NO_RSD="$HOME/Metabarcoding/DWR_Azure_scripts_do_not_alter/nf-params_no_RSD.json"
 DEST_JSON="$HOME/Metabarcoding/$PROJECT/scripts/${PROJECT}_nf-params.json"
 
 if [[ "$USE_RSD" == "yes" ]]; then
@@ -108,7 +108,7 @@ declare -A FILES=(
 )
 
 for SRCFILE in "${!FILES[@]}"; do
-    SRC="$HOME/Metabarcoding/scripts_do_not_alter/$SRCFILE"
+    SRC="$HOME/Metabarcoding/DWR_Azure_scripts_do_not_alter/$SRCFILE"
     DEST="$HOME/Metabarcoding/$PROJECT/scripts/${FILES[$SRCFILE]}"
 
     if [[ -f "$SRC" ]]; then
@@ -122,7 +122,7 @@ done
 # ---------------------------
 #  COPY R CLEANUP SCRIPTS
 # ---------------------------
-SRC_CON="$HOME/Metabarcoding/scripts_do_not_alter/R_ASV_cleanup_scripts/"
+SRC_CON="$HOME/Metabarcoding/DWR_Azure_scripts_do_not_alter/R_ASV_cleanup_scripts/"
 DEST_CON="Metabarcoding/$PROJECT/scripts/${PROJECT}_R_ASV_cleanup_scripts/"
 
 if [[ -d "$SRC_CON" ]]; then
