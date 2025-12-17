@@ -11,6 +11,9 @@
     "ignore_failed_trimming": true,
     "ignore_failed_filtering": true,
 
+    "trunclenf": TRUNC_VALUE_FORWARD,
+    "trunclenr": TRUNC_VALUE_REVERSE,
+
     "dada_ref_taxonomy": false,
     "skip_dada_addspecies": true,
     "dada_ref_tax_custom": "PATH/to/reference_taxonomy.txt",
@@ -24,4 +27,5 @@
     "skip_dada_addspecies": true,
     "skip_tse": true
 }
+
 
