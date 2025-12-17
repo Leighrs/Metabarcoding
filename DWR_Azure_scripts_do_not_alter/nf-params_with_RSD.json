@@ -1,0 +1,27 @@
+{
+    "input": "PATH/to/your/tab-separated_samplesheet.txt",
+    "FW_primer": "FORWARD_PRIMER_SEQUENCE",
+    "RV_primer": "REVERSE_PRIMER_SEQUENCE",
+
+    "metadata": "PATH/to/your/metadata.txt",
+    "outdir": "PATH/to/output/directory",
+    
+    "seed": 13,
+    
+    "ignore_failed_trimming": true,
+    "ignore_failed_filtering": true,
+
+    "dada_ref_taxonomy": false,
+    "skip_dada_addspecies": true,
+    "dada_ref_tax_custom": "PATH/to/reference_taxonomy.txt",
+    "dada_min_boot": 80,
+    "dada_assign_taxlevels": "Kingdom,Phylum,Class,Order,Family,Genus,Species,Common",
+    
+    "exclude_taxa": "none",
+
+    "skip_qiime": true,
+    "skip_barrnap": true,
+    "skip_dada_addspecies": true,
+    "skip_tse": true
+}
+
