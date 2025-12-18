@@ -31,13 +31,13 @@ AZ_LOCATION="westus2"
 # Store log files locally
 export NXF_LOG_FILE="${METABARCODING}/Logs_archive/nextflow_${PROJECT}_$(date +%Y%m%d_%H%M%S).log"
 
-NF_CONFIG="/home/leighrs13/azure_esm_ampliseq.config"
+NF_CONFIG="$HOME/azure_esm_ampliseq.config"
 if [[ ! -f "$NF_CONFIG" ]]; then
   echo "ERROR: Nextflow config not found: $NF_CONFIG"
   exit 1
 fi
 
-NF_KEYS="/home/leighrs13/config"
+NF_KEYS="$HOME/config"
 
 if [[ ! -f "$NF_KEYS" ]]; then
   echo "ERROR: Nextflow config not found: $NF_KEYS"
