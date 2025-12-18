@@ -101,8 +101,11 @@ Ensure you are in your home directory and copy over the test data into your test
 ```
 cd ~
 cp -r $HOME/Metabarcoding/test_data/test_fastq/. $HOME/Metabarcoding/test/input/fastq/
-cp $HOME/Metabarcoding/test_data/test_12S_RSD.txt $HOME/Metabarcoding/test/input/
-cp $HOME/Metabarcoding/test_data/test_metadata.txt $HOME/Metabarcoding/test/input/
+PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+cp "$HOME/Metabarcoding/test_data/12S_RSD.txt" \
+   "$HOME/Metabarcoding/test/input/${PROJECT_NAME}_12S_RSD.txt"
+cp "$HOME/Metabarcoding/test_data/metadata.txt" \
+   "$HOME/Metabarcoding/test/input/${PROJECT_NAME}_metadata.txt"
 ```
 4. **Generate a samplesheet file.**
 
