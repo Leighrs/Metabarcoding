@@ -86,17 +86,9 @@ git clone https://github.com/Leighrs/Metabarcoding.git
 
 Ensure you are in your home directory and execute a shell script that will set up a project directory for you.
 
-**If you are using** ${\color{red}UCD}$ ${\color{red}HPC}$ ${\color{red}Farm}$ **resources, run this script:**
-
 ```
 cd ~
-./Metabarcoding/UCD_FARM_scripts_do_not_alter/setup_metabarcoding_directory.sh
-```
-**OR if you are using** ${\color{red}DWR}$ ${\color{red}Azure}$ ${\color{red}Batch}$ **resources, run this script:**
-
-```
-cd ~
-./Metabarcoding/DWR_Azure_scripts_do_not_alter/setup_metabarcoding_directory.sh
+./Metabarcoding/scripts_do_not_alter/setup_metabarcoding_directory.sh
 ```
 - **When prompted:**
   - *Enter project name:* ${\color{green}test}$
