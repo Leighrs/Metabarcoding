@@ -105,6 +105,7 @@ declare -A FILES=(
     ["generate_samplesheet_table.sh"]="${PROJECT}_generate_samplesheet_table.sh"
     ["run_nf-core_ampliseq.slurm"]="${PROJECT}_run_nf-core_ampliseq.slurm"
     ["ncbi_pipeline.py"]="${PROJECT}_ncbi_pipeline.py"
+    ["run_ampliseq_azure.sh"]="${PROJECT}_run_ampliseq_azure.sh"
 )
 
 for SRCFILE in "${!FILES[@]}"; do
