@@ -214,21 +214,8 @@ process {
 ```
 nano $HOME/config
 ```
-Paste in the following:
-```
-azure {
-    storage {
-        accountName = "<STORAGE_ACCOUNT_NAME>"
-        sasToken = "<REDACTED>"
-    }
-    batch {
-        location = "<BATCH_LOCATION_NAME>"
-        accountName = "<BATCH_ACCOUNT_NAME>"
-        accountKey = "<REDACTED>"
-    }
-}
+*This file will need Azure Storage and Batch resource keys/tokens.*
 
-```
 For each file, you will need to request the required resource information from DWR.
 
 7. **Run the nf-core/ampliseq Pipeline:** 
