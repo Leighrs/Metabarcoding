@@ -1,5 +1,23 @@
 #!/usr/bin/env bash
 
+# ---------------------------
+#  COLOR DEFINITIONS
+# ---------------------------
+GREEN="\e[32m"
+YELLOW="\e[33m"
+RED="\e[31m"
+BLUE="\e[36m"
+RESET="\e[0m"
+
+# ---------------------------
+#  ASK FOR PROJECT NAME
+# ---------------------------
+read -p "Enter project name: " PROJECT
+
+# ---------------------------
+#  DWR AZURE PROMPT
+# ---------------------------
+
 while true; do
     read -rp "Are you using DWR Azure Blob Storage for intermediate work files? (yes/no): " ANSWER
 
@@ -17,34 +35,23 @@ while true; do
 done
 
 # ---------------------------
-#  COLOR DEFINITIONS
-# ---------------------------
-GREEN="\e[32m"
-YELLOW="\e[33m"
-RED="\e[31m"
-BLUE="\e[36m"
-RESET="\e[0m"
-
-# ---------------------------
-#  ASK FOR PROJECT NAME
-# ---------------------------
-read -p "Enter project name: " PROJECT
-
-# ---------------------------
-#  YES/NO INPUT VALIDATION
+#  PROMPT: STANDARD / CUSTOM / NEITHER
 # ---------------------------
 while true; do
-    read -p "Are you using a custom reference database? (yes/no): " USE_RSD
-    USE_RSD=$(echo "$USE_RSD" | tr '[:upper:]' '[:lower:]')
+    echo
+    echo "Reference database choice:"
+    echo "  1) Standardized/curated database"
+    echo "  2) Custom sequence database"
+    echo "  3) Neither (BLAST all ASVs)"
+    read -rp "Enter 1, 2, or 3: " RSD_CHOICE
 
-    if [[ "$USE_RSD" == "yes" ]] || [[ "$USE_RSD" == "no" ]]; then
-        break
-    else
-        echo -e "${RED}Invalid input. Please type 'yes' or 'no'.${RESET}"
-    fi
-
+    case "$RSD_CHOICE" in
+        1) DB_MODE="standard"; break ;;
+        2) DB_MODE="custom";   break ;;
+        3) DB_MODE="none";     break ;;
+        *) echo -e "${RED}Invalid input. Please enter 1, 2, or 3.${RESET}" ;;
+    esac
 done
-
 
 # ---------------------------
 #  CREATE DIRECTORIES
@@ -53,7 +60,11 @@ mkdir -p "Metabarcoding/$PROJECT"
 mkdir -p "Metabarcoding/Logs_archive"
 mkdir -p "Metabarcoding/$PROJECT/scripts"
 mkdir -p "Metabarcoding/$PROJECT/input/fastq"
-mkdir -p "Metabarcoding/$PROJECT/output/intermediates_logs_cache/singularity"
+
+# Only create local intermediates/cache if NOT using Azure Blob
+if [[ "$USE_AZURE" == "no" ]]; then
+    mkdir -p "Metabarcoding/$PROJECT/output/intermediates_logs_cache/singularity"
+fi
 
 echo -e "${GREEN}Directory structure created.${RESET}"
 
@@ -89,26 +100,33 @@ chmod +x "Metabarcoding/$PROJECT/input/"*.txt
 echo -e "${GREEN}Example input files created.${RESET}"
 
 # ---------------------------
-#  COPY CORRECT nf-params.json
+#  COPY CORRECT nf-params.json (ALWAYS named nf-params.json)
 # ---------------------------
-SRC_WITH_RSD="$HOME/Metabarcoding/scripts_do_not_alter/nf-params_with_RSD.json"
-SRC_NO_RSD="$HOME/Metabarcoding/scripts_do_not_alter/nf-params_no_RSD.json"
-DEST_JSON="$HOME/Metabarcoding/$PROJECT/scripts/${PROJECT}_nf-params.json"
+SRC_STANDARD="$HOME/Metabarcoding/scripts_do_not_alter/nf-params_with_standard_RSD.json"
+SRC_CUSTOM="$HOME/Metabarcoding/scripts_do_not_alter/nf-params_with_custom_RSD.json"
+SRC_NONE="$HOME/Metabarcoding/scripts_do_not_alter/nf-params_no_RSD.json"
+DEST_JSON="$HOME/Metabarcoding/$PROJECT/scripts/nf-params.json"
 
-if [[ "$USE_RSD" == "yes" ]]; then
-    if [[ -f "$SRC_WITH_RSD" ]]; then
-        cp "$SRC_WITH_RSD" "$DEST_JSON"
-        echo -e "${GREEN}Using custom RSD → nf-params_with_RSD.json copied.${RESET}"
-    else
-        echo -e "${RED}WARNING: nf-params_with_RSD.json missing!${RESET}"
-    fi
+case "$DB_MODE" in
+  standard)
+    SRC="$SRC_STANDARD"
+    MSG="Standardized/curated DB → nf-params_with_standard_RSD.json copied as nf-params.json"
+    ;;
+  custom)
+    SRC="$SRC_CUSTOM"
+    MSG="Custom sequence DB → nf-params_with_custom_RSD.json copied as nf-params.json"
+    ;;
+  none)
+    SRC="$SRC_NONE"
+    MSG="No DB (BLAST all ASVs) → nf-params_no_RSD.json copied as nf-params.json"
+    ;;
+esac
+
+if [[ -f "$SRC" ]]; then
+    cp "$SRC" "$DEST_JSON"
+    echo -e "${GREEN}${MSG}.${RESET}"
 else
-    if [[ -f "$SRC_NO_RSD" ]]; then
-        cp "$SRC_NO_RSD" "$DEST_JSON"
-        echo -e "${GREEN}No RSD → nf-params_no_RSD.json copied.${RESET}"
-    else
-        echo -e "${RED}WARNING: nf-params_no_RSD.json missing!${RESET}"
-    fi
+    echo -e "${RED}WARNING: Missing template: $SRC${RESET}"
 fi
 
 # ---------------------------
