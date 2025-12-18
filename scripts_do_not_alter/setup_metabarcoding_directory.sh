@@ -1,4 +1,20 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+while true; do
+    read -rp "Are you using DWR Azure Blob Storage for intermediate work files? (yes/no): " ANSWER
+
+    ANSWER=$(echo "$ANSWER" | tr '[:upper:]' '[:lower:]')
+
+    case "$ANSWER" in
+        yes|y)
+            break
+            ;;
+        no|n)
+            mkdir -p "Metabarcoding/$PROJECT/output/intermediates_logs_cache/singularity"
+            break
+            ;;
+    esac
+done
 
 # ---------------------------
 #  COLOR DEFINITIONS
