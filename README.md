@@ -75,7 +75,7 @@ This repository contains scripts and configuration files to:
 
 1. **Clone the Repository**
 
-Ensure you are in your home directory and cloe in the Metabarcoding repository from Github.
+Ensure you are in your home directory and clonee in the Metabarcoding repository from Github.
 
 ```
 cd ~
