@@ -58,11 +58,12 @@ This repository contains scripts and configuration files to:
 | `setup_metabarcoding_directory.sh` | Shell script to create your project directory with example samplesheets, metadata, and RSD files. |
 | `update_blast_db.slurm` | SLURM batch script to download/update the NCBI core nucleotide database. |
 | `blast_asv.slurm` | SLURM batch script to BLAST unknown ASVs. |
-| `run_nf-core_ampliseq.slurm` | SLURM batch script to execute the nf-core/ampliseq pipeline. |
+| `run_nf-core_ampliseq.slurm` | SLURM batch script to execute the nf-core/ampliseq pipeline using UCD HPC FARM resrouces. |
 | `R_ASV_cleanup_scripts/` | Folder containing R scripts for cleaning and formatting ASV tables after nf-core/ampliseq and optional BLAST. |
 | `generate_samplesheet_table.sh` | Shell script to generate a samplesheet for your project that will work with the nf-core/ampliseq pipeline. |
 | `ncbi_taxonomy.slurm` | SLURM batch script to run a python taxonomy-processing script on BLAST output. |
 | `ncbi_pipeline.py` | This script fetches NCBI taxonomy for BLAST hits, determines each ASV’s best and consensus taxonomy, and outputs the merged, ranked results. |
+| `run_ampliseq_azure.sh` | This script is for running nf-core/ampliseq using DWR's Azure Batch resources. |
 </details>
 
 ---
@@ -72,23 +73,143 @@ This repository contains scripts and configuration files to:
   
 <br>
 
-- Follow the directions in the modules below with the following modifications:
-    - When setting up your project directory on the HPC:
-      - **Project name**: test
-      - **Using a reference sequence database**: yes
-    - To import test fastq files, metadata, and reference sequence database use the following code:
+1. **Clone the Repository**
+
+Ensure you are in your home directory and cloe in the Metabarcoding repository from Github.
+
+```
+cd ~
+git clone https://github.com/Leighrs/Metabarcoding.git
+```
+
+2. **Set Up Your Project Directory**
+
+Ensure you are in your home directory and execute a shell script that will set up a project directory for you.
+
+**If you are using** ${\color{red}UCD}$ ${\color{red}HPC}$ ${\color{red}Farm}$ **resources, run this script:**
+
+```
+cd ~
+./Metabarcoding/UCD_FARM_scripts_do_not_alter/setup_metabarcoding_directory.sh
+```
+**OR if you are using** ${\color{red}DWR}$ ${\color{red}Azure}$ ${\color{red}Batch}$ **resources, run this script:**
+
+```
+cd ~
+./Metabarcoding/DWR_Azure_scripts_do_not_alter/setup_metabarcoding_directory.sh
+```
+- **When prompted:**
+  - *Enter project name:* ${\color{green}test}$
+  - *Are you using a custom reference database?:* ${\color{green}yes}$
+
+3. **Import fastq files, metadata, and custom reference sequence database.**
+
+Ensure you are in your home directory and copy over the test data into your test project folder.
+
 ```
 cd ~
 cp -r $HOME/Metabarcoding/test_data/test_fastq/. $HOME/Metabarcoding/test/input/fastq/
 cp $HOME/Metabarcoding/test_data/12S_SFE_250811_common_names.txt $HOME/Metabarcoding/test/input/
 cp $HOME/Metabarcoding/test_data/test_metadata.txt $HOME/Metabarcoding/test/input/
 ```
+4. **Generate a samplesheet file.**
 
-  - When creating your samplesheet:
-    - **Multiple sequencing runs**: no
-  - When adding primer sequences to your nf-params.json file:
-    - FWD: ﻿GTCGGTAAAACTCGTGCCAGC
-    - RV: ﻿CATAGTGGGGTATCTAATCCCAGTTTG
+Ensure you are in your home directory and run the following shell script.
+
+*This script will autopopulate the PATHs for each of your fastq files, extrapolate sample names from those files, and prompt you to specify how many metabarcoding runs these samples were sequenced in.*
+
+```
+cd ~
+PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+"$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_generate_samplesheet_table.sh" 
+```
+
+- **When prompted:**
+  - *Did you sequence samples using multiple sequencing runs?:* ${\color{red}no}$
+
+5. **Edit Run Parameters.**
+
+Open the parameter file for the nf-core/ampliseq pipeline:
+
+- The `${PROJECT_NAME}_nf-params.json` file contains all the parameters needed to run the nf-core/ampliseq workflow for your specific project.
+- Edit this file so that the input paths, primer sequences, and filtering settings match your dataset.
+
+```
+PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+nano $HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_nf-params.json
+```
+**Replace these parameters for the test data using the following information:**
+
+Nano files are little tricky to work with. Here are some tips:
+
+- First, highlight the entire script:
+  - Go to the top of the script using `Ctrl` + `_`, then type 1, press **Enter**.
+  - Then, start selecting text using `Ctrl` + `^`.
+  - Highlight the rest of the script using `Ctrl` + `_`, then type 100, press **Enter**.
+  - Everything should now be selected.
+- Delete all the text in the scriptusing `Ctrl` + `K`.
+- Copy the new text below, and paste into the empty script using a right-click to paste. Some terminals may require `Ctrl` + `Shift` + `V`.
+- Exit the script using `Ctrl` + `X`. Then `Y` to save. Press **Enter**.
+
+```
+{
+    "input": "$HOME/Metabarcoding/$PROJECT_NAME/input/${PROJECT_NAME}_samplesheet.txt",
+    "FW_primer": "GTCGGTAAAACTCGTGCCAGC",
+    "RV_primer": "CATAGTGGGGTATCTAATCCCAGTTTG",
+
+    "metadata": "$HOME/Metabarcoding/$PROJECT_NAME/input/${PROJECT_NAME}_metadata.txt",
+    "outdir": "$HOME/Metabarcoding/$PROJECT_NAME/output/",
+
+    "seed": 13,
+
+    "ignore_failed_trimming": true,
+    "ignore_failed_filtering": true,
+
+    "trunclenf": 120,
+    "trunclenr": 120,
+
+    "dada_ref_taxonomy": false,
+    "skip_dada_addspecies": true,
+    "dada_ref_tax_custom": "$HOME/Metabarcoding/$PROJECT_NAME/input/${PROJECT_NAME}_12S_RSD.txt",
+    "dada_min_boot": 80,
+    "dada_assign_taxlevels": "Kingdom,Phylum,Class,Order,Family,Genus,Species,Common",
+
+    "exclude_taxa": "none",
+
+    "skip_qiime": true,
+    "skip_barrnap": true,
+    "skip_dada_addspecies": true,
+    "skip_tse": true
+}
+
+```
+
+JSON files can't expand environment variables, like `$HOME` or `$PROJECT_NAME`. Create a file with an expanded variable unique to your system.
+```
+export PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+envsubst '$HOME $PROJECT_NAME' \
+  < "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_nf-params.json" \
+  > "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_nf-params_expanded.json"
+```
+
+6. **Run the nf-core/ampliseq Pipeline:** 
+
+Ensure you are in your home directory and run the following shell script.
+
+**If you are using** ${\color{red}UCD}$ ${\color{red}HPC}$ ${\color{red}Farm}$ **resources, run this script:**
+
+```
+cd ~
+PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_blast_asv.slurm"
+```
+**OR if you are using** ${\color{red}DWR}$ ${\color{red}Azure}$ ${\color{red}Batch}$ **resources, run this script:**
+
+```
+cd ~
+PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+./$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_run_ampliseq_azure.sh"
+```
 
 </details>
 
