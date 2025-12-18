@@ -154,7 +154,12 @@ echo " METABARCODING PROJECT SETUP COMPLETE "
 echo "======================================"
 echo -e "${RESET}"
 
-tree -C Metabarcoding/"$PROJECT"
+if command -v tree >/dev/null 2>&1; then
+  tree -C "Metabarcoding/$PROJECT"
+else
+  echo -e "${YELLOW}NOTE: 'tree' not found; showing directories via find.${RESET}"
+  find "Metabarcoding/$PROJECT" -maxdepth 4 -type d | sed "s|^Metabarcoding/||"
+fi
 
 # ---------------------------
 #  SUMMARY
