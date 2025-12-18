@@ -5,7 +5,6 @@ set -euo pipefail
 # Paths and directories (inside WSL)
 # ------------------------------------
 METABARCODING="$HOME/Metabarcoding"
-mkdir -p "$METABARCODING/Containers"
 mkdir -p "$METABARCODING/Logs_archive"
 PROJECT_FILE="$METABARCODING/current_project_name.txt"
 
