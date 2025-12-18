@@ -17,7 +17,7 @@ fi
 PROJECT="$(cat "$PROJECT_FILE")"
 echo "Running project: $PROJECT"
 
-PARAMS_FILE="${METABARCODING}/${PROJECT}/scripts/${PROJECT}_nf-params.json"
+PARAMS_FILE="${METABARCODING}/${PROJECT}/scripts/${PROJECT}_nf-params_expanded.json"
 if [[ ! -f "$PARAMS_FILE" ]]; then
   echo "ERROR: Params file not found: $PARAMS_FILE"
   exit 1
