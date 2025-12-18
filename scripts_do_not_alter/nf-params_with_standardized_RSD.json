@@ -1,7 +1,7 @@
 {
     "input": "PATH/to/your/tab-separated_samplesheet.txt",
-    "FW_primer": "<FORWARD_PRIMER_SEQUENCE>",
-    "RV_primer": "<REVERSE_PRIMER_SEQUENCE>",
+    "FW_primer": "FORWARD_PRIMER_SEQUENCE",
+    "RV_primer": "REVERSE_PRIMER_SEQUENCE",
 
     "metadata": "PATH/to/your/metadata.txt",
     "outdir": "PATH/to/output/directory",
