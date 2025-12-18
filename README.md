@@ -187,8 +187,51 @@ envsubst '$HOME $PROJECT_NAME' \
   < "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_nf-params.json" \
   > "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_nf-params_expanded.json"
 ```
+6. If you are using ${\color{red}DWR}$ ${\color{red}Azure}$ ${\color{red}Batch}$ resources, create `config` files. If you are using UCD HPC Farm resources, skip this step.
 
-6. **Run the nf-core/ampliseq Pipeline:** 
+First, create and open a new file called  `azure_esm_ampliseq.config` and `config`:
+```
+nano $HOME/azure_esm_ampliseq.config
+```
+Paste in the following:
+```
+process.executor = 'azurebatch'
+docker.enabled = true
+workDir = '<REDACTED>'
+
+
+azure {
+    batch {
+        autoPoolMode = false
+        deletePoolsOnCompletion = false
+    }
+}
+
+process {
+  queue = '<REDACTED>'
+}
+```
+```
+nano $HOME/config
+```
+Paste in the following:
+```
+azure {
+    storage {
+        accountName = "<STORAGE_ACCOUNT_NAME>"
+        sasToken = "<REDACTED>"
+    }
+    batch {
+        location = "<BATCH_LOCATION_NAME>"
+        accountName = "<BATCH_ACCOUNT_NAME>"
+        accountKey = "<REDACTED>"
+    }
+}
+
+```
+For each file, you will need to request the required resource information from DWR.
+
+7. **Run the nf-core/ampliseq Pipeline:** 
 
 Ensure you are in your home directory and run the following shell script.
 
