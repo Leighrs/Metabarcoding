@@ -1,0 +1,22 @@
+{
+    "input": "PATH/to/your/tab-separated_samplesheet.txt",
+    "FW_primer": "<FORWARD_PRIMER_SEQUENCE>",
+    "RV_primer": "<REVERSE_PRIMER_SEQUENCE>",
+
+    "metadata": "PATH/to/your/metadata.txt",
+    "outdir": "PATH/to/output/directory",
+    
+    "seed": 13,
+    
+    "trunclenf": <TRUNC_VALUE_FORWARD>,
+    "trunclenr": <TRUNC_VALUE_REVERSE>,
+    
+    "exclude_taxa": "none",
+    
+    "dada_ref_taxonomy": "<CURATED_STANDARDIZED_RSD_NAME>",
+    
+    "skip_qiime": true,
+    "skip_barrnap": true,
+    "skip_dada_addspecies": true,
+    "skip_tse": true
+}
