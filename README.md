@@ -208,7 +208,7 @@ sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_blast_asv.slur
 ```
 cd ~
 PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
-./$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_run_ampliseq_azure.sh"
+$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_run_ampliseq_azure.sh
 ```
 
 </details>
