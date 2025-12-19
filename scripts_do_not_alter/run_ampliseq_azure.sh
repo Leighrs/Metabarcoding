@@ -22,11 +22,6 @@ if [[ ! -f "$PARAMS_FILE" ]]; then
   exit 1
 fi
 
-# ------------------------------------
-# Azure settings
-# ------------------------------------
-AZ_LOCATION="westus2"
-
 # Store log files locally
 export NXF_LOG_FILE="${METABARCODING}/Logs_archive/nextflow_${PROJECT}_$(date +%Y%m%d_%H%M%S).log"
 
@@ -54,5 +49,4 @@ nextflow run nf-core/ampliseq \
     -profile azurebatch,docker \
     -c "$NF_KEYS" \
     -c "$NF_CONFIG" \
-    -params-file "$PARAMS_FILE" \
-    --az_location "$AZ_LOCATION"
+    -params-file "$PARAMS_FILE"
