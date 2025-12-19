@@ -105,20 +105,20 @@ echo -e "${GREEN}Example input files created.${RESET}"
 SRC_STANDARD="$HOME/Metabarcoding/scripts_do_not_alter/nf-params_with_standard_RSD.json"
 SRC_CUSTOM="$HOME/Metabarcoding/scripts_do_not_alter/nf-params_with_custom_RSD.json"
 SRC_NONE="$HOME/Metabarcoding/scripts_do_not_alter/nf-params_no_RSD.json"
-DEST_JSON="$HOME/Metabarcoding/$PROJECT/scripts/nf-params.json"
+DEST_JSON="$HOME/Metabarcoding/$PROJECT/scripts/${PROJECT}_nf-params.json"
 
 case "$DB_MODE" in
   standard)
     SRC="$SRC_STANDARD"
-    MSG="Standardized/curated DB → nf-params_with_standard_RSD.json copied as nf-params.json"
+    MSG="Standardized/curated DB → nf-params_with_standard_RSD.json copied as ${PROJECT}_nf-params.json"
     ;;
   custom)
     SRC="$SRC_CUSTOM"
-    MSG="Custom sequence DB → nf-params_with_custom_RSD.json copied as nf-params.json"
+    MSG="Custom sequence DB → nf-params_with_custom_RSD.json copied as ${PROJECT}_nf-params.json"
     ;;
   none)
     SRC="$SRC_NONE"
-    MSG="No DB (BLAST all ASVs) → nf-params_no_RSD.json copied as nf-params.json"
+    MSG="No DB (BLAST all ASVs) → nf-params_no_RSD.json copied as ${PROJECT}_nf-params.json"
     ;;
 esac
 
