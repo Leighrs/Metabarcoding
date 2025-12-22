@@ -35,7 +35,7 @@ mkdir -p "$HOME/Metabarcoding/Containers"
 BASE_OUT="$HOME/Metabarcoding/$PROJECT/output"
 CACHE_DIR="${BASE_OUT}/intermediates_logs_cache"
 SINGULARITY_CACHE="${CACHE_DIR}/singularity"
-PARAMS_FILE="$HOME/Metabarcoding/$PROJECT/scripts/${PROJECT}_nf-params.json"
+PARAMS_FILE="$HOME/Metabarcoding/$PROJECT/scripts/${PROJECT}_nf-params_expanded.json"
 
 CONTAINER="$HOME/Metabarcoding/Containers/GVL_metabarcoding.sif"
 CONTAINER_URL="oras://community.wave.seqera.io/library/nextflow_nf-core_apptainer_conda_pruned:0f9c913ab4de9751"
