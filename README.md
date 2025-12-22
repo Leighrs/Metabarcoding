@@ -227,7 +227,7 @@ Ensure you are in your home directory and run the following shell script.
 ```
 cd ~
 PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
-sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_blast_asv.slurm"
+sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_run_nf-core_ampliseq.slurm"
 ```
 **OR if you are using** ${\color{red}DWR}$ ${\color{red}Azure}$ ${\color{red}Batch}$ **resources, run this script:**
 
