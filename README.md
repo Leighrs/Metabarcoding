@@ -63,7 +63,6 @@ This repository contains scripts and configuration files to:
 | `generate_samplesheet_table.sh` | Shell script to generate a samplesheet for your project that will work with the nf-core/ampliseq pipeline. |
 | `ncbi_taxonomy.slurm` | SLURM batch script to run a python taxonomy-processing script on BLAST output. |
 | `ncbi_pipeline.py` | This script fetches NCBI taxonomy for BLAST hits, determines each ASV’s best and consensus taxonomy, and outputs the merged, ranked results. |
-| `run_ampliseq_azure.sh` | This script is for running nf-core/ampliseq using DWR's Azure Batch resources. |
 </details>
 
 ---
@@ -75,7 +74,7 @@ This repository contains scripts and configuration files to:
 
 1. **Clone the Repository**
 
-Ensure you are in your home directory and clonee in the Metabarcoding repository from Github.
+Ensure you are in your home directory and clone in the Metabarcoding repository from Github.
 
 ```
 cd ~
@@ -187,54 +186,15 @@ envsubst '$HOME $PROJECT_NAME' \
   < "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_nf-params.json" \
   > "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_nf-params_expanded.json"
 ```
-6. If you are using ${\color{red}DWR}$ ${\color{red}Azure}$ ${\color{red}Batch}$ resources, create `config` files. If you are using UCD HPC Farm resources, skip this step.
 
-First, create and open a new file called  `azure_esm_ampliseq.config` and `config`:
-```
-nano $HOME/azure_esm_ampliseq.config
-```
-Paste in the following:
-```
-process.executor = 'azurebatch'
-docker.enabled = true
-workDir = '<REDACTED>'
-
-
-azure {
-    batch {
-        autoPoolMode = false
-        deletePoolsOnCompletion = false
-    }
-}
-
-process {
-  queue = '<REDACTED>'
-}
-```
-```
-nano $HOME/config
-```
-*This file will need Azure Storage and Batch resource keys/tokens.*
-
-For each file, you will need to request the required resource information from DWR.
-
-7. **Run the nf-core/ampliseq Pipeline:** 
+6. **Run the nf-core/ampliseq Pipeline:** 
 
 Ensure you are in your home directory and run the following shell script.
-
-**If you are using** ${\color{red}UCD}$ ${\color{red}HPC}$ ${\color{red}Farm}$ **resources, run this script:**
 
 ```
 cd ~
 PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_run_nf-core_ampliseq.slurm"
-```
-**OR if you are using** ${\color{red}DWR}$ ${\color{red}Azure}$ ${\color{red}Batch}$ **resources, run this script:**
-
-```
-cd ~
-PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
-$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_run_ampliseq_azure.sh
 ```
 
 </details>

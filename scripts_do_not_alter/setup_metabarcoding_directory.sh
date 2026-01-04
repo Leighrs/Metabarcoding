@@ -15,26 +15,6 @@ RESET="\e[0m"
 read -p "Enter project name: " PROJECT
 
 # ---------------------------
-#  DWR AZURE PROMPT
-# ---------------------------
-
-while true; do
-    read -rp "Are you using DWR Azure Blob Storage for intermediate work files? (yes/no): " ANSWER
-
-    ANSWER=$(echo "$ANSWER" | tr '[:upper:]' '[:lower:]')
-
-    case "$ANSWER" in
-        yes|y)
-            break
-            ;;
-        no|n)
-            mkdir -p "Metabarcoding/$PROJECT/output/intermediates_logs_cache/singularity"
-            break
-            ;;
-    esac
-done
-
-# ---------------------------
 #  PROMPT: STANDARD / CUSTOM / NEITHER
 # ---------------------------
 while true; do
@@ -139,7 +119,6 @@ declare -A FILES=(
     ["generate_samplesheet_table.sh"]="${PROJECT}_generate_samplesheet_table.sh"
     ["run_nf-core_ampliseq.slurm"]="${PROJECT}_run_nf-core_ampliseq.slurm"
     ["ncbi_pipeline.py"]="${PROJECT}_ncbi_pipeline.py"
-    ["run_ampliseq_azure.sh"]="${PROJECT}_run_ampliseq_azure.sh"
 )
 
 for SRCFILE in "${!FILES[@]}"; do
