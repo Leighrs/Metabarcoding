@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --account=millermrgrp
-#SBATCH --partition=high
+#SBATCH --partition=bmh
 #SBATCH --job-name=blast_asv
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
