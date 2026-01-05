@@ -91,7 +91,7 @@ cd ~
 ```
 - **When prompted:**
   - *Enter project name:* ${\color{green}test}$
-  - *Are you using a custom reference database?:* ${\color{green}yes}$
+  - *Reference database choice:* ${\color{green}2}$
 
 3. **Import fastq files, metadata, and custom reference sequence database.**
 
