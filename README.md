@@ -197,6 +197,48 @@ PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_run_nf-core_ampliseq.slurm"
 ```
 
+7. **BLAST Unknown ASVs:**
+To BLAST your entire .fasta file created from the nf-core/ampliseq pipeline, run the following code:
+
+```bash
+cd ~
+PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+RUN_BLAST=yes sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_retrieve_phyloseq_unassigned_ASVs.slurm"
+```
+*NOTE: When working with your real data, this code chunk will only work if you used a custom reference sequence database (RSD). If you did not use a custom RSD, a separate code chunk will be provided.*
+
+8. **Clean up NCBI Blast Taxonomy:**
+This script will auto process your raw BLAST output to output the single 'best' taxonomic rank for each assigned ASV:
+
+- Final taxa ranks are chosen based on highest percent identity (similarity), bit score (alignment quality/score), and e-value (statistical significance).
+- For tied results, this script will assign the least common taxonomic rank to the ASV.
+- Explanations for the final taxonomic assignment will be provided for each ASV.
+- Hopefully this will make parsing through and proofreading BLAST assignments much easier.
+
+```bash
+cd ~
+PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_ncbi_taxonomy.slurm" option2
+```
+
+- `option2`: If you used a custom RSD, which we did for this test data.
+
+<details>
+<summary><strong>📁 Expected output files (click to expand).</strong></summary>
+
+<br>
+
+| File | Description |
+|------|-------------|
+| `{$PROJECT_NAME}_ncbi_taxon_rank_casche.tsv` | Simple list of all your unique final taxa and ranks. |
+| `{$PROJECT_NAME}_final_LCTR_taxonomy_with_ranks.tsv` | Most useful. Lists ASV ID, ASV sequence, taxa assignment, taxa rank, and assignment explanation for each ASV. |
+| `{$PROJECT_NAME}_final_LCTR_taxonomy.tsv` | Same as file above, but does not include ranks. This is an intermediate file the script uses to make rank assignments. |
+| `{$PROJECT_NAME}_best_taxa_per_ASV.tsv` | Raw BLAST output for only the 'best' aligment for each ASV. |
+| `{$PROJECT_NAME}_blast_taxonomy_merged.tsv` | A file containing raw BLAST output merged with taxonomic information fetched from NCBI (see file below). |
+| `{$PROJECT_NAME}_ncbi_taxonomy_results.tsv` | A file containing further taxonomic information (fetched from NCBI) for each BLAST alignment. |
+
+</details>
+
 </details>
 
 ---
