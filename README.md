@@ -63,6 +63,7 @@ This repository contains scripts and configuration files to:
 | `generate_samplesheet_table.sh` | Shell script to generate a samplesheet for your project that will work with the nf-core/ampliseq pipeline. |
 | `ncbi_taxonomy.slurm` | SLURM batch script to run a python taxonomy-processing script on BLAST output. |
 | `ncbi_pipeline.py` | This script fetches NCBI taxonomy for BLAST hits, determines each ASV’s best and consensus taxonomy, and outputs the merged, ranked results. |
+|`review_and_update_phyloseq.R`| This script helps the user to review their BLAST assignments and reimport new assignments back into their phylseq object.
 </details>
 
 ---
@@ -709,4 +710,5 @@ sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_ncbi_taxonomy.
   - Integrating all of the R scripts from the decontamination part of the pipline into a single shell script with minimal interactive user prompts for use on FARM.
   - For those who used an RSD: A script to get the aligned (and assigned) ASVs back into the phyloseq object and remove any remainining unassigned ASVs.
   - For those who BLASTed their entire dataset: A script to create a phyloseq object for them.
+
 
