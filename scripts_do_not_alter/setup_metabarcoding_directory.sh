@@ -120,6 +120,7 @@ declare -A FILES=(
     ["run_nf-core_ampliseq.slurm"]="${PROJECT}_run_nf-core_ampliseq.slurm"
     ["ncbi_pipeline.py"]="${PROJECT}_ncbi_pipeline.py"
     ["retrieve_phyloseq_unassigned_ASVs.slurm"]="${PROJECT}_retrieve_phyloseq_unassigned_ASVs.slurm"
+    ["review_and_update_phyloseq.R"]="${PROJECT}_review_and_update_phyloseq.R"
 )
 
 for SRCFILE in "${!FILES[@]}"; do

@@ -1,4 +1,4 @@
-# Metabarcoding Directory Setup & Pipeline
+﻿# Metabarcoding Directory Setup & Pipeline
 
 ![GitHub Repo Size](https://img.shields.io/github/repo-size/Leighrs/Metabarcoding)
 ![License](https://img.shields.io/github/license/Leighrs/Metabarcoding)
@@ -242,6 +242,17 @@ sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_ncbi_taxonomy.
 | `{$PROJECT_NAME}_ncbi_taxonomy_results.tsv` | A file containing further taxonomic information (fetched from NCBI) for each BLAST alignment. |
 
 </details>
+
+9. Under review, don't try this chunk yet. **Review and approve BLAST taxonomic assignments:**
+
+```
+module show R/4.4.2
+export PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+export PROJECT_DIR="$HOME/Metabarcoding/$PROJECT_NAME"
+export PHYLOSEQ_RDS="$PROJECT_DIR/output/phyloseq/dada2_phyloseq.rds"
+
+Rscript "$PROJECT_DIR/scripts/${PROJECT_NAME}_review_and_update_phyloseq.R"
+```
 
 </details>
 
@@ -698,3 +709,4 @@ sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_ncbi_taxonomy.
   - Integrating all of the R scripts from the decontamination part of the pipline into a single shell script with minimal interactive user prompts for use on FARM.
   - For those who used an RSD: A script to get the aligned (and assigned) ASVs back into the phyloseq object and remove any remainining unassigned ASVs.
   - For those who BLASTed their entire dataset: A script to create a phyloseq object for them.
+
