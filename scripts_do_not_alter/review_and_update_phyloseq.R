@@ -1,30 +1,30 @@
 #!/usr/bin/env Rscript
 
 suppressPackageStartupMessages({
-  library(dplyr)
+  library(dplyr) # data manipulation
   library(stringr)
   library(phyloseq)
-  library(openxlsx)
+  library(openxlsx) #read/write excel without java.
 })
 
 # ----------------------------
-# Helpers
+# Define Helper Functions
 # ----------------------------
 
 # Blank = approved. Any recognized "no" = disapproved. Unknown nonblank = disapproved (conservative).
-norm_decision <- function(x) {
-  x0 <- trimws(as.character(x))
-  if (is.na(x0) || x0 == "") return("approved")
+norm_decision <- function(x) { # Rule for approvals/dissapprovals
+  x0 <- trimws(as.character(x)) # coerce to string and remove whitespaces
+  if (is.na(x0) || x0 == "") return("approved") # blank or NA means approved
 
-  x <- tolower(x0)
-  if (x %in% c("n","no","disapprove","disapproved","reject","rejected","false","f","0")) return("disapproved")
-  if (x %in% c("y","yes","approve","approved","true","t","1")) return("approved")
+  x <- tolower(x0) # returns lowercase
+  if (x %in% c("n","no","disapprove","disapproved","reject","rejected","false","f","0")) return("disapproved") # recognized disapprove values
+  if (x %in% c("y","yes","approve","approved","true","t","1")) return("approved") # recognized approved values
 
-  "disapproved"
+  "disapproved" # if anything else, then disapproved
 }
 
 # Blank = keep; "yes" = remove
-norm_remove <- function(x) {
+norm_remove <- function(x) { # Rule for ASV removals
   x0 <- trimws(as.character(x))
   if (is.na(x0) || x0 == "") return("keep")
   x <- tolower(x0)
@@ -33,12 +33,12 @@ norm_remove <- function(x) {
 }
 
 stop_if_missing <- function(x, name) {
-  if (is.null(x) || !nzchar(x)) stop("Missing required env var: ", name, call. = FALSE)
+  if (is.null(x) || !nzchar(x)) stop("Missing required env var: ", name, call. = FALSE) # If x is null or x is empty, then halt script, and print an error. But don't print full function error.
 }
 
 # Return first matching colname from candidates
-pick_first_col <- function(cols, candidates) {
-  hit <- candidates[candidates %in% cols][1]
+pick_first_col <- function(cols, candidates) { # From a list of acceptable names for a column, return the first one that actually exists. otherwise return NA.
+  hit <- candidates[candidates %in% cols][1] # Returns the first acceptable name, if there were multiple.
   if (is.na(hit) || !nzchar(hit)) return(NA_character_)
   hit
 }
@@ -52,12 +52,12 @@ is_excluded_override_col <- function(colname) {
 # ----------------------------
 # Inputs via environment variables
 # ----------------------------
-PROJECT_NAME <- Sys.getenv("PROJECT_NAME", unset = "")
+PROJECT_NAME <- Sys.getenv("PROJECT_NAME", unset = "") #unset returns an empty string "" if the variable does not exist.
 stop_if_missing(PROJECT_NAME, "PROJECT_NAME")
 
 PROJECT_DIR <- Sys.getenv("PROJECT_DIR", unset = file.path(Sys.getenv("HOME"), "Metabarcoding", PROJECT_NAME))
 
-BLAST_FILE <- Sys.getenv(
+BLAST_FILE <- Sys.getenv( #If there is no LCTR_TSV variable found, return this .tsv file.
   "LCTR_TSV",
   unset = file.path(PROJECT_DIR, "output", "BLAST", paste0(PROJECT_NAME, "_final_LCTR_taxonomy_with_ranks.tsv"))
 )
@@ -68,11 +68,11 @@ stop_if_missing(PHYLOSEQ_RDS, "PHYLOSEQ_RDS")
 OUT_DIR <- Sys.getenv("REVIEW_OUTDIR", unset = file.path(PROJECT_DIR, "output", "BLAST"))
 dir.create(OUT_DIR, recursive = TRUE, showWarnings = FALSE)
 
-review_xlsx <- file.path(OUT_DIR, paste0(PROJECT_NAME, "_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx"))
+review_xlsx <- file.path(OUT_DIR, paste0(PROJECT_NAME, "_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx")) #Concatenates file path with new file name
 reviewed_assignments_tsv <- file.path(OUT_DIR, paste0(PROJECT_NAME, "_reviewed_assignments.tsv"))
 updated_phyloseq_rds <- file.path(OUT_DIR, paste0(PROJECT_NAME, "_phyloseq_UPDATED_reviewed_taxonomy.rds"))
 
-user <- Sys.getenv("USER")
+user <- Sys.getenv("USER") # Used later to print custom scp instructions to user
 host <- Sys.getenv("REVIEW_SSH_HOST", unset = "farm")
 
 message("Project: ", PROJECT_NAME)
@@ -87,7 +87,7 @@ if (!file.exists(PHYLOSEQ_RDS)) stop("Cannot find phyloseq RDS: ", PHYLOSEQ_RDS,
 # Step 0: Load phyloseq early to get tax_table columns
 # ----------------------------
 ps <- readRDS(PHYLOSEQ_RDS)
-if (!inherits(ps, "phyloseq")) stop("Loaded object is not a phyloseq object: ", PHYLOSEQ_RDS, call. = FALSE)
+if (!inherits(ps, "phyloseq")) stop("Loaded object is not a phyloseq object: ", PHYLOSEQ_RDS, call. = FALSE) # Confirms the object is of the phyloseq class.
 
 tax <- tax_table(ps)
 tax_mat <- as(tax, "matrix")
@@ -95,13 +95,13 @@ tax_cols_all <- colnames(tax_mat)
 
 # Rank/taxon columns that we WILL set to unknown when needed and allow overrides for.
 # This excludes Confidence + Sequence columns.
-tax_cols_rank <- tax_cols_all[!vapply(tax_cols_all, is_excluded_override_col, logical(1))]
+tax_cols_rank <- tax_cols_all[!vapply(tax_cols_all, is_excluded_override_col, logical(1))] # !vapply creates a logical vector for whether a column should be included, amd tax_cols_all[...] keeps all TRUE columns.
 
-# Identify Species column (required)
+# Identify Species column (required). When a BLAST assignment is approved, the BLAST final taxon assignment will be written specifically into the Species column, so this code chuck helps us identify that column.
 SPECIES_COL <- pick_first_col(tax_cols_all, c("Species", "species", "SPECIES"))
 if (is.na(SPECIES_COL)) {
   stop("Could not find a Species column in tax_table(ps). Columns are: ",
-       paste(tax_cols_all, collapse = ", "),
+       paste(tax_cols_all, collapse = ", "), # prints all columns that do exist
        call. = FALSE)
 }
 
@@ -116,37 +116,37 @@ message("Phyloseq tax_table columns: ", paste(tax_cols_all, collapse = ", "))
 message("Rank columns (overridable + set-to-unknown targets): ", paste(tax_cols_rank, collapse = ", "))
 message("On approval, will set '", SPECIES_COL, "' to BLAST Final_Taxon.")
 
-# Override columns are created ONLY for rank columns (not confidence/sequence)
+# Override columns are created ONLY for taxon rank columns (not confidence/sequence)
 override_cols <- paste0("Override_", tax_cols_rank)
 
 # ----------------------------
-# Step 1: Read original TSV and build review table
+# Step 1: Read original TSV and build a new spreadsheet for review
 # ----------------------------
 df <- read.delim(
   BLAST_FILE,
-  sep = "\t",
-  header = TRUE,
-  check.names = FALSE,
-  stringsAsFactors = FALSE
+  sep = "\t", # columns are separated by tabs
+  header = TRUE, # first row contains column names
+  check.names = FALSE, # preserves exact column names. sometimes R can rename them to make syntactically valid.
+  stringsAsFactors = FALSE # treats the text as text instead of categorical codes.
 )
 
-required_cols <- c("ASV", "Final_Taxon")
-missing_cols <- setdiff(required_cols, names(df))
+required_cols <- c("ASV", "Final_Taxon") # Checks that the input .tsv file contains the ASV and Final_Taxon column, and stops if either is missing.
+missing_cols <- setdiff(required_cols, names(df)) # Checks which column names are 'not' present in the dataframe.
 if (length(missing_cols) > 0) {
   stop("Input TSV is missing required columns: ", paste(missing_cols, collapse = ", "), call. = FALSE)
 }
 
-if (!("Approve" %in% names(df))) df$Approve <- ""
+if (!("Approve" %in% names(df))) df$Approve <- "" # if the column 'Approve' does not exist in the list of current column names, create it and fills its rows with a blank string.
 if (!("Disapprove_Reason" %in% names(df))) df$Disapprove_Reason <- ""
 if (!("Remove_ASV" %in% names(df))) df$Remove_ASV <- ""
 
-for (oc in override_cols) {
+for (oc in override_cols) { # for each override column name, if it doesn't exist, create it as a blank column.
   if (!(oc %in% names(df))) df[[oc]] <- ""
 }
 
 preferred_front <- intersect(c("ASV", "ASV_sequence", "Final_Taxon", "Final_Taxon_Rank"), names(df))
-rest <- setdiff(names(df), c(preferred_front, "Approve", "Disapprove_Reason", "Remove_ASV", override_cols))
-df <- df[, unique(c(preferred_front, "Approve", "Disapprove_Reason", "Remove_ASV", override_cols, rest))]
+rest <- setdiff(names(df), c(preferred_front, "Approve", "Disapprove_Reason", "Remove_ASV", override_cols)) # computes all current columns expcept the ones we plan to put at the front.
+df <- df[, unique(c(preferred_front, "Approve", "Disapprove_Reason", "Remove_ASV", override_cols, rest))] # reorders columns for review spreadsheet.
 
 # ----------------------------
 # Step 1b: Write Excel with validation + highlighting

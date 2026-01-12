@@ -244,17 +244,79 @@ sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_ncbi_taxonomy.
 
 </details>
 
-9. Under review, don't try this chunk yet. **Review and approve BLAST taxonomic assignments:**
+9. **Review and approve BLAST taxonomic assignments:**
+
+> This script requires a manual review step to approve/dissaprove and change BLAST taxonomic assignments if needed.
 
 ```
-module show R/4.4.2
+module load R/4.4.2
 export PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 export PROJECT_DIR="$HOME/Metabarcoding/$PROJECT_NAME"
 export PHYLOSEQ_RDS="$PROJECT_DIR/output/phyloseq/dada2_phyloseq.rds"
 
 Rscript "$PROJECT_DIR/scripts/${PROJECT_NAME}_review_and_update_phyloseq.R"
 ```
+>A. When prompted, open the `${PROJECT_NAME}_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx` spreadsheet. 
+> - If you have MobaXterm, simply right click the file and open with Excel. 
+> - If you are using a MacOS, open your computer terminal in a separate window and use the `scp` command. This should be run on your computer, not on the cluster. After uploading the file, navigate to local directory and open the spreadsheet.
+> ```
+scp -r [USER]@[CLUSTER].hpc.ucdavis.edu:~/[CLUSTER-DATA] local-directory
 
+# Example to upload to current local directory: scp leighrs@farm.hpc.ucdavis.edu:/home/leighrs/Metabarcoding/test/output/BLAST/test_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx .
+# Example to upload to a specific local directory: scp leighrs@farm.hpc.ucdavis.edu:/home/leighrs/Metabarcoding/test/output/BLAST/test_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx C:\Users\Leighrs13\Metabarcoding
+> ```
+>
+> B. Manually review BLAST taxonomic assignments:
+
+<details>
+
+<summary><strong>*For an explanation on columns, click here to expand:*</strong></summary>
+
+<br>
+
+> - Column A: ASV ID
+> - Column B: ASV sequence
+> - Columns C and D: BLAST taxonomic assignments
+> - Column E: Do you approve the taxonomic assignment?
+>   - blank: I approve
+>   - no: I dissaprove
+> - Column F: Leave a note here for your dissaproval reasoning.
+> - Column G: Remove ASV from dataset (including phyloseq object)?
+>   - blank: Leave ASV in dataset
+>   - yes: Remove ASV from dataset
+> - Columns H-O: Taxon name override columns
+>   - If you disapprove of BLAST taxon assignment, you can override by specifying desired taxon names here. 
+>   - You only need to fill out the ranks you want to change.
+>   - If you disapprove of a BLAST taxon assignment, but do not override ANY taxon ranks then ALL ranks will be set to "unknown".
+> Column P: Explanation for BLAST taxon assignment.
+
+</details>
+
+> - When reviewing the test data:
+>   - Select "no" for each row in the E column to disapprove of all BLAST assignments.
+>   - For the dissapproval reasoning in column F: 
+>     - For each cell, "BLAST taxon assignments are correct, but I want to override taxon naming for each of their species and common name ranks". 
+>     - F4: also add in "gairdneri subspecies unclear/outdated".
+>   - Fill in the new taxon ranks into the following cells:
+>     - N2: Lucania spp
+>     - O2: Killifish spp
+>     - N3, N5, N6: Cottidae spp
+>     - O3, O5, O6: Sculpin spp
+>     - N4: Oncorhynchus mykiss
+>     - O4: Rainbow Trout
+
+>C. Save edited spreadsheet (same file name) and upload to FARM:
+> - If you have MobaXterm, simply save and close the file.
+> - If you are using a MacOS, open your computer terminal in a separate window and use the `scp` command. This should be run on your computer, not on the cluster.
+> ```
+scp -r local-directory [USER]@[CLUSTER].hpc.ucdavis.edu:~/[CLUSTER-DATA] 
+
+# Example to upload from local directory: scp test_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx leighrs@farm.hpc.ucdavis.edu:/home/leighrs/Metabarcoding/test/output/BLAST/ 
+# Example to upload from a specific local directory: scp C:\Users\Leighrs13\Metabarcoding\test_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx leighrs@farm.hpc.ucdavis.edu:/home/leighrs/Metabarcoding/test/output/BLAST/ 
+> ```
+> D. After uploading edited spreadsheet into FARM, navigate back to terminal with FARM running, and hit `Enter` to continue running the script.
+> - Your phyloseq object will now be updated with these taxonomic assignments.
+> - You can ignore the intermediate `test_reviewed_assignments.tsv` file created in the BLAST folder.
 </details>
 
 ---
