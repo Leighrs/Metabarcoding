@@ -65,20 +65,28 @@ BLAST_FILE <- Sys.getenv( #If there is no LCTR_TSV variable found, return this .
 PHYLOSEQ_RDS <- Sys.getenv("PHYLOSEQ_RDS", unset = "")
 stop_if_missing(PHYLOSEQ_RDS, "PHYLOSEQ_RDS")
 
-OUT_DIR <- Sys.getenv("REVIEW_OUTDIR", unset = file.path(PROJECT_DIR, "output", "BLAST"))
+OUT_DIR <- Sys.getenv("REVIEW_OUTDIR", unset = "")
 dir.create(OUT_DIR, recursive = TRUE, showWarnings = FALSE)
+stop_if_missing(OUT_DIR, "REVIEW_OUTDIR")
 
 review_xlsx <- file.path(OUT_DIR, paste0(PROJECT_NAME, "_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx")) #Concatenates file path with new file name
 reviewed_assignments_tsv <- file.path(OUT_DIR, paste0(PROJECT_NAME, "_reviewed_assignments.tsv"))
 updated_phyloseq_rds <- file.path(OUT_DIR, paste0(PROJECT_NAME, "_phyloseq_UPDATED_reviewed_taxonomy.rds"))
 
-user <- Sys.getenv("USER") # Used later to print custom scp instructions to user
-host <- Sys.getenv("REVIEW_SSH_HOST", unset = "farm.hpc.ucdavis.edu")
+is_resume <- file.exists(review_xlsx)
 
-message("Project: ", PROJECT_NAME)
-message("BLAST taxonomy file: ", BLAST_FILE)
-message("Phyloseq input RDS: ", PHYLOSEQ_RDS)
-message("Review XLSX will be: ", review_xlsx)
+user <- Sys.getenv("USER", unset = "") # Used later to print custom scp instructions to user
+stop_if_missing(user, "USER")
+
+host <- trimws(tryCatch(system("hostname -f", intern = TRUE), error = function(e) ""))
+
+# If it looks like farm.farm.hpc..., collapse the duplicate first label
+host <- sub("^([^.]+)\\.\\1\\.", "\\1.", host)
+
+if (!nzchar(host)) {
+  stop("Could not determine hostname for scp instructions.", call. = FALSE)
+}
+
 
 if (!file.exists(BLAST_FILE)) stop("Cannot find BLAST taxonomy file: ", BLAST_FILE, call. = FALSE)
 if (!file.exists(PHYLOSEQ_RDS)) stop("Cannot find phyloseq RDS: ", PHYLOSEQ_RDS, call. = FALSE)
@@ -109,12 +117,6 @@ if (is.na(SPECIES_COL)) {
 CONF_COL <- pick_first_col(tax_cols_all, c("Confidence", "confidence", "CONFIDENCE"))
 SEQ_COL  <- pick_first_col(tax_cols_all, c("ASV_sequence", "asv_sequence", "Sequence", "sequence"))
 
-if (!is.na(CONF_COL)) message("Confidence column detected: ", CONF_COL)
-if (!is.na(SEQ_COL))  message("Sequence column detected (will never be changed): ", SEQ_COL)
-
-message("Phyloseq tax_table columns: ", paste(tax_cols_all, collapse = ", "))
-message("Rank columns (overridable + set-to-unknown targets): ", paste(tax_cols_rank, collapse = ", "))
-message("On approval, will set '", SPECIES_COL, "' to BLAST Final_Taxon.")
 
 # Override columns are created ONLY for taxon rank columns (not confidence/sequence)
 override_cols <- paste0("Override_", tax_cols_rank)
@@ -259,41 +261,40 @@ if (!is.na(approve_letter) && length(override_col_indices) > 0) {
   }
 }
 
-saveWorkbook(wb, review_xlsx, overwrite = TRUE)
-orig_mtime <- file.info(review_xlsx)$mtime
 
-# ----------------------------
-# Manual review step
-# ----------------------------
-message("\n============================================================")
-message("MANUAL REVIEW STEP (HPC is headless; Excel won't open here)")
-message("============================================================")
-message("Review file created at:")
-message("  ", review_xlsx)
+if (!is_resume) {
+  saveWorkbook(wb, review_xlsx, overwrite = TRUE)
+  message("Project: ", PROJECT_NAME)
+  message("BLAST taxonomy file: ", BLAST_FILE)
+  message("Phyloseq input RDS: ", PHYLOSEQ_RDS)
+  
+  message("\n============================================================")
+  message("MANUAL REVIEW STEP (HPC is headless; Excel won't open here)")
+  message("============================================================")
+  message("Review file created at:")
+  message("  ", review_xlsx)
 
-message("\nDownload locally:")
-message("  scp ", user, "@", host, ":", review_xlsx, " .")
+  message("\nDownload locally:")
+  message("  scp ", user, "@", host, ":", review_xlsx, " .")
 
-message("\nEdit in Excel, then upload back:")
-message("  scp ", basename(review_xlsx), " ", user, "@", host, ":", dirname(review_xlsx), "/")
+  message("\nEdit in Excel, then upload back:")
+  message("  scp ", basename(review_xlsx), " ", user, "@", host, ":", dirname(review_xlsx), "/")
+  
+  message("\nRules:")
+  message("- Approve: blank = approved; 'no' = disapproved.")
+  message("- Remove_ASV: blank = keep; 'yes' = remove from dataset.")
+  message("- Disapproved + no taxon rank overrides => all rank columns will set to 'unknown`.")
+  message("- Disapproved + any overrides => apply those overrides, confidence set to 'overridden'.")
+  
+  message("After re-uploading edited spreadsheet, run THIS SAME COMMAND to continue.")
+  message("============================================================\n")
 
-message("\nRules:")
-message("- Approve: blank = approved; 'no' = disapproved.")
-message("- Remove_ASV: blank = keep; 'yes' = remove from dataset.")
-message("- Disapproved + no taxon rank overrides => all rank columns will set to 'unknown`.")
-message("- Disapproved + any overrides => apply those overrides, confidence set to 'overridden'.")
-
-message("\nAfter uploading the edited Excel back, press ENTER to continue.")
-message("============================================================\n")
-invisible(readLines("stdin", n = 1))
-
-if (!file.exists(review_xlsx)) stop("Edited review file not found: ", review_xlsx, call. = FALSE)
-
-new_mtime <- file.info(review_xlsx)$mtime
-if (!is.na(orig_mtime) && !is.na(new_mtime) && new_mtime <= orig_mtime) {
-  warning("Review file modification time did not change. Did you upload the edited Excel file back?")
+  quit(save = "no", status = 0)
 }
 
+  message("Detected an .xlsx spreadsheet, script must be in second run.")
+  message("Project: ", PROJECT_NAME, " resumed")
+  
 # ----------------------------
 # Step 2: Read review Excel
 # ----------------------------
@@ -327,7 +328,6 @@ flag_reason <- rev %>%
 if (length(flag_reason) > 0) warning("Disapproved ASVs missing reason: ", paste(flag_reason, collapse = ", "))
 
 write.table(rev, reviewed_assignments_tsv, sep = "\t", row.names = FALSE, quote = FALSE)
-message("Wrote reviewed assignments TSV: ", reviewed_assignments_tsv)
 
 # ----------------------------
 # Step 3: Update phyloseq + prune taxa

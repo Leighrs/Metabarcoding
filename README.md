@@ -248,11 +248,30 @@ This repository contains scripts and configuration files to:
 
 > This script requires a manual review step to approve/dissaprove and change BLAST taxonomic assignments if needed.
 >
+>First, load the conda module:
 >```
->module load R/4.4.2
+>module load conda
+>```
+>Then, create a conda environment. If you have done this previously, you can skip this step.
+>```
+>mamba create -n review_env -y \
+>  -c conda-forge -c bioconda \
+>  r-base=4.3 \
+>  r-dplyr \
+>  r-openxlsx \
+>  r-stringr \
+>  bioconductor-phyloseq
+>```
+>Activate your conda environment:
+>```
+>conda activate review_env
+>```
+>Export environmental variables and run script:
+>```
 >export PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 >export PROJECT_DIR="$HOME/Metabarcoding/$PROJECT_NAME"
 >export PHYLOSEQ_RDS="$PROJECT_DIR/output/phyloseq/dada2_phyloseq.rds"
+>export REVIEW_OUTDIR="$PROJECT_DIR/output/BLAST/Review"
 >
 >Rscript "$PROJECT_DIR/scripts/${PROJECT_NAME}_review_and_update_phyloseq.R"
 >```
@@ -316,12 +335,96 @@ This repository contains scripts and configuration files to:
 ># Example to upload from a specific local directory: scp C:\Users\Leighrs13\Metabarcoding\test_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx leighrs@farm.hpc.ucdavis.edu:/home/leighrs/Metabarcoding/test/output/BLAST/ 
 > ```
 
-> **D. After uploading edited spreadsheet into FARM, navigate back to terminal with FARM running, and hit `Enter` to continue running the script.**
+> **D. After uploading edited spreadsheet into FARM, navigate back to terminal with FARM running your conda environment, and re-run the following code to continue running the script.**
+>```
+>Rscript "$PROJECT_DIR/scripts/${PROJECT_NAME}_review_and_update_phyloseq.R"
+>```
+>
 > - Your phyloseq object will now be updated with these taxonomic assignments.
 > - You can ignore the intermediate `test_reviewed_assignments.tsv` file created in the BLAST folder.
+>**Finally, exit from your conda environment:**
+>```
+>conda deactivate
+>```
+
+**10. Remove contaminant reads from ASVs:**
+>First, load the conda module:
+>```
+>module load conda
+>```
+>Then, create a new conda environment. If you have done this previously, you can skip this step.
+>```
+>mamba create -n decontam_env -y \
+>  -c conda-forge -c bioconda \
+>  r-base=4.3 \
+>  r-dplyr \
+>  r-openxlsx \
+>  r-stringr \
+>  r-writexl \
+>  r-readxl \
+>  r-here \
+>  bioconductor-phyloseq
+>```
+>Activate your conda environment:
+>```
+>conda activate decontam_env
+>```
+>Export environmental variables and run script:
+>```
+>export PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+>export PROJECT_DIR="$HOME/Metabarcoding/$PROJECT_NAME"
+>export REVIEW_OUTDIR="$PROJECT_DIR/output/BLAST/Review"
+>export SCRIPT_DIR="$PROJECT_DIR/scripts/${PROJECT_NAME}_R_ASV_cleanup_scripts"
+>export ASV_CLEANUP_DIR="$PROJECT_DIR/output/ASV_cleanup_output"
+>export PHYLOSEQ_RDS_REVIEWED="$REVIEW_OUTDIR/test_phyloseq_UPDATED_reviewed_taxonomy.rds"
+>```
+>Define label parameters:
+>```
+>export SAMPLE_TYPE_COL="Sample_or_Control"
+>export SAMPLE_LABEL="Sample"
+>export CONTROL_LABEL="Control"
+>export ASSIGNED_CONTROLS_COL="Control_Assign"
+>```
+> - `SAMPLE_TYPE_COL`: Column name in metadata for assigning which are controls or samples.
+> - `SAMPLE_LABEL`: Label for sample rows.
+> - `CONTROL_LABEL`: Label for control rows.
+> - `ASSIGNED_CONTROLS_COL`: Column name in metadata for assigning which controls go to which samples.
+>   -  For this column, controls are assigned a single unique ID. Samples should contain a comma-delimited list for which controls are assigned to them. For example:
+> |sampleID|Control_Assign|Sample_or_Control|Explanation|
+> |BROA1|1,2,4|Sample|Controls 1,2,4 need to be subtracted from this sample|
+> |FLYA2|2,3,4|Sample|Controls 2,3,4 need to be subtracted from this sample|
+> |BROAB|1|Control|The ID of this control is 1|
+> |FLYAB|3|Control|The ID of this control is 2|
+> |EXT1|2|Control|The ID of this control is 3|
+> |PCR1|4|Control|The ID of this control is 4|
+>
+>Define threshold parameters:
+>```
+>export SAMPLE_THRES=0.05/100
+>export MIN_DEPTH_THRES=10
+>```
+> - `SAMPLE_THRES`: Defines per-sample ASV threshold to be applied. You can define as a proportion (e.g., X/100) or an absolute read count (e.g., 10).
+>   - Removes ASVs that do not reach a minimum read count.
+>     - Example 1: Sample threshold = 0.05/100 = 0.05% of reads per sample = 0.0005
+>       - Sample A has 100,000 reads -> This threshold will remove 50 reads from each ASV (i.e., minimum 50 reads per ASV to keep that ASV).
+>       - Sample B has 10,000 reads -> This threshold will remove 5 reads from each ASV (i.e., minimum 5 reads per ASV to keep that ASV).
+>     - Example 2: Sample threshold = 10
+>       - Sample A (sample's total reads don't matter)  <- this threshold would remove 10 reads from each ASV (i.e., minimum 10 reads per ASV to keep that ASV).
+> - `MIN_DEPTH_THRES`: Defines minimum sequencing depth for each sample. You can define as a proportion (e.g., X/100) or an absolute read count (e.g., 10).
+>   - Removes samples that do not reach a minimum read count.
+>     - Example 1: Min seq depth threshold  = 0.01/100 = 0.01% of total reads = 0.0001
+>       - Total reads in dataset = 10,000,000 -> This threshold would remove any sample with fewer than 1,000 reads.
+>     - Example 2: Min seq depth threshold = 10 
+>       -Total reads in dataset = Doesn't matter -> This threshold would remove any sample with fewer than 10 reads.
+>
+>Run decontamination script:
+>```
+>Rscript "$PROJECT_DIR/scripts/${PROJECT_NAME}_R_ASV_cleanup_scripts/${PROJECT_NAME}_GVL_metabarcoding_cleanup_main.R"
+>```
 </details>
 
 ---
+
 
 <details>
 <summary><h2>Getting Started</h2></summary>

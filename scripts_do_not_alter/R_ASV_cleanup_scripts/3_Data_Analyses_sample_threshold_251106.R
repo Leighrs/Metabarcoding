@@ -45,17 +45,34 @@ message("  → Threshold applied. Total ASV counts changed across all samples: "
 # ===============================
 # 3. Taxonomy info
 # ===============================
-tax_info <- as.data.frame(tax_table(ps))                    # Extract taxonomy from phyloseq object
-tax_info$Sequence <- rownames(otu_table(ps))                # Add Sequence column with row names
-tax_info$ASV_ID <- rownames(otu_table(ps))                  # Add ASV_ID column with row names
+tax_info <- as.data.frame(as(tax_table(ps_clean1), "matrix")) # Extract taxonomy from phyloseq object
+tax_info$Sequence <- rownames(otu_table(ps_clean1))                # Add Sequence column with row names
+tax_info$ASV_ID <- rownames(otu_table(ps_clean1))                  # Add ASV_ID column with row names
+
+# Ensure order matches the ASV matrices (very important)
+tax_info <- tax_info[rownames(asv_matrix_cleaned), , drop = FALSE]
 
 # ===============================
 # 4. Sample Reads sheets
 # ===============================
-sample_reads_before_thresh_df <- cbind(tax_info, as.data.frame(asv_matrix_before_thresh[, sample_names_vec])) # Combine taxonomy with counts before threshold
-sample_reads_after_thresh_df  <- cbind(tax_info, as.data.frame(asv_matrix_after_thresh[, sample_names_vec]))  # Combine taxonomy with counts after threshold
+sample_reads_before_thresh_df <- cbind( # Combine taxonomy with counts before threshold
+  tax_info,
+  as.data.frame(asv_matrix_before_thresh[, sample_names_vec, drop = FALSE])
+) 
+
+sample_reads_after_thresh_df <- cbind( # Combine taxonomy with counts after threshold
+  tax_info,
+  as.data.frame(asv_matrix_after_thresh[, sample_names_vec, drop = FALSE])
+)
+
 
 # Rename columns J → "Sequence" and K → "ASV_ID"
+# Ensure exact column names
+names(sample_reads_before_thresh_df)[names(sample_reads_before_thresh_df) == "Sequence"] <- "Sequence"
+names(sample_reads_before_thresh_df)[names(sample_reads_before_thresh_df) == "ASV_ID"] <- "ASV_ID"
+names(sample_reads_after_thresh_df)[names(sample_reads_after_thresh_df) == "Sequence"] <- "Sequence"
+names(sample_reads_after_thresh_df)[names(sample_reads_after_thresh_df) == "ASV_ID"] <- "ASV_ID"
+
 colnames(sample_reads_before_thresh_df)[10] <- "Sequence"                # Rename 10th column to "Sequence"
 colnames(sample_reads_before_thresh_df)[11] <- "ASV_ID"                  # Rename 11th column to "ASV_ID"
 colnames(sample_reads_after_thresh_df)[10] <- "Sequence"                 # Rename 10th column to "Sequence"
