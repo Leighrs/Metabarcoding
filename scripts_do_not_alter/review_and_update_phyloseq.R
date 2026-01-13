@@ -73,7 +73,7 @@ reviewed_assignments_tsv <- file.path(OUT_DIR, paste0(PROJECT_NAME, "_reviewed_a
 updated_phyloseq_rds <- file.path(OUT_DIR, paste0(PROJECT_NAME, "_phyloseq_UPDATED_reviewed_taxonomy.rds"))
 
 user <- Sys.getenv("USER") # Used later to print custom scp instructions to user
-host <- Sys.getenv("REVIEW_SSH_HOST", unset = "farm")
+host <- Sys.getenv("REVIEW_SSH_HOST", unset = "farm.hpc.ucdavis.edu")
 
 message("Project: ", PROJECT_NAME)
 message("BLAST taxonomy file: ", BLAST_FILE)
@@ -278,9 +278,9 @@ message("\nEdit in Excel, then upload back:")
 message("  scp ", basename(review_xlsx), " ", user, "@", host, ":", dirname(review_xlsx), "/")
 
 message("\nRules:")
-message("- Approve blank = approved; Approve 'no' = disapproved.")
-message("- Remove_ASV blank = keep; Remove_ASV 'yes' = remove from final phyloseq.")
-message("- Disapproved + no overrides => all rank columns set to 'unknown', confidence set to 'overridden', sequence untouched.")
+message("- Approve: blank = approved; 'no' = disapproved.")
+message("- Remove_ASV: blank = keep; 'yes' = remove from dataset.")
+message("- Disapproved + no taxon rank overrides => all rank columns will set to 'unknown`.")
 message("- Disapproved + any overrides => apply those overrides, confidence set to 'overridden'.")
 
 message("\nAfter uploading the edited Excel back, press ENTER to continue.")
@@ -386,4 +386,5 @@ if (length(to_remove) > 0) {
 
 saveRDS(ps, updated_phyloseq_rds)
 message("Saved updated phyloseq object: ", updated_phyloseq_rds)
+
 message("Done.")
