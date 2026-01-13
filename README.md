@@ -76,20 +76,20 @@ This repository contains scripts and configuration files to:
 1. **Clone the Repository**
 
 > Ensure you are in your home directory and clone in the Metabarcoding repository from Github.
-
-```
-cd ~
-git clone https://github.com/Leighrs/Metabarcoding.git
-```
+>
+>```
+>cd ~
+>git clone https://github.com/Leighrs/Metabarcoding.git
+>```
 
 2. **Set Up Your Project Directory**
 
 > Ensure you are in your home directory and execute a shell script that will set up a project directory for you.
-
-```
-cd ~
-./Metabarcoding/scripts_do_not_alter/setup_metabarcoding_directory.sh
-```
+>
+>```
+>cd ~
+>./Metabarcoding/scripts_do_not_alter/setup_metabarcoding_directory.sh
+>```
 >- **When prompted:**
 >    - *Enter project name:* ${\color{green}test}$
 >    - *Reference database choice:* ${\color{green}2}$
@@ -97,28 +97,28 @@ cd ~
 3. **Import fastq files, metadata, and custom reference sequence database.**
 
 > Ensure you are in your home directory and copy over the test data into your test project folder.
-
-```
-cd ~
-PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
-
-cp -r $HOME/Metabarcoding/test_data/test_fastq/. $HOME/Metabarcoding/$PROJECT_NAME/input/fastq/
-cp "$HOME/Metabarcoding/test_data/12S_RSD.txt" \
-   "$HOME/Metabarcoding/$PROJECT_NAME/input/${PROJECT_NAME}_12S_RSD.txt"
-cp "$HOME/Metabarcoding/test_data/metadata.txt" \
-   "$HOME/Metabarcoding/$PROJECT_NAME/input/${PROJECT_NAME}_metadata.txt"
-```
+>
+>```
+>cd ~
+>PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+>
+>cp -r $HOME/Metabarcoding/test_data/test_fastq/. $HOME/Metabarcoding/$PROJECT_NAME/input/fastq/
+>cp "$HOME/Metabarcoding/test_data/12S_RSD.txt" \
+>   "$HOME/Metabarcoding/$PROJECT_NAME/input/${PROJECT_NAME}_12S_RSD.txt"
+>cp "$HOME/Metabarcoding/test_data/metadata.txt" \
+>   "$HOME/Metabarcoding/$PROJECT_NAME/input/${PROJECT_NAME}_metadata.txt"
+>```
 4. **Generate a samplesheet file.**
 
 > Ensure you are in your home directory and run the following shell script.
 >
 > *This script will autopopulate the PATHs for each of your fastq files, extrapolate sample names from those files, and prompt you to specify how many metabarcoding runs these samples were sequenced in.*
-
-```
-cd ~
-PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
-"$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_generate_samplesheet_table.sh" 
-```
+>
+>```
+>cd ~
+>PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+>"$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_generate_samplesheet_table.sh" 
+>```
 
 >- **When prompted:**
 >  - *Did you sequence samples using multiple sequencing runs?:* ${\color{red}no}$
@@ -129,11 +129,11 @@ PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 > 
 > - The `${PROJECT_NAME}_nf-params.json` file contains all the parameters needed to run the nf-core/ampliseq workflow for your specific project.
 > - Edit this file so that the input paths, primer sequences, and filtering settings match your dataset.
-
-```
-PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
-nano $HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_nf-params.json
-```
+>
+>```
+>PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+>nano $HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_nf-params.json
+>```
 > **Replace these parameters for the test data using the following information:**
 > 
 > Nano files are little tricky to work with. Here are some tips:
@@ -146,69 +146,69 @@ nano $HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_nf-params.json
 >- Delete all the text in the scriptusing `Ctrl` + `K`.
 >- Copy the new text below, and paste into the empty script using a right-click to paste. Some terminals may require `Ctrl` + `Shift` + `V`.
 >- Exit the script using `Ctrl` + `X`. Then `Y` to save. Press **Enter**.
-
-```
-{
-    "input": "$HOME/Metabarcoding/$PROJECT_NAME/input/${PROJECT_NAME}_samplesheet.txt",
-    "FW_primer": "GTCGGTAAAACTCGTGCCAGC",
-    "RV_primer": "CATAGTGGGGTATCTAATCCCAGTTTG",
-
-    "metadata": "$HOME/Metabarcoding/$PROJECT_NAME/input/${PROJECT_NAME}_metadata.txt",
-    "outdir": "$HOME/Metabarcoding/$PROJECT_NAME/output/",
-
-    "seed": 13,
-
-    "ignore_failed_trimming": true,
-    "ignore_failed_filtering": true,
-
-    "trunclenf": 120,
-    "trunclenr": 120,
-
-    "dada_ref_taxonomy": false,
-    "skip_dada_addspecies": true,
-    "dada_ref_tax_custom": "$HOME/Metabarcoding/$PROJECT_NAME/input/${PROJECT_NAME}_12S_RSD.txt",
-    "dada_min_boot": 80,
-    "dada_assign_taxlevels": "Kingdom,Phylum,Class,Order,Family,Genus,Species,Common",
-
-    "exclude_taxa": "none",
-
-    "skip_qiime": true,
-    "skip_barrnap": true,
-    "skip_dada_addspecies": true,
-    "skip_tse": true
-}
-
-```
-
+>
+>```
+>{
+>    "input": "$HOME/Metabarcoding/$PROJECT_NAME/input/${PROJECT_NAME}_samplesheet.txt",
+>    "FW_primer": "GTCGGTAAAACTCGTGCCAGC",
+>    "RV_primer": "CATAGTGGGGTATCTAATCCCAGTTTG",
+>
+>    "metadata": "$HOME/Metabarcoding/$PROJECT_NAME/input/${PROJECT_NAME}_metadata.txt",
+>    "outdir": "$HOME/Metabarcoding/$PROJECT_NAME/output/",
+>
+>    "seed": 13,
+>
+>    "ignore_failed_trimming": true,
+>    "ignore_failed_filtering": true,
+>
+>    "trunclenf": 120,
+>    "trunclenr": 120,
+>
+>    "dada_ref_taxonomy": false,
+>    "skip_dada_addspecies": true,
+>    "dada_ref_tax_custom": "$HOME/Metabarcoding/$PROJECT_NAME/input/${PROJECT_NAME}_12S_RSD.txt",
+>    "dada_min_boot": 80,
+>    "dada_assign_taxlevels": "Kingdom,Phylum,Class,Order,Family,Genus,Species,Common",
+>
+>    "exclude_taxa": "none",
+>
+>    "skip_qiime": true,
+>    "skip_barrnap": true,
+>    "skip_dada_addspecies": true,
+>    "skip_tse": true
+>}
+>
+>```
+>
 > JSON files can't expand environment variables, like `$HOME` or `$PROJECT_NAME`. Create a file with an expanded variable unique to your system.
 > 
-```
-export PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
-envsubst '$HOME $PROJECT_NAME' \
-  < "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_nf-params.json" \
-  > "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_nf-params_expanded.json"
-```
+>```
+>export PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+>envsubst '$HOME $PROJECT_NAME' \
+>  < "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_nf-params.json" \
+>  > "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_nf-params_expanded.json"
+>```
 
 6. **Run the nf-core/ampliseq Pipeline:** 
 
 > Ensure you are in your home directory and run the following shell script.
-
-```
-cd ~
-PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
-sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_run_nf-core_ampliseq.slurm"
-```
+>
+>```
+>cd ~
+>PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+>sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_run_nf-core_ampliseq.slurm"
+>```
 
 7. **BLAST Unknown ASVs:**
 
 > To BLAST your entire .fasta file created from the nf-core/ampliseq pipeline, run the following code:
-
-```bash
-cd ~
-PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
-RUN_BLAST=yes sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_retrieve_phyloseq_unassigned_ASVs.slurm"
-```
-
+>
+>```bash
+>cd ~
+>PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+>RUN_BLAST=yes sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_retrieve_phyloseq_unassigned_ASVs.slurm"
+>```
+>
 > *NOTE: When working with your real data, this code chunk will only work if you used a custom reference sequence database (RSD). If you did not use a custom RSD, a separate code chunk will be provided.*
  
 8. **Clean up NCBI Blast Taxonomy:**
@@ -219,43 +219,43 @@ RUN_BLAST=yes sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_
 >- For tied results, this script will assign the least common taxonomic rank to the ASV.
 >- Explanations for the final taxonomic assignment will be provided for each ASV.
 >- Hopefully this will make parsing through and proofreading BLAST assignments much easier.
-
-```bash
-cd ~
-PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
-sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_ncbi_taxonomy.slurm" option2
-```
-
+>
+>```bash
+>cd ~
+>PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+>sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_ncbi_taxonomy.slurm" option2
+>```
+>
 >- `option2`: If you used a custom RSD, which we did for this test data.
-
-<details>
-<summary><strong>📁 Expected output files (click to expand).</strong></summary>
-
-<br>
-
-| File | Description |
-|------|-------------|
-| `{$PROJECT_NAME}_ncbi_taxon_rank_casche.tsv` | Simple list of all your unique final taxa and ranks. |
-| `{$PROJECT_NAME}_final_LCTR_taxonomy_with_ranks.tsv` | Most useful. Lists ASV ID, ASV sequence, taxa assignment, taxa rank, and assignment explanation for each ASV. |
-| `{$PROJECT_NAME}_final_LCTR_taxonomy.tsv` | Same as file above, but does not include ranks. This is an intermediate file the script uses to make rank assignments. |
-| `{$PROJECT_NAME}_best_taxa_per_ASV.tsv` | Raw BLAST output for only the 'best' aligment for each ASV. |
-| `{$PROJECT_NAME}_blast_taxonomy_merged.tsv` | A file containing raw BLAST output merged with taxonomic information fetched from NCBI (see file below). |
-| `{$PROJECT_NAME}_ncbi_taxonomy_results.tsv` | A file containing further taxonomic information (fetched from NCBI) for each BLAST alignment. |
-
-</details>
+>
+><details>
+><summary><strong>📁 Expected output files (click to expand).</strong></summary>
+>
+><br>
+>
+>| File | Description |
+>|------|-------------|
+>| `{$PROJECT_NAME}_ncbi_taxon_rank_casche.tsv` | Simple list of all your unique final taxa and ranks. |
+>| `{$PROJECT_NAME}_final_LCTR_taxonomy_with_ranks.tsv` | Most useful. Lists ASV ID, ASV sequence, taxa assignment, taxa rank, and assignment explanation for each ASV. |
+>| `{$PROJECT_NAME}_final_LCTR_taxonomy.tsv` | Same as file above, but does not include ranks. This is an intermediate file the script uses to make rank assignments. |
+>| `{$PROJECT_NAME}_best_taxa_per_ASV.tsv` | Raw BLAST output for only the 'best' aligment for each ASV. |
+>| `{$PROJECT_NAME}_blast_taxonomy_merged.tsv` | A file containing raw BLAST output merged with taxonomic information fetched from NCBI (see file below). |
+>| `{$PROJECT_NAME}_ncbi_taxonomy_results.tsv` | A file containing further taxonomic information (fetched from NCBI) for each BLAST alignment. |
+>
+></details>
 
 9. **Review and approve BLAST taxonomic assignments:**
 
 > This script requires a manual review step to approve/dissaprove and change BLAST taxonomic assignments if needed.
-
-```
-module load R/4.4.2
-export PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
-export PROJECT_DIR="$HOME/Metabarcoding/$PROJECT_NAME"
-export PHYLOSEQ_RDS="$PROJECT_DIR/output/phyloseq/dada2_phyloseq.rds"
-
-Rscript "$PROJECT_DIR/scripts/${PROJECT_NAME}_review_and_update_phyloseq.R"
-```
+>
+>```
+>module load R/4.4.2
+>export PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+>export PROJECT_DIR="$HOME/Metabarcoding/$PROJECT_NAME"
+>export PHYLOSEQ_RDS="$PROJECT_DIR/output/phyloseq/dada2_phyloseq.rds"
+>
+>Rscript "$PROJECT_DIR/scripts/${PROJECT_NAME}_review_and_update_phyloseq.R"
+>```
 
 >**A. When prompted, open the `${PROJECT_NAME}_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx` spreadsheet.** 
 > - If you have MobaXterm, simply right click the file and open with Excel. 
@@ -774,6 +774,7 @@ sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_ncbi_taxonomy.
   - Integrating all of the R scripts from the decontamination part of the pipline into a single shell script with minimal interactive user prompts for use on FARM.
   - For those who used an RSD: A script to get the aligned (and assigned) ASVs back into the phyloseq object and remove any remainining unassigned ASVs.
   - For those who BLASTed their entire dataset: A script to create a phyloseq object for them.
+
 
 
 
