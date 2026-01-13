@@ -121,7 +121,7 @@ This repository contains scripts and configuration files to:
 >```
 
 >- **When prompted:**
->  - *Did you sequence samples using multiple sequencing runs?:* ${\color{red}no}$
+>    - *Did you sequence samples using multiple sequencing runs?:* ${\color{red}no}$
 
 **5. Edit Run Parameters.**
 
@@ -880,6 +880,7 @@ sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_ncbi_taxonomy.
   - Integrating all of the R scripts from the decontamination part of the pipline into a single shell script with minimal interactive user prompts for use on FARM.
   - For those who used an RSD: A script to get the aligned (and assigned) ASVs back into the phyloseq object and remove any remainining unassigned ASVs.
   - For those who BLASTed their entire dataset: A script to create a phyloseq object for them.
+
 
 
 
