@@ -73,7 +73,7 @@ This repository contains scripts and configuration files to:
   
 <br>
 
-1. **Clone the Repository**
+**1. Clone the Repository**
 
 > Ensure you are in your home directory and clone in the Metabarcoding repository from Github.
 >
@@ -82,7 +82,7 @@ This repository contains scripts and configuration files to:
 >git clone https://github.com/Leighrs/Metabarcoding.git
 >```
 
-2. **Set Up Your Project Directory**
+**2. Set Up Your Project Directory**
 
 > Ensure you are in your home directory and execute a shell script that will set up a project directory for you.
 >
@@ -94,7 +94,7 @@ This repository contains scripts and configuration files to:
 >    - *Enter project name:* ${\color{green}test}$
 >    - *Reference database choice:* ${\color{green}2}$
 
-3. **Import fastq files, metadata, and custom reference sequence database.**
+**3. Import fastq files, metadata, and custom reference sequence database.**
 
 > Ensure you are in your home directory and copy over the test data into your test project folder.
 >
@@ -108,7 +108,7 @@ This repository contains scripts and configuration files to:
 >cp "$HOME/Metabarcoding/test_data/metadata.txt" \
 >   "$HOME/Metabarcoding/$PROJECT_NAME/input/${PROJECT_NAME}_metadata.txt"
 >```
-4. **Generate a samplesheet file.**
+**4. Generate a samplesheet file.**
 
 > Ensure you are in your home directory and run the following shell script.
 >
@@ -123,7 +123,7 @@ This repository contains scripts and configuration files to:
 >- **When prompted:**
 >  - *Did you sequence samples using multiple sequencing runs?:* ${\color{red}no}$
 
-5. **Edit Run Parameters.**
+**5. Edit Run Parameters.**
 
 > Open the parameter file for the nf-core/ampliseq pipeline:
 > 
@@ -189,7 +189,7 @@ This repository contains scripts and configuration files to:
 >  > "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_nf-params_expanded.json"
 >```
 
-6. **Run the nf-core/ampliseq Pipeline:** 
+**6. Run the nf-core/ampliseq Pipeline:** 
 
 > Ensure you are in your home directory and run the following shell script.
 >
@@ -199,7 +199,7 @@ This repository contains scripts and configuration files to:
 >sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_run_nf-core_ampliseq.slurm"
 >```
 
-7. **BLAST Unknown ASVs:**
+**7. BLAST Unknown ASVs:**
 
 > To BLAST your entire .fasta file created from the nf-core/ampliseq pipeline, run the following code:
 >
@@ -211,7 +211,7 @@ This repository contains scripts and configuration files to:
 >
 > *NOTE: When working with your real data, this code chunk will only work if you used a custom reference sequence database (RSD). If you did not use a custom RSD, a separate code chunk will be provided.*
  
-8. **Clean up NCBI Blast Taxonomy:**
+**8. Clean up NCBI Blast Taxonomy:**
    
 > This script will auto process your raw BLAST output to output the single 'best' taxonomic rank for each assigned ASV:
 >
@@ -244,7 +244,7 @@ This repository contains scripts and configuration files to:
 >
 ></details>
 
-9. **Review and approve BLAST taxonomic assignments:**
+**9. Review and approve BLAST taxonomic assignments:**
 
 > This script requires a manual review step to approve/dissaprove and change BLAST taxonomic assignments if needed.
 >
@@ -389,8 +389,11 @@ This repository contains scripts and configuration files to:
 > - `SAMPLE_LABEL`: Label for sample rows.
 > - `CONTROL_LABEL`: Label for control rows.
 > - `ASSIGNED_CONTROLS_COL`: Column name in metadata for assigning which controls go to which samples.
->   -  For this column, controls are assigned a single unique ID. Samples should contain a comma-delimited list for which controls are assigned to them. For example:
-> |sampleID|Control_Assign|Sample_or_Control|Explanation|
+>   -  For this column, controls are assigned a single unique ID. Samples should contain a comma-delimited list for which controls are assigned to them.
+>     -  For example:
+>
+> | sampleID | Control_Assign | Sample_or_Control | Explanation |
+> |------|-------------|-------------|-------------|
 > |BROA1|1,2,4|Sample|Controls 1,2,4 need to be subtracted from this sample|
 > |FLYA2|2,3,4|Sample|Controls 2,3,4 need to be subtracted from this sample|
 > |BROAB|1|Control|The ID of this control is 1|
@@ -877,6 +880,7 @@ sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_ncbi_taxonomy.
   - Integrating all of the R scripts from the decontamination part of the pipline into a single shell script with minimal interactive user prompts for use on FARM.
   - For those who used an RSD: A script to get the aligned (and assigned) ASVs back into the phyloseq object and remove any remainining unassigned ASVs.
   - For those who BLASTed their entire dataset: A script to create a phyloseq object for them.
+
 
 
 
