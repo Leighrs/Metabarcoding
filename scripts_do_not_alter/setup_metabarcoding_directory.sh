@@ -39,12 +39,51 @@ done
 mkdir -p "Metabarcoding/$PROJECT"
 mkdir -p "Metabarcoding/Logs_archive"
 mkdir -p "Metabarcoding/$PROJECT/scripts"
-mkdir -p "Metabarcoding/$PROJECT/input/fastq"
+mkdir -p "Metabarcoding/$PROJECT/output/intermediates_logs_cache/singularity"
 
-# Only create local intermediates/cache if NOT using Azure Blob
-if [[ "$USE_AZURE" == "no" ]]; then
-    mkdir -p "Metabarcoding/$PROJECT/output/intermediates_logs_cache/singularity"
-fi
+# ---------------------------
+#  PROMPT: FASTQ STORAGE LOCATION
+# ---------------------------
+while true; do
+    echo
+    echo "Where do you want to store FASTQ files?"
+    echo "  1) Home directory (Metabarcoding/$PROJECT/input/fastq)"
+    echo "  2) Group directory (/group/ajfingergrp/Metabarcoding_fastq_storage/${PROJECT}_fastq_YYYYMMDD)"
+    read -rp "Enter 1 or 2 [default 1]: " FASTQ_STORE_CHOICE
+    FASTQ_STORE_CHOICE="${FASTQ_STORE_CHOICE:-1}"
+
+    case "$FASTQ_STORE_CHOICE" in
+        1)
+            FASTQ_DIR="Metabarcoding/$PROJECT/input/fastq"
+            mkdir -p "$FASTQ_DIR"
+            echo -e "${GREEN}FASTQ storage set to HOME: $FASTQ_DIR${RESET}"
+            break
+            ;;
+        2)
+            DATE_TAG="$(date +%Y%m%d)"
+            FASTQ_DIR="/group/ajfingergrp/Metabarcoding_fastq_storage/${PROJECT}_fastq_${DATE_TAG}"
+
+            # Ensure group base exists / is accessible
+            if [[ ! -d "/group/ajfingergrp" ]]; then
+                echo -e "${RED}ERROR: /group/ajfingergrp does not exist or is not accessible.${RESET}"
+                echo -e "${YELLOW}Falling back to home FASTQ storage.${RESET}"
+                FASTQ_DIR="Metabarcoding/$PROJECT/input/fastq"
+            fi
+
+            mkdir -p "$FASTQ_DIR"
+
+            # Make a pointer inside the project so users/scripts know where FASTQs live
+            echo "$FASTQ_DIR" > "Metabarcoding/$PROJECT/input/fastq_storage_path.txt"
+
+            echo -e "${GREEN}FASTQ storage set to GROUP: $FASTQ_DIR${RESET}"
+            echo -e "${YELLOW}Saved FASTQ location to Metabarcoding/$PROJECT/input/fastq_storage_path.txt${RESET}"
+            break
+            ;;
+        *)
+            echo -e "${RED}Invalid input. Please enter 1 or 2.${RESET}"
+            ;;
+    esac
+done
 
 echo -e "${GREEN}Directory structure created.${RESET}"
 
@@ -53,9 +92,9 @@ echo -e "${GREEN}Directory structure created.${RESET}"
 # ---------------------------
 cat <<EOT > "Metabarcoding/$PROJECT/input/Example_samplesheet.txt"
 sampleID	forwardReads	reverseReads	run
-B12A1_02	/path/to/R1.fastq.gz	/path/to/R2.fastq.gz	A
-B12A2_02	/path/to/R1.fastq.gz	/path/to/R2.fastq.gz	A
-B12A3_02	/path/to/R1.fastq.gz	/path/to/R2.fastq.gz	A
+B12A1_02	${FASTQ_DIR}/B12A1_02_R1.fastq.gz	${FASTQ_DIR}/B12A1_02_R2.fastq.gz	A
+B12A2_02	${FASTQ_DIR}/B12A2_02_R1.fastq.gz	${FASTQ_DIR}/B12A2_02_R2.fastq.gz	A
+B12A3_02	${FASTQ_DIR}/B12A3_02_R1.fastq.gz	${FASTQ_DIR}/B12A3_02_R2.fastq.gz	A
 EOT
 
 cat <<EOT > "Metabarcoding/$PROJECT/input/Example_metadata.txt"

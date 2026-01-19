@@ -6,8 +6,30 @@ PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 # Define input directory
 FASTQ_DIR="$HOME/Metabarcoding/$PROJECT_NAME/input/fastq"
 
+# Fastq path
+FASTQ_PTR_FILE="$HOME/Metabarcoding/$PROJECT_NAME/input/fastq_storage_path.txt"
+
+# Decide FASTQ_DIR
+if [[ -f "$FASTQ_PTR_FILE" ]]; then
+    FASTQ_DIR="$(cat "$FASTQ_PTR_FILE")"
+else
+    FASTQ_DIR="$DEFAULT_FASTQ_DIR"
+fi
+
+
 # Output file
 OUTPUT_FILE="$HOME/Metabarcoding/$PROJECT_NAME/input/${PROJECT_NAME}_samplesheet.txt"
+
+# Basic validation
+if [[ ! -d "$FASTQ_DIR" ]]; then
+    echo "ERROR: FASTQ directory not found: $FASTQ_DIR"
+    echo "Expected either:"
+    echo "  - $DEFAULT_FASTQ_DIR"
+    echo "  - or a valid path in $FASTQ_PTR_FILE"
+    exit 1
+fi
+
+echo "Using FASTQ directory: $FASTQ_DIR"
 
 #################################
 #  ASK USER ABOUT MULTIPLE RUNS
@@ -60,9 +82,8 @@ extract_sample_id() {
 #################################
 #  PROCESS FASTQ FILES
 #################################
+shopt -s nullglob # Sometimes bash shell can print literal name, with wildcards, if no files match. With this, if no files match, the patter expands to nothing.
 for fwd in "$FASTQ_DIR"/*_R1_001.fastq.gz; do
-    [ -e "$fwd" ] || continue
-
     fname=$(basename "$fwd")
     sampleID=$(extract_sample_id "$fname")
 
@@ -73,8 +94,8 @@ for fwd in "$FASTQ_DIR"/*_R1_001.fastq.gz; do
         rev=""
     fi
 
-    # If RUN_VALUE is empty, user will fill manually
     echo -e "${sampleID}\t$fwd\t$rev\t${RUN_VALUE}" >> "$OUTPUT_FILE"
 done
+shopt -u nullglob # Restore bash
 
 echo "Sample sheet written to: $OUTPUT_FILE"
