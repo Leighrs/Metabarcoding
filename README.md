@@ -209,7 +209,7 @@ This repository contains scripts and configuration files to:
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 >RUN_BLAST=yes sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_retrieve_phyloseq_unassigned_ASVs.slurm"
 >```
->
+>  - `RUN_BLAST=no` will extract your unassigned ASVs into a fasta file for you to see, but will not BLAST them.
 > *NOTE: When working with your real data, this code chunk will only work if you used a custom reference sequence database (RSD). If you did not use a custom RSD, a separate code chunk will be provided.*
  
 **8. Clean up NCBI Blast Taxonomy:**
@@ -881,6 +881,7 @@ sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_ncbi_taxonomy.
   - Integrating all of the R scripts from the decontamination part of the pipline into a single shell script with minimal interactive user prompts for use on FARM.
   - For those who used an RSD: A script to get the aligned (and assigned) ASVs back into the phyloseq object and remove any remainining unassigned ASVs.
   - For those who BLASTed their entire dataset: A script to create a phyloseq object for them.
+
 
 
 
