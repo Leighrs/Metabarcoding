@@ -93,6 +93,7 @@ This repository contains scripts and configuration files to:
 >- **When prompted:**
 >    - *Enter project name:* ${\color{green}test}$
 >    - *Reference database choice:* ${\color{green}2}$
+>    - *Where do you want to store FASTQ files?:* ${\color{green}1}$
 
 **3. Import fastq files, metadata, and custom reference sequence database.**
 
@@ -880,6 +881,7 @@ sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_ncbi_taxonomy.
   - Integrating all of the R scripts from the decontamination part of the pipline into a single shell script with minimal interactive user prompts for use on FARM.
   - For those who used an RSD: A script to get the aligned (and assigned) ASVs back into the phyloseq object and remove any remainining unassigned ASVs.
   - For those who BLASTed their entire dataset: A script to create a phyloseq object for them.
+
 
 
 
