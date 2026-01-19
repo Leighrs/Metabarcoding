@@ -3,10 +3,10 @@
 # Read project name
 PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 
-# Define input directory
-FASTQ_DIR="$HOME/Metabarcoding/$PROJECT_NAME/input/fastq"
+# Default FASTQ directory (home/local)
+DEFAULT_FASTQ_DIR="$HOME/Metabarcoding/$PROJECT_NAME/input/fastq"
 
-# Fastq path
+# Pointer file (exists only if user chose group storage in setup)
 FASTQ_PTR_FILE="$HOME/Metabarcoding/$PROJECT_NAME/input/fastq_storage_path.txt"
 
 # Decide FASTQ_DIR
@@ -21,6 +21,11 @@ fi
 OUTPUT_FILE="$HOME/Metabarcoding/$PROJECT_NAME/input/${PROJECT_NAME}_samplesheet.txt"
 
 # Basic validation
+if [[ -z "$FASTQ_DIR" ]]; then
+    echo "ERROR: FASTQ_DIR is empty (this should never happen)."
+    exit 1
+fi
+
 if [[ ! -d "$FASTQ_DIR" ]]; then
     echo "ERROR: FASTQ directory not found: $FASTQ_DIR"
     echo "Expected either:"
