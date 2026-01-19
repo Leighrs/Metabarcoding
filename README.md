@@ -202,7 +202,7 @@ This repository contains scripts and configuration files to:
 
 **7. BLAST Unknown ASVs:**
 
-> To BLAST your entire .fasta file created from the nf-core/ampliseq pipeline, run the following code:
+> To BLAST your ASVs that did not assign during the nf-core/ampliseq pipeline, run the following code:
 >
 >```bash
 >cd ~
@@ -881,6 +881,7 @@ sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_ncbi_taxonomy.
   - Integrating all of the R scripts from the decontamination part of the pipline into a single shell script with minimal interactive user prompts for use on FARM.
   - For those who used an RSD: A script to get the aligned (and assigned) ASVs back into the phyloseq object and remove any remainining unassigned ASVs.
   - For those who BLASTed their entire dataset: A script to create a phyloseq object for them.
+
 
 
 
