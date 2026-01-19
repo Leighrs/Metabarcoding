@@ -39,6 +39,7 @@ done
 mkdir -p "Metabarcoding/$PROJECT"
 mkdir -p "Metabarcoding/Logs_archive"
 mkdir -p "Metabarcoding/$PROJECT/scripts"
+mkdir -p "Metabarcoding/$PROJECT/input"
 mkdir -p "Metabarcoding/$PROJECT/output/intermediates_logs_cache/singularity"
 
 # ---------------------------
