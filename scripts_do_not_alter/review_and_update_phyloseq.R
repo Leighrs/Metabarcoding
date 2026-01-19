@@ -1,5 +1,7 @@
 #!/usr/bin/env Rscript
 
+Sys.setenv(TZ = "UTC")  # or your preferred timezone
+
 suppressPackageStartupMessages({
   library(dplyr) # data manipulation
   library(stringr)
@@ -388,3 +390,4 @@ saveRDS(ps, updated_phyloseq_rds)
 message("Saved updated phyloseq object: ", updated_phyloseq_rds)
 
 message("Done.")
+
