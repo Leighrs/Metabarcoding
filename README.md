@@ -314,17 +314,20 @@ This repository contains scripts and configuration files to:
 ></details>
 >
 > **When reviewing the test data:**
+>   - NOTE: The `assignTaxonomy()` function of DADA2 uses a naive Bayesian classifer with bootstrapping. This random subsampling of k-mers can lead to slightly different assignments for the same ASV across different runs. Using set.seed() before running ensures reproducibility, but there is a bug with this script. So some runs may be slightly different in their taxonomic assignments. I am troubleshooting this.
+> -----
 >   - Select "no" for each row in the E column to disapprove of all BLAST assignments.
 >   - For the dissapproval reasoning in column F: 
->     - For each cell, "BLAST taxon assignments are correct, but I want to override taxon naming for each of their species and common name ranks". 
->     - F4: also add in "gairdneri subspecies unclear/outdated".
->   - Fill in the new taxon ranks into the following cells:
->     - N2: Lucania spp
->     - O2: Killifish spp
->     - N3, N5, N6: Cottidae spp
->     - O3, O5, O6: Sculpin spp
->     - N4: Oncorhynchus mykiss
->     - O4: Rainbow Trout
+>     - For each cell, "I want to override taxon naming for each of their species and common name ranks". 
+>   - Fill in the new taxon ranks:
+>   - If you see an Oncorhynchus ASV, add:
+>      - `Oncorhynchus mykiss` to column N and 'Rainbow trout` to column O.
+>   - If you see an Lucania ASV, add:
+>      - `Lucania spp` to column N and 'Killifish spp` to column O.
+>   - If you see an Cottidae ASV, add:
+>      - `Cottidae spp` to column N and 'Sculpin spp` to column O.
+>   - If you see an Cyprinidae ASV, add:
+>      - `Lavinia exilicauda` to column N and 'Hitch` to column O.
 
 >**C. Save edited spreadsheet (same file name) and upload to FARM:**
 > - If you have MobaXterm, simply save and close the file.
@@ -886,6 +889,7 @@ sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_ncbi_taxonomy.
   - Integrating all of the R scripts from the decontamination part of the pipline into a single shell script with minimal interactive user prompts for use on FARM.
   - For those who used an RSD: A script to get the aligned (and assigned) ASVs back into the phyloseq object and remove any remainining unassigned ASVs.
   - For those who BLASTed their entire dataset: A script to create a phyloseq object for them.
+
 
 
 
