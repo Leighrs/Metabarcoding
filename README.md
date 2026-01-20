@@ -320,14 +320,14 @@ This repository contains scripts and configuration files to:
 >   - For the dissapproval reasoning in column F: 
 >     - For each cell, "I want to override taxon naming for each of their species and common name ranks". 
 >   - Fill in the new taxon ranks:
->   - If you see an Oncorhynchus ASV, add:
->      - `Oncorhynchus mykiss` to column N and 'Rainbow trout` to column O.
->   - If you see an Lucania ASV, add:
->      - `Lucania spp` to column N and 'Killifish spp` to column O.
->   - If you see an Cottidae ASV, add:
->      - `Cottidae spp` to column N and 'Sculpin spp` to column O.
->   - If you see an Cyprinidae ASV, add:
->      - `Lavinia exilicauda` to column N and 'Hitch` to column O.
+>     - If you see an Oncorhynchus ASV, add:
+>        - `Oncorhynchus mykiss` to column N and 'Rainbow trout` to column O.
+>     - If you see an Lucania ASV, add:
+>        - `Lucania spp` to column N and 'Killifish spp` to column O.
+>     - If you see an Cottidae ASV, add:
+>        - `Cottidae spp` to column N and 'Sculpin spp` to column O.
+>     - If you see an Cyprinidae ASV, add:
+>        - `Lavinia exilicauda` to column N and 'Hitch` to column O.
 
 >**C. Save edited spreadsheet (same file name) and upload to FARM:**
 > - If you have MobaXterm, simply save and close the file.
@@ -889,6 +889,7 @@ sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_ncbi_taxonomy.
   - Integrating all of the R scripts from the decontamination part of the pipline into a single shell script with minimal interactive user prompts for use on FARM.
   - For those who used an RSD: A script to get the aligned (and assigned) ASVs back into the phyloseq object and remove any remainining unassigned ASVs.
   - For those who BLASTed their entire dataset: A script to create a phyloseq object for them.
+
 
 
 
