@@ -407,19 +407,19 @@ This repository contains scripts and configuration files to:
 >
 >Define threshold parameters:
 >```
->export SAMPLE_THRES=0.05/100
+>export SAMPLE_THRES=0.0005
 >export MIN_DEPTH_THRES=10
 >```
-> - `SAMPLE_THRES`: Defines per-sample ASV threshold to be applied. You can define as a proportion (e.g., X/100) or an absolute read count (e.g., 10).
+> - `SAMPLE_THRES`: Defines per-sample ASV threshold to be applied. You can define as a proportion (e.g., 0.01) or an absolute read count (e.g., 10).
 >   - Removes ASVs that do not reach a minimum read count.
->     - Example 1: Sample threshold = 0.05/100 = 0.05% of reads per sample = 0.0005
+>     - Example 1: Sample threshold = 0.0005 = 0.05% of reads per sample = 
 >       - Sample A has 100,000 reads -> This threshold will remove 50 reads from each ASV (i.e., minimum 50 reads per ASV to keep that ASV).
 >       - Sample B has 10,000 reads -> This threshold will remove 5 reads from each ASV (i.e., minimum 5 reads per ASV to keep that ASV).
 >     - Example 2: Sample threshold = 10
 >       - Sample A (sample's total reads don't matter)  <- this threshold would remove 10 reads from each ASV (i.e., minimum 10 reads per ASV to keep that ASV).
-> - `MIN_DEPTH_THRES`: Defines minimum sequencing depth for each sample. You can define as a proportion (e.g., X/100) or an absolute read count (e.g., 10).
+> - `MIN_DEPTH_THRES`: Defines minimum sequencing depth for each sample. You can define as a proportion (e.g., 0.01) or an absolute read count (e.g., 10).
 >   - Removes samples that do not reach a minimum read count.
->     - Example 1: Min seq depth threshold  = 0.01/100 = 0.01% of total reads = 0.0001
+>     - Example 1: Min seq depth threshold  = 0.0001 = 0.01% of total reads
 >       - Total reads in dataset = 10,000,000 -> This threshold would remove any sample with fewer than 1,000 reads.
 >     - Example 2: Min seq depth threshold = 10 
 >       -Total reads in dataset = Doesn't matter -> This threshold would remove any sample with fewer than 10 reads.
@@ -889,6 +889,7 @@ sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_ncbi_taxonomy.
   - Integrating all of the R scripts from the decontamination part of the pipline into a single shell script with minimal interactive user prompts for use on FARM.
   - For those who used an RSD: A script to get the aligned (and assigned) ASVs back into the phyloseq object and remove any remainining unassigned ASVs.
   - For those who BLASTed their entire dataset: A script to create a phyloseq object for them.
+
 
 
 
