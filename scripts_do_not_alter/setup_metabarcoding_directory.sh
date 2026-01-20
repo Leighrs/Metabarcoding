@@ -161,6 +161,8 @@ declare -A FILES=(
     ["ncbi_pipeline.py"]="${PROJECT}_ncbi_pipeline.py"
     ["retrieve_phyloseq_unassigned_ASVs.slurm"]="${PROJECT}_retrieve_phyloseq_unassigned_ASVs.slurm"
     ["review_and_update_phyloseq.R"]="${PROJECT}_review_and_update_phyloseq.R"
+    ["run_review_and_update_phyloseq.sh"]="${PROJECT}_run_review_and_update_phyloseq.sh"
+    ["run_GVL_metabarcoding_cleanup_main.sh"]="${PROJECT}_run_GVL_metabarcoding_cleanup_main.sh"
 )
 
 for SRCFILE in "${!FILES[@]}"; do
