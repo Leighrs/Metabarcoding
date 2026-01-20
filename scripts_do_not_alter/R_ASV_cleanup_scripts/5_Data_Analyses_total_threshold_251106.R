@@ -1,4 +1,4 @@
-message("🔹 Starting Minimum Sequencing Depth Threshold Pipeline")
+message(" Starting Minimum Sequencing Depth Threshold Pipeline")
 
 # ===============================
 # Minimum Sequencing Depth Threshold Pipeline
@@ -14,7 +14,7 @@ if (!taxa_rows2) { asv_matrix_cleaned2 <- t(asv_matrix_cleaned2) }       # If ta
 
 asv_matrix_before_thresh2 <- asv_matrix_cleaned2                       # Make a copy for "before threshold" data
 sample_sums2 <- colSums(asv_matrix_cleaned2)                             # Calculate total reads per sample
-message("  → ASV matrix extracted from phyloseq object: ", nrow(asv_matrix_cleaned2), " ASVs x ", ncol(asv_matrix_cleaned2), " samples")
+message("  -> ASV matrix extracted from phyloseq object: ", nrow(asv_matrix_cleaned2), " ASVs x ", ncol(asv_matrix_cleaned2), " samples")
 
 # ===============================
 # 2. Compute total reads and threshold
@@ -27,12 +27,12 @@ min_depth <- if(params$min_depth_thres < 1) {
 }
 
 
-message("  → Total reads across all samples: ", total_reads)
+message("  -> Total reads across all samples: ", total_reads)
 threshold_type <- if(params$min_depth_thres < 1) "proportion of total reads" else "absolute read count"
 threshold_value <- params$min_depth_thres
-message("  → Minimum sequencing depth threshold type: ", threshold_type)
-message("  → Threshold value: ", threshold_value)
-message("  → Minimum sequencing depth calculated to be: ", min_depth, " reads")
+message("  -> Minimum sequencing depth threshold type: ", threshold_type)
+message("  -> Threshold value: ", threshold_value)
+message("  -> Minimum sequencing depth calculated to be: ", min_depth, " reads")
 
 # ===============================
 # 3. Filter samples below threshold
@@ -40,7 +40,7 @@ message("  → Minimum sequencing depth calculated to be: ", min_depth, " reads"
 samples_to_keep2 <- colSums(asv_matrix_cleaned2) >= min_depth
 asv_matrix_filtered2 <- asv_matrix_cleaned2[, samples_to_keep2, drop = FALSE]
 sample_names_vec_filtered2 <- colnames(asv_matrix_filtered2)
-message("  → Samples retained after minimum depth filtering: ", sum(samples_to_keep2), " / ", length(samples_to_keep2))
+message("  -> Samples retained after minimum depth filtering: ", sum(samples_to_keep2), " / ", length(samples_to_keep2))
 
 
 # ===============================
@@ -52,7 +52,7 @@ tax_info <- as.data.frame(tax_table(ps_thresh))
 tax_info$Sequence <- rownames(asv_matrix_cleaned2)
 tax_info$ASV_ID <- rownames(asv_matrix_cleaned2)
 tax_info_filtered2 <- tax_info[asvs_to_keep2, , drop = FALSE]
-message("  → ASVs retained after filtering: ", sum(asvs_to_keep2), " / ", nrow(asv_matrix_cleaned2))
+message("  -> ASVs retained after filtering: ", sum(asvs_to_keep2), " / ", nrow(asv_matrix_cleaned2))
 
 
 # ===============================
@@ -76,7 +76,7 @@ if(length(removed_asvs2) > 0){
   removed_asvs_df2 <- data.frame(Note = "No ASVs completely removed from study after minimum sequencing depth threshold. Check for ASVs removed from individual samples in next tab.")
 }
 if(length(removed_samples2) > 0){
-  message("  → Samples removed: ", paste(removed_samples2, collapse = ", "))
+  message("  -> Samples removed: ", paste(removed_samples2, collapse = ", "))
 }
 
 
@@ -159,7 +159,7 @@ if (length(removed_per_sample_list2) > 0) {
   removed_per_sample_df2 <- data.frame(Note = "No ASVs completely removed from an individual sample after minimum sequencing depth threshold.")
 }
 num_samples_with_removed_asvs <- length(unique(removed_per_sample_df2$Sample))
-message("  → Samples with at least one ASV removed: ", num_samples_with_removed_asvs)
+message("  -> Samples with at least one ASV removed: ", num_samples_with_removed_asvs)
 
 # ===============================
 # 8. Write Excel workbook
@@ -212,7 +212,7 @@ write_xlsx(
   ),
   path = excel_path2
 )
-message("  → Excel workbook saved at: ", excel_path2)
+message("  -> Excel workbook saved at: ", excel_path2)
 
 # ===============================
 # 10. Create new phyloseq object after filtering
@@ -225,15 +225,16 @@ ps_thresh2 <<- prune_taxa(asvs_to_keep_ids, ps_thresh2)
 
 # Export phyloseq object
 saveRDS(ps_thresh2, file = here(output_dir,"dada2_phyloseq_cleaned.rds"))
-message("  → Phyloseq object updated with retained samples and ASVs")
-message("     • Samples: ", length(sample_names_vec_filtered2))
-message("     • ASVs: ", nrow(asv_matrix_filtered2))
-message("  → Phyloseq object saved as 'dada2_phyloseq_cleaned.rds'")
+message("  -> Phyloseq object updated with retained samples and ASVs")
+message("     * Samples: ", length(sample_names_vec_filtered2))
+message("     * ASVs: ", nrow(asv_matrix_filtered2))
+message("  -> Phyloseq object saved as 'dada2_phyloseq_cleaned.rds'")
 
 # ===============================
 # 11. Completion message
 # ===============================
 cat("-------------------------------------------------------------------- \n",
-    "🧬 Minimum sequencing depth threshold pipeline completed successfully! 🧬\n",
+    " Minimum sequencing depth threshold pipeline completed successfully! \n",
     "--------------------------------------------------------------------")
+
 
