@@ -240,32 +240,21 @@ This repository contains scripts and configuration files to:
 
 > This script requires a manual review step to approve/dissaprove and change BLAST taxonomic assignments if needed.
 >
->First, load the conda module:
+>Start an interactive shell:
 >```
->module load conda
+>srun --account=millermrgrp \
+>     --partition=bmh \
+>     --ntasks=1 \
+>     --cpus-per-task=1 \
+>     --mem=32G \
+>     --time=01:30:00 \
+>     --pty bash
 >```
->Then, create a conda environment. If you have done this previously, you can skip this step.
+>Then, run shell script to review BLAST assignments and update phylseq object:
 >```
->mamba create -n review_env -y \
->  -c conda-forge -c bioconda \
->  r-base=4.3 \
->  r-dplyr \
->  r-openxlsx \
->  r-stringr \
->  bioconductor-phyloseq
->```
->Activate your conda environment:
->```
->conda activate review_env
->```
->Export environmental variables and run script:
->```
->export PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->export PROJECT_DIR="$HOME/Metabarcoding/$PROJECT_NAME"
->export PHYLOSEQ_RDS="$PROJECT_DIR/output/phyloseq/dada2_phyloseq.rds"
->export REVIEW_OUTDIR="$PROJECT_DIR/output/BLAST/Review"
->
->Rscript "$PROJECT_DIR/scripts/${PROJECT_NAME}_review_and_update_phyloseq.R"
+>cd ~
+>PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+>"$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_run_review_and_update_phyloseq.sh" 
 >```
 
 >**A. When prompted, open the `${PROJECT_NAME}_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx` spreadsheet.** 
@@ -330,49 +319,28 @@ This repository contains scripts and configuration files to:
 ># Example to upload from a specific local directory: scp C:\Users\Leighrs13\Metabarcoding\test_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx leighrs@farm.hpc.ucdavis.edu:/home/leighrs/Metabarcoding/test/output/BLAST/ 
 > ```
 
-> **D. After uploading edited spreadsheet into FARM, navigate back to terminal with FARM running your conda environment, and re-run the following code to continue running the script.**
->```
->Rscript "$PROJECT_DIR/scripts/${PROJECT_NAME}_review_and_update_phyloseq.R"
->```
->
+> **D. After uploading edited spreadsheet into FARM, navigate back to terminal with FARM running your conda environment, and re-run the interactive shell and script code to continue running the script.**
 > - Your phyloseq object will now be updated with these taxonomic assignments.
 > - You can ignore the intermediate `test_reviewed_assignments.tsv` file created in the BLAST folder.
+>   
 >**Finally, exit from your conda environment:**
 >```
 >conda deactivate
 >```
 
 **10. Remove contaminant reads from ASVs:**
->First, load the conda module:
+>
+>Start an interactive shell:
 >```
->module load conda
+>srun --account=millermrgrp \
+>     --partition=bmh \
+>     --ntasks=1 \
+>     --cpus-per-task=1 \
+>     --mem=32G \
+>     --time=01:30:00 \
+>     --pty bash
 >```
->Then, create a new conda environment. If you have done this previously, you can skip this step.
->```
->mamba create -n decontam_env -y \
->  -c conda-forge -c bioconda \
->  r-base=4.3 \
->  r-dplyr \
->  r-openxlsx \
->  r-stringr \
->  r-writexl \
->  r-readxl \
->  r-here \
->  bioconductor-phyloseq
->```
->Activate your conda environment:
->```
->conda activate decontam_env
->```
->Export environmental variables and run script:
->```
->export PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->export PROJECT_DIR="$HOME/Metabarcoding/$PROJECT_NAME"
->export REVIEW_OUTDIR="$PROJECT_DIR/output/BLAST/Review"
->export SCRIPT_DIR="$PROJECT_DIR/scripts/${PROJECT_NAME}_R_ASV_cleanup_scripts"
->export ASV_CLEANUP_DIR="$PROJECT_DIR/output/ASV_cleanup_output"
->export PHYLOSEQ_RDS_REVIEWED="$REVIEW_OUTDIR/test_phyloseq_UPDATED_reviewed_taxonomy.rds"
->```
+>>
 >Define label parameters:
 >```
 >export SAMPLE_TYPE_COL="Sample_or_Control"
@@ -415,9 +383,11 @@ This repository contains scripts and configuration files to:
 >     - Example 2: Min seq depth threshold = 10 
 >       -Total reads in dataset = Doesn't matter -> This threshold would remove any sample with fewer than 10 reads.
 >
->Run decontamination script:
+>Then, run shell script to start decontamination script:
 >```
->Rscript "$PROJECT_DIR/scripts/${PROJECT_NAME}_R_ASV_cleanup_scripts/${PROJECT_NAME}_GVL_metabarcoding_cleanup_main.R"
+>cd ~
+>PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+>"$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_run_GVL_metabarcoding_cleanup_main.sh" 
 >```
 >
 >**Finally, exit from your conda environment:**
@@ -427,6 +397,7 @@ This repository contains scripts and configuration files to:
 </details>
 
 ---
+
 
 
 
