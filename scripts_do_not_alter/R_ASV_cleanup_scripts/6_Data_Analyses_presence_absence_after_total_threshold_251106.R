@@ -1,4 +1,4 @@
-message("🔹 Starting Presence/Absence After Total Threshold Pipeline")
+message(" Starting Presence/Absence After Total Threshold Pipeline")
 # ===============================
 # Presence/Absence Before_After Total Threshold Pipeline
 # Outputs the presence and absence of species in samples before and after total threshold was applied.
@@ -7,7 +7,7 @@ message("🔹 Starting Presence/Absence After Total Threshold Pipeline")
 # ===============================
 # 1. Read sheets from previous total threshold Excel
 # ===============================
-message("  → Reading Sample_Reads_Before_Threshold and Sample_Reads_After_Threshold from Excel")
+message("  -> Reading Sample_Reads_Before_Threshold and Sample_Reads_After_Threshold from Excel")
 sample_reads_before_thres2 <<- read_excel(here(output_dir, paste0("5_",project_name, "_min_seq_depth_threshold_applied.xlsx")), 
                                         sheet = "Sample_Reads_Before_Threshold")  # Read "Sample_Reads_Before" sheet
 sample_reads_after_thres2  <<- read_excel(here(output_dir, paste0("5_",project_name, "_min_seq_depth_threshold_applied.xlsx")), 
@@ -16,8 +16,8 @@ sample_reads_after_thres2  <<- read_excel(here(output_dir, paste0("5_",project_n
 # Extract sample names from 12th column onward (assumes first 11 columns are metadata)
 sample_names_before_thres2 <<- colnames(sample_reads_before_thres2)[12:ncol(sample_reads_before_thres2)]  # Sample names before threshold
 sample_names_after_thres2  <<- colnames(sample_reads_after_thres2)[12:ncol(sample_reads_after_thres2)]    # Sample names after threshold
-message("     • Samples before threshold: ", length(sample_names_before_thres2))
-message("     • Samples after threshold: ", length(sample_names_after_thres2))
+message("     * Samples before threshold: ", length(sample_names_before_thres2))
+message("     * Samples after threshold: ", length(sample_names_after_thres2))
 # ===============================
 # 2. Compile all unique species detected in any sample
 # ===============================
@@ -28,7 +28,7 @@ all_species_thres2 <<- unique(c(
 
 all_species_thres2[is.na(all_species_thres2) | all_species_thres2 == ""] <<- "NA"  # Replace any empty or NA species names with string "NA"
 all_species_thres2 <<- sort(all_species_thres2)                             # Sort species alphabetically for consistency
-message("     • Total unique species: ", length(all_species_thres2))
+message("     * Total unique species: ", length(all_species_thres2))
 # ===============================
 # 3. Create presence/absence matrices (1 = present, 0 = absent)
 # ===============================
@@ -43,7 +43,7 @@ after_matrix_thres2 <<- sapply(sample_names_after_thres2, function(samp_thres2) 
   as.integer(all_species_thres2 %in% sample_reads_after_thres2[[8]][sample_reads_after_thres2[[samp_thres2]] > 0])   # 1 if species present
 }) %>% as.data.frame()                                           # Convert to data frame
 after_matrix_thres2 <<- cbind(Common_Name = all_species_thres2, after_matrix_thres2)   # Add species names as first column
-message("     • Presence/absence matrices created")
+message("     * Presence/absence matrices created")
 # ===============================
 # 4. Create Removed_Detections tab (species removed per sample, comma-separated)
 # ===============================
@@ -70,16 +70,16 @@ removals_per_sample <- sapply(removed_horizontal_thres2$Removed_Species, functio
 
 avg_removed_species <- mean(removals_per_sample)  # Average per sample
 
-message("  → Removed species summary:")
-message("     • Samples with at least one species removed: ", num_samples_with_removed, " / ", nrow(removed_horizontal_thres2))
-message("     • Average number of species removed per sample: ", round(avg_removed_species, 2))
+message("  -> Removed species summary:")
+message("     * Samples with at least one species removed: ", num_samples_with_removed, " / ", nrow(removed_horizontal_thres2))
+message("     * Average number of species removed per sample: ", round(avg_removed_species, 2))
 
 if(num_samples_with_removed > 0){
   # Identify sample with most removals
   max_removed_sample <- removed_horizontal_thres2$Sample[which.max(removals_per_sample)]
-  message("     • Sample with most species removed: ", max_removed_sample, " (", max(removals_per_sample), " species)")
+  message("     * Sample with most species removed: ", max_removed_sample, " (", max(removals_per_sample), " species)")
 } else {
-  message("     • No species were removed from any sample.")
+  message("     * No species were removed from any sample.")
 }
 
 # Identify species completely removed from study
@@ -91,11 +91,11 @@ species_removed_completely <- before_matrix_thres2$Common_Name[
 num_species_removed_completely <- length(species_removed_completely)
 
 if(num_species_removed_completely > 0){
-  message("  → Species completely removed from study: ", num_species_removed_completely)
-  message("     • Names: ", paste(head(species_removed_completely, 10), collapse = ", "),
+  message("  -> Species completely removed from study: ", num_species_removed_completely)
+  message("     * Names: ", paste(head(species_removed_completely, 10), collapse = ", "),
           if(num_species_removed_completely > 10) " …")
 } else {
-  message("  → No species were completely removed from the study.")
+  message("  -> No species were completely removed from the study.")
 }
 
 
@@ -136,11 +136,12 @@ highlight_ones_thres2("After_Cleaning", after_matrix_thres2)    # Apply highligh
 # ===============================
 saveWorkbook(wb_thres2, here(output_dir, paste0("6_",project_name, "_species_detections_before_after_total_threshold.xlsx")),
              overwrite = TRUE)
-message("  → Excel workbook saved at: ", output_dir)
+message("  -> Excel workbook saved at: ", output_dir)
 # ===============================
 # 8. Pipeline completion message
 # ===============================
 cat("-------------------------------------------------------------------- \n",
-    "🧬 Presence_Absence after total threshold pipeline completed successfully! 🧬\n",
+    " Presence_Absence after total threshold pipeline completed successfully! \n",
     "--------------------------------------------------------------------")  # Print completion message to console
+
 
