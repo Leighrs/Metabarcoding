@@ -1,5 +1,5 @@
-message("🔹 Starting Per-Sample ASV Threshold Pipeline")
-message("  → Threshold set to: ", sample_thres, ifelse(sample_thres < 1, " (proportion)", " (absolute reads)"))
+message("Starting Per-Sample ASV Threshold Pipeline")
+message("  Threshold set to: ", sample_thres, ifelse(sample_thres < 1, " (proportion)", " (absolute reads)"))
 
 # ===============================
 # Per-Sample ASV Threshold Pipeline
@@ -15,8 +15,8 @@ if (!taxa_rows) { asv_matrix_cleaned <- t(asv_matrix_cleaned) }       # If taxa 
 
 asv_matrix_before_thresh <- asv_matrix_cleaned                        # Make a copy for "before threshold" data
 sample_sums <- colSums(asv_matrix_cleaned)                             # Calculate total reads per sample
-message("  → ASV matrix extracted from ps_clean1:")
-message("     • Dimensions (ASVs x samples): ", dim(asv_matrix_cleaned)[1], " x ", dim(asv_matrix_cleaned)[2])
+message("  ASV matrix extracted from ps_clean1:")
+message("     Dimensions (ASVs x samples): ", dim(asv_matrix_cleaned)[1], " x ", dim(asv_matrix_cleaned)[2])
 
 
 # ===============================
@@ -25,10 +25,10 @@ message("     • Dimensions (ASVs x samples): ", dim(asv_matrix_cleaned)[1], " 
 threshold <- sample_thres                                              # Define threshold
 compute_sample_threshold <- function(threshold, sample_total) {         # Helper function to accomadate whether threshold is proportion or absolute read count.
   if (threshold < 1) {
-    # Threshold <1 → proportion
+    # Threshold <1  proportion
     return(round(sample_total * threshold, 0))
   } else {
-    # Threshold ≥1 → absolute reads
+    # Threshold >=1  absolute reads
     return(threshold)
   }
 }
@@ -40,7 +40,7 @@ for (s in colnames(asv_matrix_cleaned)) {                               # Loop o
 }
 asv_matrix_after_thresh[asv_matrix_after_thresh < 0] <- 0               # Replace any negative counts with 0
 num_asvs_changed <- sum(asv_matrix_before_thresh != asv_matrix_after_thresh)
-message("  → Threshold applied. Total ASV counts changed across all samples: ", num_asvs_changed)
+message("  Threshold applied. Total ASV counts changed across all samples: ", num_asvs_changed)
 
 # ===============================
 # 3. Taxonomy info
@@ -66,7 +66,7 @@ sample_reads_after_thresh_df <- cbind( # Combine taxonomy with counts after thre
 )
 
 
-# Rename columns J → "Sequence" and K → "ASV_ID"
+# Rename columns J -> "Sequence" and K -> "ASV_ID"
 # Ensure exact column names
 names(sample_reads_before_thresh_df)[names(sample_reads_before_thresh_df) == "Sequence"] <- "Sequence"
 names(sample_reads_before_thresh_df)[names(sample_reads_before_thresh_df) == "ASV_ID"] <- "ASV_ID"
@@ -87,7 +87,7 @@ if (ncol(sample_reads_after_thresh_df) >= 12)  sample_reads_after_thresh_df  <- 
 # ===============================
 
 # Calculate threshold reads per sample
-threshold_reads_per_sample <- round(sample_sums * threshold, 0)  # Named vector: sample → threshold reads
+threshold_reads_per_sample <- round(sample_sums * threshold, 0)  # Named vector: sample -> threshold reads
 
 metric_thresh <- data.frame(
   Sample = sample_names_vec,                                                      # Column for sample names
@@ -125,10 +125,10 @@ summary_thresh_df <- data.frame(
   ),
   stringsAsFactors = FALSE                                               # Do not convert strings to factors
 )
-message("  → Per-sample threshold metrics computed for ", length(sample_names_vec), " samples")
-message("     • Total reads before threshold: ", sum(metric_thresh$ReadsBeforeThreshold))
-message("     • Total reads after threshold:  ", sum(metric_thresh$ReadsAfterThreshold))
-message("     • Total ASVs reduced by threshold: ", sum(metric_thresh$NumASVsReducedByThreshold))
+message("  Per-sample threshold metrics computed for ", length(sample_names_vec), " samples")
+message("     Total reads before threshold: ", sum(metric_thresh$ReadsBeforeThreshold))
+message("     Total reads after threshold:  ", sum(metric_thresh$ReadsAfterThreshold))
+message("     Total ASVs reduced by threshold: ", sum(metric_thresh$NumASVsReducedByThreshold))
 # ===============================
 # 7. Removed_ASVs tab
 # ===============================
@@ -143,20 +143,20 @@ if (length(taxa_removed_after_thresh) > 0) {                              # If a
   removed_df <- tax_info[taxa_removed_after_thresh, tax_cols, drop = FALSE] # Extract taxonomy for removed ASVs
   
   # Add Common (species name), Sequence, ASV_ID
-  common_map   <- setNames(sample_reads_before_thresh_df[, "Species"], sample_reads_before_thresh_df$ASV_ID) # Map ASV_ID → Species
-  sequence_map <- setNames(sample_reads_before_thresh_df$Sequence, sample_reads_before_thresh_df$ASV_ID)    # Map ASV_ID → Sequence
+  common_map   <- setNames(sample_reads_before_thresh_df[, "Species"], sample_reads_before_thresh_df$ASV_ID) # Map ASV_ID  Species
+  sequence_map <- setNames(sample_reads_before_thresh_df$Sequence, sample_reads_before_thresh_df$ASV_ID)    # Map ASV_ID  Sequence
   
   removed_df$Common   <- common_map[rownames(removed_df)]   # Add Common column
   removed_df$Sequence <- sequence_map[rownames(removed_df)] # Add Sequence column
   removed_df$ASV_ID   <- rownames(removed_df)               # Add ASV_ID column
   
-  # Reorder columns: taxonomy (A–G), H=Common, I=Sequence, J=ASV_ID
+  # Reorder columns: taxonomy (A-G), H=Common, I=Sequence, J=ASV_ID
   removed_df <- removed_df[, c(tax_cols, "Common", "Sequence", "ASV_ID")]
   rownames(removed_df) <- NULL
 } else {
   removed_df <- data.frame(Note = "No ASV completely removed from study by per-sample ASV threshold. Check for ASVs removed from individual samples in next tab.") # Placeholder if no ASVs removed
 }
-message("  → Total ASVs completely removed from study: ", nrow(removed_df))
+message("   Total ASVs completely removed from study: ", nrow(removed_df))
 
 # ===============================
 # 8. Removed_Per_Sample tab
@@ -193,7 +193,7 @@ if (length(removed_per_sample_list) > 0) {                               # If an
   removed_per_sample_df <- data.frame(Note = "No ASVs completely removed from any sample by per-sample ASV threshold.") # Placeholder if none
 }
 num_samples_with_removals <- length(removed_per_sample_list)
-message("  → Number of samples with at least one ASV removed by threshold: ", num_samples_with_removals)
+message("   Number of samples with at least one ASV removed by threshold: ", num_samples_with_removals)
 
 
 # ===============================
@@ -201,7 +201,7 @@ message("  → Number of samples with at least one ASV removed by threshold: ", 
 # ===============================
 threshold_excel_path <- here(output_dir, paste0("3_",project_name, "_sample_threshold_applied.xlsx")) # Define output file path
 
-message("  → Writing threshold workbook to: ", threshold_excel_path)
+message("   Writing threshold workbook to: ", threshold_excel_path)
 
 write_xlsx(
   list(
@@ -224,11 +224,12 @@ ps_thresh <<- ps_clean1
 
 # Update the OTU table with ASV counts after threshold
 otu_table(ps_thresh) <<- otu_table(asv_matrix_after_thresh, taxa_are_rows = taxa_are_rows(ps_thresh))
-message("  → Phyloseq object 'ps_thresh' updated with thresholded ASV counts and saved to global environment")
+message("   Phyloseq object 'ps_thresh' updated with thresholded ASV counts and saved to global environment")
 
 # ===============================
 # 12. Print completion message
 # ===============================
 cat("-------------------------------------------------------------------- \n",
-    "🧬 Per-Sample ASV Threshold pipeline completed successfully! 🧬\n",
+    " Per-Sample ASV Threshold pipeline completed successfully! \n",
     "--------------------------------------------------------------------")
+
