@@ -314,7 +314,7 @@ This repository contains scripts and configuration files to:
 ></details>
 >
 > **When reviewing the test data:**
->   - NOTE: The `assignTaxonomy()` function of DADA2 uses a naive Bayesian classifer with bootstrapping. This random subsampling of k-mers can lead to slightly different assignments for the same ASV across different runs. Using set.seed() before running ensures reproducibility, but there is a bug with this script. So some runs may be slightly different in their taxonomic assignments. I am troubleshooting this.
+>   - NOTE: The `assignTaxonomy()` function of DADA2 uses a naive Bayesian classifer with bootstrapping. This random subsampling of k-mers can lead to slightly different assignments for the same ASV across different runs. Using `set.seed()` before running ensures reproducibility, but there is a bug in the script that is causing it to no longer recognize the seed. So some runs may be slightly different in their taxonomic assignments. I am troubleshooting this.
 > -----
 >   - Select "no" for each row in the E column to disapprove of all BLAST assignments.
 >   - For the dissapproval reasoning in column F: 
@@ -889,6 +889,7 @@ sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_ncbi_taxonomy.
   - Integrating all of the R scripts from the decontamination part of the pipline into a single shell script with minimal interactive user prompts for use on FARM.
   - For those who used an RSD: A script to get the aligned (and assigned) ASVs back into the phyloseq object and remove any remainining unassigned ASVs.
   - For those who BLASTed their entire dataset: A script to create a phyloseq object for them.
+
 
 
 
