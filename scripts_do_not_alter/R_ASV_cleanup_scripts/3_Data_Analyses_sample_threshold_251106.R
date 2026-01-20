@@ -1,5 +1,5 @@
 message("Starting Per-Sample ASV Threshold Pipeline")
-message("  Threshold set to: ", sample_thres, ifelse(sample_thres < 1, " (proportion)", " (absolute reads)"))
+message("  -> Threshold set to: ", sample_thres, ifelse(sample_thres < 1, " (proportion)", " (absolute reads)"))
 
 # ===============================
 # Per-Sample ASV Threshold Pipeline
@@ -15,8 +15,8 @@ if (!taxa_rows) { asv_matrix_cleaned <- t(asv_matrix_cleaned) }       # If taxa 
 
 asv_matrix_before_thresh <- asv_matrix_cleaned                        # Make a copy for "before threshold" data
 sample_sums <- colSums(asv_matrix_cleaned)                             # Calculate total reads per sample
-message("  ASV matrix extracted from ps_clean1:")
-message("     Dimensions (ASVs x samples): ", dim(asv_matrix_cleaned)[1], " x ", dim(asv_matrix_cleaned)[2])
+message("  -> ASV matrix extracted from ps_clean1:")
+message("     * Dimensions (ASVs x samples): ", dim(asv_matrix_cleaned)[1], " x ", dim(asv_matrix_cleaned)[2])
 
 
 # ===============================
@@ -40,7 +40,7 @@ for (s in colnames(asv_matrix_cleaned)) {                               # Loop o
 }
 asv_matrix_after_thresh[asv_matrix_after_thresh < 0] <- 0               # Replace any negative counts with 0
 num_asvs_changed <- sum(asv_matrix_before_thresh != asv_matrix_after_thresh)
-message("  Threshold applied. Total ASV counts changed across all samples: ", num_asvs_changed)
+message("  -> Threshold applied. Total ASV counts changed across all samples: ", num_asvs_changed)
 
 # ===============================
 # 3. Taxonomy info
@@ -125,10 +125,10 @@ summary_thresh_df <- data.frame(
   ),
   stringsAsFactors = FALSE                                               # Do not convert strings to factors
 )
-message("  Per-sample threshold metrics computed for ", length(sample_names_vec), " samples")
-message("     Total reads before threshold: ", sum(metric_thresh$ReadsBeforeThreshold))
-message("     Total reads after threshold:  ", sum(metric_thresh$ReadsAfterThreshold))
-message("     Total ASVs reduced by threshold: ", sum(metric_thresh$NumASVsReducedByThreshold))
+message("  -> Per-sample threshold metrics computed for ", length(sample_names_vec), " samples")
+message("     * Total reads before threshold: ", sum(metric_thresh$ReadsBeforeThreshold))
+message("     * Total reads after threshold:  ", sum(metric_thresh$ReadsAfterThreshold))
+message("     * Total ASVs reduced by threshold: ", sum(metric_thresh$NumASVsReducedByThreshold))
 # ===============================
 # 7. Removed_ASVs tab
 # ===============================
@@ -156,7 +156,7 @@ if (length(taxa_removed_after_thresh) > 0) {                              # If a
 } else {
   removed_df <- data.frame(Note = "No ASV completely removed from study by per-sample ASV threshold. Check for ASVs removed from individual samples in next tab.") # Placeholder if no ASVs removed
 }
-message("   Total ASVs completely removed from study: ", nrow(removed_df))
+message("  -> Total ASVs completely removed from study: ", nrow(removed_df))
 
 # ===============================
 # 8. Removed_Per_Sample tab
@@ -193,7 +193,7 @@ if (length(removed_per_sample_list) > 0) {                               # If an
   removed_per_sample_df <- data.frame(Note = "No ASVs completely removed from any sample by per-sample ASV threshold.") # Placeholder if none
 }
 num_samples_with_removals <- length(removed_per_sample_list)
-message("   Number of samples with at least one ASV removed by threshold: ", num_samples_with_removals)
+message("  -> Number of samples with at least one ASV removed by threshold: ", num_samples_with_removals)
 
 
 # ===============================
@@ -201,7 +201,7 @@ message("   Number of samples with at least one ASV removed by threshold: ", num
 # ===============================
 threshold_excel_path <- here(output_dir, paste0("3_",project_name, "_sample_threshold_applied.xlsx")) # Define output file path
 
-message("   Writing threshold workbook to: ", threshold_excel_path)
+message("  -> Writing threshold workbook to: ", threshold_excel_path)
 
 write_xlsx(
   list(
@@ -224,7 +224,7 @@ ps_thresh <<- ps_clean1
 
 # Update the OTU table with ASV counts after threshold
 otu_table(ps_thresh) <<- otu_table(asv_matrix_after_thresh, taxa_are_rows = taxa_are_rows(ps_thresh))
-message("   Phyloseq object 'ps_thresh' updated with thresholded ASV counts and saved to global environment")
+message("  -> Phyloseq object 'ps_thresh' updated with thresholded ASV counts and saved to global environment")
 
 # ===============================
 # 12. Print completion message
@@ -232,4 +232,5 @@ message("   Phyloseq object 'ps_thresh' updated with thresholded ASV counts and 
 cat("-------------------------------------------------------------------- \n",
     " Per-Sample ASV Threshold pipeline completed successfully! \n",
     "--------------------------------------------------------------------")
+
 
