@@ -1,4 +1,4 @@
-message("🔹 Starting Presence/Absence Before_After Decontam Pipeline")
+message("Starting Presence/Absence Before_After Decontam Pipeline")
 
 # ===============================
 # Presence/Absence Before_After Decontam Pipeline
@@ -13,9 +13,9 @@ sample_reads_before <- read_excel(here(output_dir, paste0("1_",project_name, "_d
                                   sheet = "Sample_Reads_Before")  # Read "Sample_Reads_Before" sheet
 sample_reads_after  <- read_excel(here(output_dir, paste0("1_",project_name, "_decontam_applied.xlsx")), 
                                   sheet = "Sample_Reads_After")   # Read "Sample_Reads_After" sheet
-message("  → Sample reads loaded:")
-message("     • Before cleaning: ", nrow(sample_reads_before), " ASVs x ", ncol(sample_reads_before)-11, " samples")
-message("     • After cleaning:  ", nrow(sample_reads_after), " ASVs x ", ncol(sample_reads_after)-11, " samples")
+message(" Sample reads loaded:")
+message("     Before cleaning: ", nrow(sample_reads_before), " ASVs x ", ncol(sample_reads_before)-11, " samples")
+message("     After cleaning:  ", nrow(sample_reads_after), " ASVs x ", ncol(sample_reads_after)-11, " samples")
 
 # Extract sample names from 12th column onward (assumes first 11 columns are metadata)
 sample_names_before <- colnames(sample_reads_before)[12:ncol(sample_reads_before)]  # Sample names before cleaning
@@ -31,7 +31,7 @@ all_species <- unique(c(
 
 all_species[is.na(all_species) | all_species == ""] <- "NA"  # Replace any empty or NA species names with string "NA"
 all_species <- sort(all_species)                             # Sort species alphabetically for consistency
-message("  → Total unique species across all samples: ", length(all_species))
+message("  Total unique species across all samples: ", length(all_species))
 
 # ===============================
 # 3. Create presence/absence matrices (1 = present, 0 = absent)
@@ -47,9 +47,9 @@ after_matrix <- sapply(sample_names_after, function(samp) {    # Loop over each 
   as.integer(all_species %in% sample_reads_after[[8]][sample_reads_after[[samp]] > 0])   # 1 if species present
 }) %>% as.data.frame()                                           # Convert to data frame
 after_matrix <- cbind(Common_Name = all_species, after_matrix)   # Add species names as first column
-message("  → Presence/absence matrices created:")
-message("     • Before cleaning: ", nrow(before_matrix), " species x ", ncol(before_matrix)-1, " samples")
-message("     • After cleaning:  ", nrow(after_matrix), " species x ", ncol(after_matrix)-1, " samples")
+message("  Presence/absence matrices created:")
+message("     Before cleaning: ", nrow(before_matrix), " species x ", ncol(before_matrix)-1, " samples")
+message("     After cleaning:  ", nrow(after_matrix), " species x ", ncol(after_matrix)-1, " samples")
 
 # ===============================
 # 4. Create Removed_Detections tab (species removed per sample, comma-separated)
@@ -63,9 +63,9 @@ removed_horizontal$Removed_Species <- sapply(sample_names_before, function(samp)
   if(length(removed) == 0) return(NA)                                        # If none removed, set NA
   paste(sort(removed), collapse = ", ")                                       # Otherwise, comma-separated string
 })
-message("  → Removed species per sample calculated")
+message("  Removed species per sample calculated")
 num_removed_total <- sum(!is.na(removed_horizontal$Removed_Species))
-message("     • Total samples with at least one species removed: ", num_removed_total)
+message("     Total samples with at least one species removed: ", num_removed_total)
 
 # ===============================
 # 5. Create workbook and add worksheets
@@ -104,13 +104,14 @@ highlight_ones("After_Cleaning", after_matrix)    # Apply highlighting to after 
 # ===============================
 saveWorkbook(wb, here(output_dir, paste0("2_",project_name, "_species_detections_before_after_decontam.xlsx")), overwrite = TRUE)  
 # Save workbook to file with project name, overwrite if it already exists
-message("  → Workbook saved at: ", here(output_dir, paste0("2_",project_name, "_species_detections_before_after_decontam.xlsx")))
+message("  Workbook saved at: ", here(output_dir, paste0("2_",project_name, "_species_detections_before_after_decontam.xlsx")))
 
 # ===============================
 # 8. Pipeline completion message
 # ===============================
 cat("-------------------------------------------------------------------- \n",
-    "🧬 Presence_Absence after decontam pipeline completed successfully! 🧬\n",
+    "Presence_Absence after decontam pipeline completed successfully! \n",
     "--------------------------------------------------------------------")  # Print completion message to console
+
 
 
