@@ -86,18 +86,7 @@ if (project_name == "") {
   stop("PROJECT_NAME environment variable is not set inside R.")
 }
 
-# ---- Set up a user-writable R library in HOME ----
-user_lib <- file.path(home, "R", "library_container")
-if (!dir.exists(user_lib)) {
-  dir.create(user_lib, recursive = TRUE, showWarnings = FALSE)
-}
-.libPaths(c(user_lib, .libPaths()))
-cat("Using R library paths:\n")
-print(.libPaths())
-
-# phyloseq: must already be installed in the container
-# phyloseq: must already be installed in the container
-cat("Current .libPaths():\n")
+cat("Using container .libPaths():\n")
 print(.libPaths())
 
 suppressPackageStartupMessages({
