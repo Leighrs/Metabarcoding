@@ -3,7 +3,7 @@
 # Outputs all metrics to a single Excel file
 # ===============================
 
-message("🔹 Starting DSP 12S Contaminant Removal Pipeline")
+message("Starting DSP 12S Contaminant Removal Pipeline")
 
 # ===============================
 # 1. Extract ASV counts and metadata
@@ -11,8 +11,8 @@ message("🔹 Starting DSP 12S Contaminant Removal Pipeline")
 asv_matrix <<- as(otu_table(ps), "matrix")           # Convert OTU table from phyloseq to matrix
 metadata_matrix <<- as(sample_data(ps), "data.frame") # Extract sample metadata as data frame
 
-message("  → ASV matrix dimensions: ", dim(asv_matrix)[1], " ASVs x ", dim(asv_matrix)[2], " samples")
-message("  → Metadata matrix dimensions: ", dim(metadata_matrix)[1], " samples x ", dim(metadata_matrix)[2], " metadata fields")
+message("ASV matrix dimensions: ", dim(asv_matrix)[1], " ASVs x ", dim(asv_matrix)[2], " samples")
+message("Metadata matrix dimensions: ", dim(metadata_matrix)[1], " samples x ", dim(metadata_matrix)[2], " metadata fields")
 
 # ===============================
 # 2. Identify control and sample reads
@@ -23,8 +23,8 @@ control_reads <- asv_matrix[, control_names_vec]  # Extract ASV counts for contr
 sample_names_vec <<- rownames(metadata_matrix[metadata_matrix[[sample_type_col]] == sample_label, ])    # Identify regular sample names
 sample_reads <- asv_matrix[, sample_names_vec]  # Extract ASV counts for regular samples
 
-message("  → Controls identified: ", length(control_names_vec))
-message("  → Environmental samples identified: ", length(sample_names_vec))
+message("   Controls identified: ", length(control_names_vec))
+message("   Environmental samples identified: ", length(sample_names_vec))
 
 # ===============================
 # 3. Map control assignments
@@ -120,7 +120,7 @@ otu_table(ps_clean) <- otu_table(otu_new, taxa_are_rows = taxa_rows) # Update OT
 # 8b. Identify and prune taxa with zero counts
 # ===============================
 taxa_zero <- taxa_names(ps_clean)[taxa_sums(ps_clean) == 0] # Find taxa with zero total counts
-message("  → Number of ASVs completely removed from study: ", length(taxa_zero))
+message("   Number of ASVs completely removed from study: ", length(taxa_zero))
 
 if(length(taxa_zero) > 0){
   removed_taxa_df <- as.data.frame(tax_table(ps)[taxa_zero, ]) # Extract taxonomy of removed taxa
@@ -210,7 +210,7 @@ summary_df <- data.frame(
   ),
   stringsAsFactors = FALSE                                  # Do not convert to factors
 )
-message("  → Decontamination metrics and summary tables prepared")
+message("   Decontamination metrics and summary tables prepared")
 
 # ===============================
 # 11. Prepare reads matrices with taxonomy
@@ -282,7 +282,7 @@ if (ncol(sample_reads_after_df) >= 12) {            # If 12th column exists
 # ===============================
 # 14. Write Excel file with all decontamination metrics
 # ===============================
-message("  → Writing decontamination metrics to Excel at: ", here(output_dir, paste0("1_",project_name, "_decontam_applied.xlsx")))
+message("   Writing decontamination metrics to Excel at: ", here(output_dir, paste0("1_",project_name, "_decontam_applied.xlsx")))
 
 write_xlsx(
   list(
@@ -303,13 +303,14 @@ write_xlsx(
 # ===============================
 ps_clean1 <- ps_clean # Save cleaned phyloseq object under new name and save to global env so other scripts can use it.
 ps_clean1 <<- ps_clean1 
-message("  → Cleaned phyloseq object saved to 'ps_clean1' in global environment")
+message("   Cleaned phyloseq object saved to 'ps_clean1' in global environment")
 # The object 'ps_clean1' now contains cleaned ASV counts
 
 # ===============================
 # 16. Pipeline completion message
 # ===============================
 cat("-------------------------------------------------------------------- \n",
-    "🧬 Contaminant removal pipeline completed successfully! 🧬\n",
+    " Contaminant removal pipeline completed successfully! \n",
     "--------------------------------------------------------------------")  # Print completion message
+
 
