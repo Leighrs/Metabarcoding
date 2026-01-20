@@ -15,10 +15,16 @@
 ###############################################
 
 # -----------------------------
-# Make sure the log and container directories exists.
+# Group location for shared containers
+# -----------------------------
+GROUP_CONTAINER_DIR="/group/ajfingergrp/Metabarcoding_containers_conda/"
+mkdir -p "$GROUP_CONTAINER_DIR"
+
+
+# -----------------------------
+# Make sure the log directory exists.
 # -----------------------------
 mkdir -p "$HOME/Metabarcoding/Logs_archive"
-mkdir -p "$HOME/Metabarcoding/Containers"
 
 # ------------------------------------------------------------
 # Read project name
@@ -45,25 +51,31 @@ export PROJECT_NAME
 # -----------------------------
 mkdir -p "$HOME/Metabarcoding/$PROJECT_NAME/output/R"
 
-
 # -------------------------------
 # 1. Ensure container exists
 # -------------------------------
-CONTAINER="$HOME/Metabarcoding/Containers/Retrieve_phyloseq_unassigned_ASVs.sif"
+CONTAINER="$GROUP_CONTAINER_DIR/Retrieve_phyloseq_unassigned_ASVs.sif"
 CONTAINER_URL="oras://community.wave.seqera.io/library/bioconductor-biomformat_bioconductor-phyloseq_conda_r-base:035a5152df7dbbfd"
 
 echo "Checking for Apptainer container: $CONTAINER"
 
 module load apptainer
 
-if [ ! -f "$CONTAINER" ]; then
-    echo "Container not found. Downloading with apptainer pull..."
-    apptainer pull "$CONTAINER" "$CONTAINER_URL"
+LOCKFILE="$CONTAINER.lock"
 
-    if [ $? -ne 0 ]; then
-        echo "ERROR: Failed to pull container from $CONTAINER_URL"
+if [ ! -f "$CONTAINER" ]; then
+    echo "Container not found. Attempting to pull with lock..."
+
+    (
+        flock -n 9 || exit 1
+        if [ ! -f "$CONTAINER" ]; then
+            apptainer pull "$CONTAINER" "$CONTAINER_URL"
+        fi
+    ) 9>"$LOCKFILE" || {
+        echo "Another job is currently pulling this container. Exiting."
         exit 1
-    fi
+    }
+
 else
     echo "Container found: $CONTAINER"
 fi
@@ -202,23 +214,30 @@ echo "RUN_BLAST='yes' ? proceeding with BLAST."
 # -------------------------------
 # 1. Ensure BLAST container exists
 # -------------------------------
-CONTAINER="$HOME/Metabarcoding/Containers/GVL_blast_unassigned_ASVs.sif"
-CONTAINER_URL="oras://community.wave.seqera.io/library/blast_conda_r-base:8a9e1389abdacf11"
+BLAST_CONTAINER="$GROUP_CONTAINER_DIR/GVL_blast_unassigned_ASVs.sif"
+BLAST_CONTAINER_URL="oras://community.wave.seqera.io/library/blast_conda_r-base:8a9e1389abdacf11"
 
-echo "Checking for Apptainer container: $CONTAINER"
+echo "Checking for Apptainer container: $BLAST_CONTAINER"
 
-if [ ! -f "$CONTAINER" ]; then
-    echo "Container not found. Downloading with apptainer pull..."
-    module load apptainer
-    apptainer pull "$CONTAINER" "$CONTAINER_URL"
+LOCKFILE="$BLAST_CONTAINER.lock" # prevents double pull if two people submit jobs at once
 
-    if [ $? -ne 0 ]; then
-        echo "ERROR: Failed to pull container from $CONTAINER_URL"
+if [ ! -f "$BLAST_CONTAINER" ]; then
+    echo "BLAST_Container not found. Attempting to pull with lock..."
+
+    (
+        flock -n 9 || exit 1
+        if [ ! -f "$BLAST_CONTAINER" ]; then
+            apptainer pull "$BLAST_CONTAINER" "$BLAST_CONTAINER_URL"
+        fi
+    ) 9>"$LOCKFILE" || {
+        echo "Another job is currently pulling this container. Exiting."
         exit 1
-    fi
+    }
+
 else
-    echo "Container found: $CONTAINER"
+    echo "Container found: $BLAST_CONTAINER"
 fi
+
 
 
 # -------------------------------
@@ -255,7 +274,7 @@ OUTFILE="$BLAST_DIR/${PROJECT_NAME}_raw_blast_results_from_phyloseq_obj.tsv"
 # -------------------------------
 # 5. Run BLAST using the group database
 # -------------------------------
-apptainer exec --bind /group/ajfingergrp:/group/ajfingergrp "$CONTAINER" \
+apptainer exec --bind /group/ajfingergrp:/group/ajfingergrp "$BLAST_CONTAINER" \
     bash -c "export BLASTDB=$LATEST_DB_DIR && \
              blastn \
                -query $QUERY \
