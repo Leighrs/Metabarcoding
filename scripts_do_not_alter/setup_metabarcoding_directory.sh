@@ -63,21 +63,23 @@ while true; do
         2)
             DATE_TAG="$(date +%Y%m%d)"
             FASTQ_DIR="/group/ajfingergrp/Metabarcoding_fastq_storage/${USER}_${PROJECT}_fastq_${DATE_TAG}"
+            USE_GROUP_FASTQ=true
 
-            # Ensure group base exists / is accessible
             if [[ ! -d "/group/ajfingergrp" ]]; then
                 echo -e "${RED}ERROR: /group/ajfingergrp does not exist or is not accessible.${RESET}"
                 echo -e "${YELLOW}Falling back to home FASTQ storage.${RESET}"
                 FASTQ_DIR="Metabarcoding/$PROJECT/input/fastq"
+                USE_GROUP_FASTQ=false
             fi
 
             mkdir -p "$FASTQ_DIR"
-
-            # Make a pointer inside the project so users/scripts know where FASTQs live
             echo "$FASTQ_DIR" > "Metabarcoding/$PROJECT/input/fastq_storage_path.txt"
 
-            echo -e "${GREEN}FASTQ storage set to GROUP: $FASTQ_DIR${RESET}"
-            echo -e "${YELLOW}Saved FASTQ location to Metabarcoding/$PROJECT/input/fastq_storage_path.txt${RESET}"
+            if [[ "$USE_GROUP_FASTQ" == true ]]; then
+                echo -e "${GREEN}FASTQ storage set to GROUP: $FASTQ_DIR${RESET}"
+            else
+                echo -e "${GREEN}FASTQ storage set to HOME: $FASTQ_DIR${RESET}"
+            fi
             break
             ;;
         *)
@@ -105,22 +107,20 @@ B12A2_02	A2	1,2,4	Sample	Browns_Island	February	2023
 B12A3_02	A3	1,2,4	Sample	Browns_Island	February	2023
 EOT
 
-if [[ "$USE_RSD" == "yes" ]]; then
+if [[ "$DB_MODE" == "custom" ]]; then
 cat <<EOT > "Metabarcoding/$PROJECT/input/Example_RSD.txt"
 >Animalia;Chordata;Actinopterygii;Cypriniformes;Catostomidae;Catostomus;Catostomus occidentalis;
 CACCGCGGTTATACGAGAGGCCCTAGTTGATA...
 EOT
 
-chmod +x "Metabarcoding/$PROJECT/input/Example_RSD.txt"
 echo -e "${GREEN}Example RSD file created.${RESET}"
-fi
 
-chmod +x "Metabarcoding/$PROJECT/input/"*.txt
+fi
 
 echo -e "${GREEN}Example input files created.${RESET}"
 
 # ---------------------------
-#  COPY CORRECT nf-params.json (ALWAYS named nf-params.json)
+#  COPY CORRECT nf-params.json (ALWAYS named ${PROJECT}_nf-params.json)
 # ---------------------------
 SRC_STANDARD="$HOME/Metabarcoding/scripts_do_not_alter/nf-params_with_standard_RSD.json"
 SRC_CUSTOM="$HOME/Metabarcoding/scripts_do_not_alter/nf-params_with_custom_RSD.json"
@@ -185,12 +185,16 @@ DEST_CON="Metabarcoding/$PROJECT/scripts/${PROJECT}_R_ASV_cleanup_scripts/"
 
 if [[ -d "$SRC_CON" ]]; then
     mkdir -p "$DEST_CON"
+    shopt -s nullglob
     cp -r "$SRC_CON"* "$DEST_CON"/
+    shopt -u nullglob
 
+    shopt -s nullglob
     for f in "$DEST_CON"/*; do
         base=$(basename "$f")
         mv "$f" "$DEST_CON/${PROJECT}_$base"
     done
+    shopt -u nullglob
 
     echo -e "${GREEN}R cleanup scripts copied and renamed.${RESET}"
 else
