@@ -1,13 +1,13 @@
 #!/bin/bash
 #SBATCH --account=millermrgrp
 #SBATCH --partition=bmh
-#SBATCH --job-name=blast_asv
+#SBATCH --job-name=ncbi_blast_cleanup
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
 #SBATCH --time=01:30:00
-#SBATCH --output=Metabarcoding/Logs_archive/ncbi_taxa_%j.out
-#SBATCH --error=Metabarcoding/Logs_archive/ncbi_taxa_%j.err
+#SBATCH --output=Metabarcoding/Logs_archive/ncbi_blast_cleanup_%j.out
+#SBATCH --error=Metabarcoding/Logs_archive/ncbi_blast_cleanup_%j.err
 
 module load apptainer
 echo "Job running on node: $(hostname)"

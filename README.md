@@ -45,7 +45,8 @@ This repository contains scripts and configuration files to:
 | File | Description |
 |------|-------------|
 | `nf-params_no_RSD.json` | Contents of this parameter file for the nf-core/ampliseq pipeline will be uploaded to project directory if user specifies no RSD. Customize for your project. |
-| `nf-params_with_RSD.json` | Contents of this arameter file for the nf-core/ampliseq pipeline will be uploaded to project directory if user specifies the use of an RSD. Customize for your project. |
+| `nf-params_with_custom_RSD.json` | Contents of this parameter file for the nf-core/ampliseq pipeline will be uploaded to project directory if user specifies the use of a custom RSD. Customize for your project. |
+| `nf-params_with_standardized_RSD.json` | Contents of this parameter file for the nf-core/ampliseq pipeline will be uploaded to project directory if user specifies the use of a standardized (included in ampliseq pipeline) RSD. Customize for your project. |
 | `setup_metabarcoding_directory.sh` | Shell script to create your project directory with example samplesheets, metadata, and RSD files. |
 | `update_blast_db.slurm` | SLURM batch script to download/update the NCBI core nucleotide database. |
 | `blast_asv.slurm` | SLURM batch script to BLAST unknown ASVs. |
@@ -53,7 +54,7 @@ This repository contains scripts and configuration files to:
 | `R_ASV_cleanup_scripts/` | Folder containing R scripts for cleaning and formatting ASV tables after nf-core/ampliseq and optional BLAST. |
 | `generate_samplesheet_table.sh` | Shell script to generate a samplesheet for your project that will work with the nf-core/ampliseq pipeline. |
 | `ncbi_taxonomy.slurm` | SLURM batch script to run a python taxonomy-processing script on BLAST output. |
-| `ncbi_pipeline.py` | This script fetches NCBI taxonomy for BLAST hits, determines each ASV’s best and consensus taxonomy, and outputs the merged, ranked results. |
+| `ncbi_pipeline.py` | This script fetches NCBI taxonomy for BLAST hits, determines each ASVâ€™s best and consensus taxonomy, and outputs the merged, ranked results. |
 |`review_and_update_phyloseq.R`| This script helps the user to review their BLAST assignments and reimport new assignments back into their phylseq object.
 </details>
 
@@ -221,7 +222,7 @@ This repository contains scripts and configuration files to:
 >- `option2`: If you used a custom RSD, which we did for this test data.
 >
 ><details>
-><summary><strong>📁 Expected output files (click to expand).</strong></summary>
+><summary><strong>ðŸ“ Expected output files (click to expand).</strong></summary>
 >
 ><br>
 >

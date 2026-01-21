@@ -122,7 +122,7 @@ echo -e "${GREEN}Example input files created.${RESET}"
 # ---------------------------
 #  COPY CORRECT nf-params.json (ALWAYS named ${PROJECT}_nf-params.json)
 # ---------------------------
-SRC_STANDARD="$HOME/Metabarcoding/scripts_do_not_alter/nf-params_with_standard_RSD.json"
+SRC_STANDARD="$HOME/Metabarcoding/scripts_do_not_alter/nf-params_with_standardized_RSD.json"
 SRC_CUSTOM="$HOME/Metabarcoding/scripts_do_not_alter/nf-params_with_custom_RSD.json"
 SRC_NONE="$HOME/Metabarcoding/scripts_do_not_alter/nf-params_no_RSD.json"
 DEST_JSON="$HOME/Metabarcoding/$PROJECT/scripts/${PROJECT}_nf-params.json"
@@ -146,7 +146,7 @@ if [[ -f "$SRC" ]]; then
     cp "$SRC" "$DEST_JSON"
     echo -e "${GREEN}${MSG}.${RESET}"
 else
-    echo -e "${RED}WARNING: Missing template: $SRC${RESET}"
+    echo -e "${RED}WARNING: Missing template : $SRC${RESET}"
 fi
 
 # ---------------------------
