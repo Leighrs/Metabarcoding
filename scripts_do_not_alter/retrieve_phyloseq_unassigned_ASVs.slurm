@@ -17,7 +17,7 @@
 # -----------------------------
 # Group location for shared containers
 # -----------------------------
-GROUP_CONTAINER_DIR="/group/ajfingergrp/Metabarcoding_containers_conda/"
+GROUP_CONTAINER_DIR="/group/ajfingergrp/Metabarcoding/conda_envs"
 mkdir -p "$GROUP_CONTAINER_DIR"
 
 
