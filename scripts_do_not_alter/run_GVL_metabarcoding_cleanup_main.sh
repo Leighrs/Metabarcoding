@@ -4,7 +4,7 @@ set -euo pipefail
 # ----------------------------
 # Config
 # ----------------------------
-ENV_PREFIX_decon="/group/ajfingergrp/Metabarcoding_containers_conda/conda_envs/decontam_env"
+ENV_PREFIX_decon="/group/ajfingergrp/Metabarcoding/conda_envs/decontam_env"
 
 # ----------------------------
 # Load conda (Farm module system)
