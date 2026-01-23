@@ -27,7 +27,7 @@ echo "Running project: $PROJECT"
 # 2. Ensure required directories exist
 # ------------------------------------
 mkdir -p "$HOME/Metabarcoding/Logs_archive"
-mkdir -p "$HOME/Metabarcoding/Containers"
+mkdir -p "/group/ajfingergrp/Metabarcoding_containers_conda"
 
 # ------------------------------------
 # 3. Define paths
@@ -37,7 +37,7 @@ CACHE_DIR="${BASE_OUT}/intermediates_logs_cache"
 SINGULARITY_CACHE="${CACHE_DIR}/singularity"
 PARAMS_FILE="$HOME/Metabarcoding/$PROJECT/scripts/${PROJECT}_nf-params_expanded.json"
 
-CONTAINER="$HOME/Metabarcoding/Containers/GVL_metabarcoding.sif"
+CONTAINER="/group/ajfingergrp/Metabarcoding_containers_conda/GVL_metabarcoding.sif"
 CONTAINER_URL="oras://community.wave.seqera.io/library/nextflow_nf-core_apptainer_conda_pruned:0f9c913ab4de9751"
 
 
