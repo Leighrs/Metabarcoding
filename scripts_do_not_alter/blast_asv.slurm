@@ -19,7 +19,7 @@
 # Make sure the log and container directories exists.
 # -----------------------------
 mkdir -p "$HOME/Metabarcoding/Logs_archive"
-mkdir -p "/group/ajfingergrp/Metabarcoding/conda_envs"
+mkdir -p "/group/ajfingergrp/Metabarcoding/Containers"
 
 # ------------------------------------------------------------
 # Read project name
@@ -49,7 +49,7 @@ mkdir -p "$HOME/Metabarcoding/$PROJECT_NAME/output/BLAST"
 # -------------------------------
 # 1. Ensure BLAST container exists
 # -------------------------------
-CONTAINER="/group/ajfingergrp/Metabarcoding/conda_envs/GVL_blast_unassigned_ASVs.sif"
+CONTAINER="/group/ajfingergrp/Metabarcoding/Containers/GVL_blast_unassigned_ASVs.sif"
 CONTAINER_URL="oras://community.wave.seqera.io/library/blast_conda_r-base:8a9e1389abdacf11"
 
 echo "Checking for Apptainer container: $CONTAINER"
