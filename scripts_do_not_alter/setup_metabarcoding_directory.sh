@@ -41,6 +41,7 @@ mkdir -p "Metabarcoding/Logs_archive"
 mkdir -p "Metabarcoding/$PROJECT/scripts"
 mkdir -p "Metabarcoding/$PROJECT/input"
 mkdir -p "Metabarcoding/$PROJECT/output/intermediates_logs_cache/singularity"
+mkdir -p "/group/ajfingergrp/Metabarcoding/fastq_storage"
 
 # ---------------------------
 #  PROMPT: FASTQ STORAGE LOCATION
@@ -49,7 +50,7 @@ while true; do
     echo
     echo "Where do you want to store FASTQ files?"
     echo "  1) Home directory (Metabarcoding/$PROJECT/input/fastq)"
-    echo "  2) Group directory (/group/ajfingergrp/Metabarcoding_fastq_storage/${USER}_${PROJECT}_fastq_YYYYMMDD)"
+    echo "  2) Group directory (/group/ajfingergrp/Metabarcoding/fastq_storage/${USER}_${PROJECT}_fastq_YYYYMMDD)"
     read -rp "Enter 1 or 2 [default 1]: " FASTQ_STORE_CHOICE
     FASTQ_STORE_CHOICE="${FASTQ_STORE_CHOICE:-1}"
 
@@ -62,7 +63,7 @@ while true; do
             ;;
         2)
             DATE_TAG="$(date +%Y%m%d)"
-            FASTQ_DIR="/group/ajfingergrp/Metabarcoding_fastq_storage/${USER}_${PROJECT}_fastq_${DATE_TAG}"
+            FASTQ_DIR="/group/ajfingergrp/Metabarcoding/fastq_storage/${USER}_${PROJECT}_fastq_${DATE_TAG}"
             USE_GROUP_FASTQ=true
 
             if [[ ! -d "/group/ajfingergrp" ]]; then
