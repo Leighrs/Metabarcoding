@@ -4,7 +4,7 @@ set -euo pipefail
 # ----------------------------
 # Config
 # ----------------------------
-ENV_PREFIX="/group/ajfingergrp/Metabarcoding_containers_conda/conda_envs/review_env"
+ENV_PREFIX="/group/ajfingergrp/Metabarcoding/conda_envs/review_env"
 
 # ----------------------------
 # Load conda (Farm module system)
