@@ -34,10 +34,11 @@ echo "Detected project: $PROJECT_NAME"
 # ------------------------------------------------------------
 # Create BLAST output directory if missing
 # ------------------------------------------------------------
+
 BLAST_DIR="$HOME/Metabarcoding/$PROJECT_NAME/output/BLAST"
 
 if [[ ! -d "$BLAST_DIR" ]]; then
-    echo "BLAST directory not found — creating: $BLAST_DIR"
+    echo "BLAST directory not found â€” creating: $BLAST_DIR"
     mkdir -p "$BLAST_DIR"
 else
     echo "BLAST directory exists: $BLAST_DIR"
@@ -46,11 +47,13 @@ fi
 # ------------------------------------------------------------
 # Ensure Apptainer container exists
 # ------------------------------------------------------------
-CONTAINER="$HOME/Metabarcoding/Containers/GVL_ncbi_taxonomy.sif"
+mkdir -p "/group/ajfingergrp/Metabarcoding/Containers"
+
+CONTAINER="/group/ajfingergrp/Metabarcoding/Containers/GVL_ncbi_taxonomy.sif"
 CONTAINER_URL="oras://community.wave.seqera.io/library/biopython_pandas_python_tqdm:f7738f3fa810f52d"
 
 if [[ ! -f "$CONTAINER" ]]; then
-    echo "Container missing — downloading..."
+    echo "Container missing â€” downloading..."
     apptainer pull "$CONTAINER" "$CONTAINER_URL"
 fi
 
