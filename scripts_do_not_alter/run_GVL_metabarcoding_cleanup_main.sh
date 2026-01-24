@@ -33,29 +33,24 @@ fi
 # ----------------------------
 ENV_DIR_decon="$(dirname "$ENV_PREFIX_decon")"
 mkdir -p "$ENV_DIR_decon" || { echo "ERROR: cannot create $ENV_DIR_decon (permissions?)" >&2; exit 1; }
-LOCKFILE_decon="$ENV_DIR_decon/review_env.lock"
-
-exec 9>"$LOCKFILE_decon"
-flock -n 9 || {
-  echo "Conda env creation already in progress by another user."
-  echo "If this seems stuck, check/remove: $LOCKFILE_decon"
-  exit 0
-}
 
 if [[ ! -d "$ENV_PREFIX_decon/conda-meta" ]]; then
+  LOCKFILE_decon="$ENV_DIR_decon/review_env.lock"
+  exec 9>"$LOCKFILE_decon"
+  flock -n 9 || {
+    echo "Conda env creation already in progress by another user."
+    echo "If this seems stuck, check/remove: $LOCKFILE_decon"
+    exit 0
+  }
+
   echo "Creating conda env at: $ENV_PREFIX_decon"
   mamba create -y -p "$ENV_PREFIX_decon" \
     -c conda-forge -c bioconda \
-    r-base=4.3 \
-    r-dplyr \
-    r-openxlsx \
-    r-stringr \
-    r-readxl \
-    r-here \
-    bioconductor-phyloseq
+    r-base=4.3 r-dplyr r-openxlsx r-stringr r-readxl r-here r-writexl bioconductor-phyloseq
 else
   echo "Conda env already exists at: $ENV_PREFIX_decon"
 fi
+
 
 # ----------------------------
 # Activate env
@@ -77,12 +72,12 @@ export PHYLOSEQ_RDS_REVIEWED="$REVIEW_OUTDIR/test_phyloseq_UPDATED_reviewed_taxo
 # ----------------------------
 # Run
 # ----------------------------
-SCRIPT_PATH="$PROJECT_DIR/scripts/${PROJECT_NAME}_run_GVL_metabarcoding_cleanup_main.sh"
+SCRIPT_PATH="$SCRIPT_DIR/${PROJECT_NAME}_GVL_metabarcoding_cleanup_main.R"
 
 if [[ ! -f "$SCRIPT_PATH" ]]; then
   echo "ERROR: R script not found: $SCRIPT_PATH" >&2
   exit 1
 fi
 
-echo "Running review/update script for project: ${PROJECT_NAME}"
+echo "Running decontaminations script for project: ${PROJECT_NAME}"
 Rscript "$SCRIPT_PATH"
