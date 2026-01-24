@@ -394,13 +394,14 @@ This repository contains scripts and configuration files to:
 >"$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_run_GVL_metabarcoding_cleanup_main.sh" 
 >```
 >
->**Finally, exit from your conda environment:**
+>**Finally, exit from your interactive shell:**
 >```
->conda deactivate
+>conda exit
 >```
 </details>
 
 ---
+
 
 
 
