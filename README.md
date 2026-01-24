@@ -222,7 +222,7 @@ This repository contains scripts and configuration files to:
 >- `option2`: If you used a custom RSD, which we did for this test data.
 >
 ><details>
-><summary><strong>ðŸ“ Expected output files (click to expand).</strong></summary>
+><summary><strong>Expected output files (click to expand).</strong></summary>
 >
 ><br>
 >
@@ -398,6 +398,7 @@ This repository contains scripts and configuration files to:
 </details>
 
 ---
+
 
 
 
