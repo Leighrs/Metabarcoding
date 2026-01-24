@@ -317,7 +317,8 @@ This repository contains scripts and configuration files to:
 > ```
 
 > **D. After uploading edited spreadsheet into FARM, navigate back to terminal with FARM running your interactive shell and re-run the following code:**
-> If your interactive shell has ended, restart it using the  `srun` code above:
+> 
+> If your interactive shell has ended, restart it using the  `srun` code above.
 > ```
 > cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
@@ -400,6 +401,7 @@ This repository contains scripts and configuration files to:
 </details>
 
 ---
+
 
 
 
