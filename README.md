@@ -327,9 +327,9 @@ This repository contains scripts and configuration files to:
 > - Your phyloseq object will now be updated with these taxonomic assignments.
 > - You can ignore the intermediate `test_reviewed_assignments.tsv` file created in the BLAST folder.
 >   
->**Finally, exit from your conda environment:**
+>**Finally, exit from your interactive shell:**
 >```
->conda deactivate
+>exit
 >```
 
 **10. Remove contaminant reads from ASVs:**
@@ -401,6 +401,7 @@ This repository contains scripts and configuration files to:
 </details>
 
 ---
+
 
 
 
