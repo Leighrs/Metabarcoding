@@ -295,20 +295,16 @@ This repository contains scripts and configuration files to:
 ></details>
 >
 > **When reviewing the test data:**
->   - NOTE: The `assignTaxonomy()` function of DADA2 uses a naive Bayesian classifer with bootstrapping. This random subsampling of k-mers can lead to slightly different assignments for the same ASV across different runs. Using `set.seed()` before running ensures reproducibility, but there is a bug in the script that is causing it to no longer recognize the seed. So some runs may be slightly different in their taxonomic assignments. I am troubleshooting this.
-> -----
->   - Select "no" for each row in the E column to disapprove of all BLAST assignments.
+>   - You should see one unassigned ASV that BLASTed to Lucania (Killifish) genus. This ASV was not assigned in the nf-core/ampliseq pipeline because I removed this species from the reference sequence database so that we could practice getting assignments for ASVs that need to be BLASTed.
+>   - Select "no" for E column to disapprove of the BLAST assignment.
 >   - For the dissapproval reasoning in column F: 
->     - For each cell, "I want to override taxon naming for each of their species and common name ranks". 
+>     - "I want to override some taxon name ranks". 
 >   - Fill in the new taxon ranks:
->     - If you see an Oncorhynchus ASV, add:
->        - `Oncorhynchus mykiss` to column N and 'Rainbow trout` to column O.
->     - If you see an Lucania ASV, add:
->        - `Lucania spp` to column N and 'Killifish spp` to column O.
->     - If you see an Cottidae ASV, add:
->        - `Cottidae spp` to column N and 'Sculpin spp` to column O.
->     - If you see an Cyprinidae ASV, add:
->        - `Lavinia exilicauda` to column N and 'Hitch` to column O.
+>        - Column K: Cyprinodontiformes
+>        - Column L: Fundulidae
+>        - Column M: Lucania
+>        - Column N: Lucania spp
+>        - Column O: Killifish spp
 
 >**C. Save edited spreadsheet (same file name) and upload to FARM:**
 > - If you have MobaXterm, simply save and close the file.
@@ -398,6 +394,7 @@ This repository contains scripts and configuration files to:
 </details>
 
 ---
+
 
 
 
