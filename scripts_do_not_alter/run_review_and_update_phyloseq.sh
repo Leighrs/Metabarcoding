@@ -50,6 +50,7 @@ if [[ ! -d "$ENV_PREFIX/conda-meta" ]]; then
     r-dplyr \
     r-openxlsx \
     r-stringr \
+    bioconductor-biostrings \
     bioconductor-phyloseq
 else
   echo "Conda env already exists at: $ENV_PREFIX"
