@@ -489,7 +489,7 @@ This repository contains scripts and configuration files to:
 >
 ># Example to upload from local directory: scp "C:\Bioinformatics\12S_RSD.txt" leighrs@farm.hpc.ucdavis.edu:/home/leighrs/Metabarcoding/12S/input/
 > ```
->   - Rules:
+>  - Rules:
 >    - There is an example RSD .txt file found in your project input folder.
 >    - Needs to be a tab-deliminated text file or a .tsv file.
 >  To view the example RSD txt, run the following code:
@@ -920,6 +920,7 @@ This repository contains scripts and configuration files to:
 >conda exit
 >```
 </details>
+
 
 
 
