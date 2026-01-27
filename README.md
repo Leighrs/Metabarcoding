@@ -462,11 +462,11 @@ This repository contains scripts and configuration files to:
 >
 ># Example to upload from local directory: scp "C:\Bioinformatics\12S_metadata.txt" leighrs@farm.hpc.ucdavis.edu:/home/leighrs/Metabarcoding/12S/input/
 > ```
-> Rules:
->  - Needs to be a tab-deliminated text file or a .tsv file.
->  - First column is labeled "ID" for your sample IDs. These IDs match the sample IDs in your samplesheet you just made.
->  - If you wish to use a decontamination protocol later, add a column called "Control_Assign" to assign which controls are paired with which samples.
->    - For example:
+>  - Rules:
+>    - Needs to be a tab-deliminated text file or a .tsv file.
+>    - First column is labeled "ID" for your sample IDs. These IDs match the sample IDs in your samplesheet you just made.
+>    - If you wish to use a decontamination protocol later, add a column called "Control_Assign" to assign which controls are paired with which samples.
+>      - For example:
 >          
 >| sampleID | Control_Assign | Sample_or_Control | Notes |
 >|----------|----------------|-------------------|-------|
@@ -920,6 +920,7 @@ This repository contains scripts and configuration files to:
 >conda exit
 >```
 </details>
+
 
 
 
