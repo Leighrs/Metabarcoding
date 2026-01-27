@@ -16,6 +16,7 @@ This repository helps lab members quickly set up a standardized directory struct
 - [Repository Overview](#repository-overview)
 - [Current Repository Files](#current-repository-files)
 - [Running Test Data](#running-test-data)
+- [Running Your Data](#running-your-data)
 </details>
 
 ---
@@ -55,7 +56,10 @@ This repository contains scripts and configuration files to:
 | `generate_samplesheet_table.sh` | Shell script to generate a samplesheet for your project that will work with the nf-core/ampliseq pipeline. |
 | `ncbi_taxonomy.slurm` | SLURM batch script to run a python taxonomy-processing script on BLAST output. |
 | `ncbi_pipeline.py` | This script fetches NCBI taxonomy for BLAST hits, determines each ASVâ€™s best and consensus taxonomy, and outputs the merged, ranked results. |
-|`review_and_update_phyloseq.R`| This script helps the user to review their BLAST assignments and reimport new assignments back into their phylseq object.
+| `review_and_update_phyloseq.R`| This script helps the user to review their BLAST assignments and reimport new assignments back into their phylseq object. |
+| `retrieve_phyloseq_unassigned_ASVs.slurm`| This script retrieves unassigned ASVs from phyloseq objects following the nf-core/ampliseq pipeline. |
+| `run_GVL_metabarcoding_cleanup_main.sh`| This script runs the R scripts for decontaminating ASVs. |
+| `run_review_and_update_phyloseq.sh`| This script runs the R scripts for reviewing BLAST assignments and updated your phyloseq object. |
 </details>
 
 ---
@@ -101,6 +105,7 @@ This repository contains scripts and configuration files to:
 >cp "$HOME/Metabarcoding/test_data/metadata.txt" \
 >   "$HOME/Metabarcoding/$PROJECT_NAME/input/${PROJECT_NAME}_metadata.txt"
 >```
+
 **4. Generate a samplesheet file.**
 
 > Ensure you are in your home directory and run the following shell script.
@@ -332,7 +337,7 @@ This repository contains scripts and configuration files to:
 >```
 
 **10. Remove contaminant reads from ASVs:**
->
+
 >Start an interactive shell:
 >```
 >srun --account=millermrgrp \
@@ -601,8 +606,12 @@ This repository contains scripts and configuration files to:
 >          - `trunclenf`: Truncate forward reads at fixed length (or `null`).
 >          - `trunclenr`: Truncate reverse reads at fixed length (or `null`).
 >            -  If unsure, leave as **`null`**.
-> 
->  - **Other Parameters (for more advanced users)**
+>
+> <details>
+>  - <summary><strong>Other Parameters (click here to expand)</strong></summary>
+>
+> <br>
+>
 >    - Below are explanations for *all other parameters included in your JSON file*.
 >      - **Primer Removal & Cutadapt Settings**
 >        - `illumina_pe_its`: Whether to treat reads as ITS paired-end Illumina amplicons.
@@ -669,6 +678,7 @@ This repository contains scripts and configuration files to:
 >        - `skip_phyloseq`: Skip phyloseq output.
 >        - `skip_tse`: Skip TSE output.
 >        - `skip_report`: Skip MultiQC report.
+><details>
 >
 > JSON files can't expand environment variables, like `$HOME` or `$PROJECT_NAME`. To make sure all your paths are absolute paths, create a file with an expanded variable unique to your system.
 >```
@@ -690,25 +700,25 @@ This repository contains scripts and configuration files to:
 
 **7. BLAST Unknown ASVs:**
 
-To BLAST your entire .fasta file created from the nf-core/ampliseq pipeline, run the following code:
-
--  If you did not include a custom reference sequence database, choose this option.
-
-```bash
-cd ~
-PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
-sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_blast_asv.slurm"
-```
-
-If you included a custom reference sequence database (RSD), you can instead BLAST only the ASVs that did not receive taxonomic assignments or only received an incomplete assignment:
-- Do not use this option if you did not use a custom RSD. This option requires pulling data from a phyloseq object, which is only generated for those you used an RSD.
-
-```bash
-cd ~
-PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
-RUN_BLAST=yes sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_retrieve_phyloseq_unassigned_ASVs.slurm"
-```
-- If you only wish to retrieve your unassigned (or incomplete assigned) ASVs and not BLAST them, change to `RUN_BLAST=no`.
+>To BLAST your entire .fasta file created from the nf-core/ampliseq pipeline, run the following code:
+>
+>-  If you did not include a custom reference sequence database, choose this option.
+>
+>```bash
+>cd ~
+>PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+>sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_blast_asv.slurm"
+>```
+>
+>If you included a custom reference sequence database (RSD), you can instead BLAST only the ASVs that did not receive taxonomic assignments or only received an incomplete assignment:
+>- Do not use this option if you did not use a custom RSD. This option requires pulling data from a phyloseq object, which is only generated for those you used an RSD.
+>
+>```bash
+>cd ~
+>PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+>RUN_BLAST=yes sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_retrieve_phyloseq_unassigned_ASVs.slurm"
+>```
+>- If you only wish to retrieve your unassigned (or incomplete assigned) ASVs and not BLAST them, change to `RUN_BLAST=no`.
  
 **8. Clean up NCBI Blast Taxonomy:**
    
@@ -827,6 +837,7 @@ RUN_BLAST=yes sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_
 >```
 
 **10. Remove contaminant reads from ASVs:**
+
 >
 >Start an interactive shell:
 >```
@@ -838,7 +849,7 @@ RUN_BLAST=yes sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_
 >     --time=01:30:00 \
 >     --pty bash
 >```
->>
+>
 >Define label parameters:
 >```
 >export SAMPLE_TYPE_COL="Sample_or_Control"
@@ -893,6 +904,7 @@ RUN_BLAST=yes sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_
 >conda exit
 >```
 </details>
+
 
 
 
