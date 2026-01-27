@@ -1,5 +1,5 @@
 {
-    "input": "PATH/to/your/tab-separated_samplesheet.txt",
+    "input": "$HOME/Metabarcoding/$PROJECT_NAME/input/${PROJECT_NAME}_samplesheet.txt",
     "FW_primer": "FORWARD_PRIMER_SEQUENCE",
     "RV_primer": "REVERSE_PRIMER_SEQUENCE",
 
