@@ -522,9 +522,13 @@ This repository contains scripts and configuration files to:
 > For example:
 > 
 >        File name: B12A1_02_4_S14_L001_R1_001.fastq.gz  ->  Sample ID: B12A1_02
-> 
-> If you wish to extrapolate a different part of the file name or if your fastq files have a different file name ending than `_R1_001.fastq.gz`, you can edit the following code chunk from the `${PROJECT_NAME}_generate_samplesheet_table.sh` file:
 >
+><details>
+>
+><summary><strong>If you wish to extrapolate a different part of the file name or if your fastq files have a different file name ending than `_R1_001.fastq.gz`, you can edit the following code chunk from the `${PROJECT_NAME}_generate_samplesheet_table.sh` file (click to expand):</strong></summary>
+>
+><br>
+> 
 > First, open sample sheet generation shell script:
 >```bash
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
@@ -570,6 +574,7 @@ This repository contains scripts and configuration files to:
 > `echo "$base" | awk -F'_' '{print $2_$3}'`: prints text between 1st and 2nd underscore, and between 2nd and 3rd underscore. Connect text with an underscore.
 > 
 > `echo "$base" | awk -F'_' '{print $2_$4}'`: prints text between 1st and 2nd underscore, and between 3rd and 4th underscore. Connect text with an underscore.
+></details>
 
 **5. Edit Run Parameters.**
 
@@ -589,8 +594,12 @@ This repository contains scripts and configuration files to:
 >        - `true` / `false` ← correct!
 >        - `"true"` / `"false"` ← invalid!
 >    - Primer sequences must include only the *target-specific* portion, not the adapters.
->      
->  - **Quick Start: Parameters You *Must* Edit:**
+>
+><details>    
+><summary><strong>Quick Start: Parameters You *Must* Edit (click to expand):</strong></summary>
+>
+><br>
+>
 >    - *Most projects only need to adjust the following parameters:*
 >        - **Input Files**
 >          - `input`: Path to sample sheet (`*.txt`).
@@ -606,11 +615,12 @@ This repository contains scripts and configuration files to:
 >          - `trunclenf`: Truncate forward reads at fixed length (or `null`).
 >          - `trunclenr`: Truncate reverse reads at fixed length (or `null`).
 >            -  If unsure, leave as **`null`**.
+></details>
 >
-> <details>
->  - <summary><strong>Other Parameters (click here to expand)</strong></summary>
+><details>
+><summary><strong>Other Parameters (click here to expand):</strong></summary>
 >
-> <br>
+><br>
 >
 >    - Below are explanations for *all other parameters included in your JSON file*.
 >      - **Primer Removal & Cutadapt Settings**
@@ -678,7 +688,7 @@ This repository contains scripts and configuration files to:
 >        - `skip_phyloseq`: Skip phyloseq output.
 >        - `skip_tse`: Skip TSE output.
 >        - `skip_report`: Skip MultiQC report.
-><details>
+></details>
 >
 > JSON files can't expand environment variables, like `$HOME` or `$PROJECT_NAME`. To make sure all your paths are absolute paths, create a file with an expanded variable unique to your system.
 >```
@@ -904,6 +914,7 @@ This repository contains scripts and configuration files to:
 >conda exit
 >```
 </details>
+
 
 
 
