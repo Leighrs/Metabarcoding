@@ -710,6 +710,12 @@ This repository contains scripts and configuration files to:
 
 **7. BLAST Unknown ASVs:**
 
+>Set your percent identity threshold and the max number of BLAST hits reported:
+>  - *If these environmental variables are not exported, the script will default to 97% identity and 5 hits.*
+>```
+>export BLAST_PERC_IDENTITY=97
+>export BLAST_MAX_TARGET_SEQS=5
+>```
 >To BLAST your entire .fasta file created from the nf-core/ampliseq pipeline, run the following code:
 >
 >-  If you did not include a custom reference sequence database, choose this option.
@@ -914,6 +920,7 @@ This repository contains scripts and configuration files to:
 >conda exit
 >```
 </details>
+
 
 
 
