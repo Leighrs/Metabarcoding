@@ -496,6 +496,7 @@ This repository contains scripts and configuration files to:
 
 **4. Generate a samplesheet file.**
 
+> The samplesheet is required for the pipeline to locate you fastq files.
 > Ensure you are in your home directory and run the following shell script.
 >
 > *This script will autopopulate the PATHs for each of your fastq files, extrapolate sample names from those files, and prompt you to specify how many metabarcoding runs these samples were sequenced in.*
@@ -510,6 +511,60 @@ This repository contains scripts and configuration files to:
 >    - *Did you sequence samples using multiple sequencing runs?:* ${\color{green}yes}$ or ${\color{red}no}$
 >      - If you answer ${\color{red}no}$: All samples will be assigned to a single run "A"
 >      - If you answer ${\color{green}yes}$: Sequencing run ID will not be assigned on the samplesheet. You must go into the samplesheet and manually assign sequence IDs to the last column for each sample. Each sequencing run needs to be assigned a unique letter (e.g., A, B, C, ...).
+>     
+> The script's default is to extrapolate sample names from the forward reads (R1) using the first two fields of the `_R1_001.fastq.gz` file names separated by and underscore ("_").
+> 
+> For example:
+> 
+>        File name: B12A1_02_4_S14_L001_R1_001.fastq.gz  ->  Sample ID: B12A1_02
+> 
+> If you wish to extrapolate a different part of the file name or if your fastq files have a different file name ending than `_R1_001.fastq.gz`, you can edit the following code chunk from the `${PROJECT_NAME}_generate_samplesheet_table.sh` file:
+>
+> First, open sample sheet generation shell script:
+>```bash
+>PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+>nano $HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_generate_samplesheet_table.sh
+>```
+>
+> Second, locate the following code chunk in the script:
+> 
+> ```bash
+>extract_sample_id() {
+>   local filename="$1"
+>    
+>    # Remove R1/R2 etc. suffix from filename
+>    local base="${filename%_R1_001.fastq.gz}"
+>
+>    # --- DEFAULT RULE ---
+>    # Extract the first TWO underscore-separated fields
+>    # e.g. B12A1_02_4_S14 ? B12A1_02
+>    echo "$base" | awk -F'_' '{print $1"_"$2}'
+>}
+> ```
+>
+> Third, if you have a different forward fastq file ending than `_R1_001.fasq.gz`, edit this field with the appropiate ending:
+>
+> ```bash
+> local base="${filename%_R1_001.fastq.gz}"
+> ```
+>
+> Lastly, if you need to extrapolate a different part of the file name for your sample IDs, edit this field:
+> ```bash
+>    # Extract ONLY the first underscore-separated field
+>    echo "$base" | awk -F'_' '{print $1}'
+>```
+> When using awk, the input line is automatically split into fields based on a delimiter (also called the field separator). In this case the delimiter is set to be an underscore.
+>
+> Fields are numbered from left to right in the file name, and each field is referred to using a dollar sign ($) plus its number.
+>
+> Examples:
+> `echo "$base" | awk -F'_' '{print $1}'`: prints text before the first underscore
+> 
+> `echo "$base" | awk -F'_' '{print $2}'`: prints text between 1st and 2nd underscore
+> 
+> `echo "$base" | awk -F'_' '{print $2_$3}'`: prints text between 1st and 2nd underscore, and between 2nd and 3rd underscore. Connect text with an underscore.
+> 
+> `echo "$base" | awk -F'_' '{print $2_$4}'`: prints text between 1st and 2nd underscore, and between 3rd and 4th underscore. Connect text with an underscore.
 
 **5. Edit Run Parameters.**
 
@@ -635,15 +690,25 @@ This repository contains scripts and configuration files to:
 
 **7. BLAST Unknown ASVs:**
 
-> To BLAST your ASVs that did not assign during the nf-core/ampliseq pipeline, run the following code:
->
->```bash
->cd ~
->PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->RUN_BLAST=yes sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_retrieve_phyloseq_unassigned_ASVs.slurm"
->```
->  - `RUN_BLAST=no` will extract your unassigned ASVs into a fasta file for you to see, but will not BLAST them.
->  - *NOTE: When working with your real data, this code chunk will only work if you used a custom reference sequence database (RSD). If you did not use a custom RSD, a separate code chunk will be provided.*
+To BLAST your entire .fasta file created from the nf-core/ampliseq pipeline, run the following code:
+
+-  If you did not include a custom reference sequence database, choose this option.
+
+```bash
+cd ~
+PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_blast_asv.slurm"
+```
+
+If you included a custom reference sequence database (RSD), you can instead BLAST only the ASVs that did not receive taxonomic assignments or only received an incomplete assignment:
+- Do not use this option if you did not use a custom RSD. This option requires pulling data from a phyloseq object, which is only generated for those you used an RSD.
+
+```bash
+cd ~
+PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+RUN_BLAST=yes sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_retrieve_phyloseq_unassigned_ASVs.slurm"
+```
+- If you only wish to retrieve your unassigned (or incomplete assigned) ASVs and not BLAST them, change to `RUN_BLAST=no`.
  
 **8. Clean up NCBI Blast Taxonomy:**
    
@@ -659,8 +724,8 @@ This repository contains scripts and configuration files to:
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 >sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_ncbi_taxonomy.slurm" option2
 >```
->
->- `option2`: If you used a custom RSD, which we did for this test data.
+>- `option1`: If you did not use a custom RSD.
+>- `option2`: If you used a custom RSD.
 >
 ><details>
 ><summary><strong>Expected output files (click to expand).</strong></summary>
@@ -734,18 +799,6 @@ This repository contains scripts and configuration files to:
 > Column P: Explanation for BLAST taxon assignment.
 >
 ></details>
->
-> **When reviewing the test data:**
->   - You should see one unassigned ASV that BLASTed to Lucania (Killifish) genus. This ASV was not assigned in the nf-core/ampliseq pipeline because I removed this species from the reference sequence database so that we could practice getting assignments for ASVs that need to be BLASTed.
->   - Select "no" for E column to disapprove of the BLAST assignment.
->   - For the dissapproval reasoning in column F: 
->     - "I want to override some taxon name ranks". 
->   - Fill in the new taxon ranks:
->        - Column K: Cyprinodontiformes
->        - Column L: Fundulidae
->        - Column M: Lucania
->        - Column N: Lucania spp
->        - Column O: Killifish spp
 
 >**C. Save edited spreadsheet (same file name) and upload to FARM:**
 > - If you have MobaXterm, simply save and close the file.
@@ -766,7 +819,7 @@ This repository contains scripts and configuration files to:
 >"$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_run_review_and_update_phyloseq.sh" 
 > ```
 > - Your phyloseq object will now be updated with these taxonomic assignments.
-> - You can ignore the intermediate `test_reviewed_assignments.tsv` file created in the BLAST folder.
+> - You can ignore the intermediate `${PROJECT_NAME}_reviewed_assignments.tsv` file created in the BLAST folder.
 >   
 >**Finally, exit from your interactive shell:**
 >```
@@ -812,7 +865,7 @@ This repository contains scripts and configuration files to:
 >Define threshold parameters:
 >```
 >export SAMPLE_THRES=0.0005
->export MIN_DEPTH_THRES=10
+>export MIN_DEPTH_THRES=0.0005
 >```
 > - `SAMPLE_THRES`: Defines per-sample ASV threshold to be applied. You can define as a proportion (e.g., 0.01) or an absolute read count (e.g., 10).
 >   - Removes ASVs that do not reach a minimum read count.
@@ -840,6 +893,7 @@ This repository contains scripts and configuration files to:
 >conda exit
 >```
 </details>
+
 
 
 
