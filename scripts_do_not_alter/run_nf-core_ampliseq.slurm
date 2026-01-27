@@ -68,7 +68,9 @@ export NXF_APPTAINER_CACHEDIR="$SINGULARITY_CACHE"
 # 7. Run NF-core Ampliseq
 # ------------------------------------
 echo "Starting nf-core/ampliseq pipeline..."
-apptainer exec "$CONTAINER" \
+apptainer exec \
+  --bind /group \
+  "$CONTAINER" \
     nextflow run nf-core/ampliseq \
         -r 2.15.0 \
         -profile apptainer \
