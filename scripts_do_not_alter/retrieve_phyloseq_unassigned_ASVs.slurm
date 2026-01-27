@@ -274,6 +274,10 @@ OUTFILE="$BLAST_DIR/${PROJECT_NAME}_raw_blast_results_from_phyloseq_obj.tsv"
 # -------------------------------
 # 5. Run BLAST using the group database
 # -------------------------------
+echo "Using BLAST thresholds:"
+BLAST_PERC_IDENTITY="${BLAST_PERC_IDENTITY:-97}"
+BLAST_MAX_TARGET_SEQS="${BLAST_MAX_TARGET_SEQS:-5}"
+
 apptainer exec --bind /group/ajfingergrp:/group/ajfingergrp "$BLAST_CONTAINER" \
     bash -c "export BLASTDB=$LATEST_DB_DIR && \
              blastn \
@@ -281,8 +285,8 @@ apptainer exec --bind /group/ajfingergrp:/group/ajfingergrp "$BLAST_CONTAINER" \
                -db $DB \
                -out $OUTFILE \
                -outfmt '6 qseqid qcovs sseqid pident length qlen slen mismatch gapopen qstart qend sstart send evalue bitscore stitle sscinames sblastnames scomnames staxids' \
-               -max_target_seqs 5 \
-               -perc_identity 97 \
+               -max_target_seqs $BLAST_MAX_TARGET_SEQS \
+               -perc_identity $BLAST_PERC_IDENTITY \
                -num_threads 8"
 
 echo "BLAST completed."
