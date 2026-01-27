@@ -4,7 +4,7 @@
     "RV_primer": "REVERSE_PRIMER_SEQUENCE",
 
     "metadata": "PATH/to/your/metadata.txt",
-    "outdir": "PATH/to/output/directory",
+    "outdir": "$HOME/Metabarcoding/$PROJECT_NAME/output/",
     
     "seed": 13,
     
@@ -27,6 +27,7 @@
     "skip_dada_addspecies": true,
     "skip_tse": true
 }
+
 
 
 
