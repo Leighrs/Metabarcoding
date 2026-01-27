@@ -511,7 +511,7 @@ This repository contains scripts and configuration files to:
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 >"$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_generate_samplesheet_table.sh" 
 >```
-
+>
 >- **When prompted:**
 >    - *Did you sequence samples using multiple sequencing runs?:* ${\color{green}yes}$ or ${\color{red}no}$
 >      - If you answer ${\color{red}no}$: All samples will be assigned to a single run "A"
@@ -525,7 +525,7 @@ This repository contains scripts and configuration files to:
 >
 ><details>
 >
-><summary><strong>If you wish to extrapolate a different part of the file name or if your fastq files have a different file name ending than `_R1_001.fastq.gz`, you can edit the following code chunk from the `${PROJECT_NAME}_generate_samplesheet_table.sh` file (click to expand):</strong></summary>
+><summary><strong>If you wish to extrapolate a different part of the file name or if your fastq files have a different file name ending, click to expand:</strong></summary>
 >
 ><br>
 > 
@@ -914,6 +914,7 @@ This repository contains scripts and configuration files to:
 >conda exit
 >```
 </details>
+
 
 
 
