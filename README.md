@@ -734,7 +734,11 @@ This repository contains scripts and configuration files to:
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 >RUN_BLAST=yes sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_retrieve_phyloseq_unassigned_ASVs.slurm"
 >```
->- If you only wish to retrieve your unassigned (or incomplete assigned) ASVs and not BLAST them, change to `RUN_BLAST=no`.
+>  - If you only wish to retrieve your unassigned (or incomplete assigned) ASVs and not BLAST them, change to `RUN_BLAST=no`.
+>    - Fasta file will be saved at: `$HOME/Metabarcoding/$PROJECT_NAME/output/R/${PROJECT_NAME}_DADA2_unassigned_ASVs.fasta`
+>  - If you did use BLAST (`RUN_BLAST=yes`), you will get the following files:
+>    - `$HOME/Metabarcoding/$PROJECT_NAME/output/R/${PROJECT_NAME}_DADA2_unassigned_ASVs.fasta`
+>    - `$HOME/Metabarcoding/$PROJECT_NAME/output/BLAST/${PROJECT_NAME}_raw_blast_results_from_phyloseq_obj.tsv`.
  
 **8. Clean up NCBI Blast Taxonomy:**
    
@@ -920,6 +924,7 @@ This repository contains scripts and configuration files to:
 >conda exit
 >```
 </details>
+
 
 
 
