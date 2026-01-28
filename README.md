@@ -826,6 +826,10 @@ This repository contains scripts and configuration files to:
 >   - If you disapprove of BLAST taxon assignment, you can override by specifying desired taxon names here. 
 >   - You only need to fill out the ranks you want to change.
 >   - If you disapprove of a BLAST taxon assignment, but do not override ANY taxon ranks then ALL ranks will be set to "unknown".
+>   - Even if you approve of the BLAST assignment (Column E left blank):
+>      - You can still add in common names because BLAST does not assign at that level.
+>      - You can also add in the remaining taxa levels if you approve of a BLAST assignment above species level.
+>        - For example, if I approve of a Cottidae (family level), I can fill in "Cottidae spp" for the genus and species level, and "Sculpin spp" for the common name.
 > Column P: Explanation for BLAST taxon assignment.
 >
 ></details>
@@ -924,6 +928,7 @@ This repository contains scripts and configuration files to:
 >conda exit
 >```
 </details>
+
 
 
 
