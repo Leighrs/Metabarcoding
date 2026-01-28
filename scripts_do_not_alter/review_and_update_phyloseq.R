@@ -7,6 +7,7 @@ suppressPackageStartupMessages({
   library(stringr)
   library(phyloseq)
   library(openxlsx) #read/write excel without java.
+  library(Biostrings)
 })
 
 # ----------------------------
@@ -73,7 +74,7 @@ stop_if_missing(OUT_DIR, "REVIEW_OUTDIR")
 
 review_xlsx <- file.path(OUT_DIR, paste0(PROJECT_NAME, "_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx")) #Concatenates file path with new file name
 reviewed_assignments_tsv <- file.path(OUT_DIR, paste0(PROJECT_NAME, "_reviewed_assignments.tsv"))
-updated_phyloseq_rds <- file.path(OUT_DIR, paste0(PROJECT_NAME, "_phyloseq_UPDATED_reviewed_taxonomy.rds"))
+updated_phyloseq_rds <- file.path(OUT_DIR, paste0("phyloseq_", PROJECT_NAME, "_UPDATED_reviewed_taxonomy.rds"))
 
 is_resume <- file.exists(review_xlsx)
 
@@ -380,11 +381,142 @@ for (asv in in_both) {
 
 tax_table(ps) <- tax_table(tax_mat)
 
-to_remove <- intersect(unique(to_remove), taxa_names(ps))
-if (length(to_remove) > 0) {
-  message("Removing ", length(to_remove), " ASVs from phyloseq object (Remove_ASV == yes).")
-  ps <- prune_taxa(setdiff(taxa_names(ps), to_remove), ps)
+# ----------------------------
+# Step 4: Export ALL removed ASVs to XLSX (with stage+reason+sequence) + prune
+# ----------------------------
+
+removed_all_xlsx <- file.path(
+  OUT_DIR,
+  paste0(PROJECT_NAME, "_ASVs_removed_ALL.xlsx")
+)
+
+# Re-pull updated taxonomy matrix
+taxm2 <- as(tax_table(ps), "matrix")
+
+# (A) Reviewer removals: Remove_ASV == yes
+reviewer_removed <- rev %>%
+  filter(Remove_Action == "remove") %>%
+  distinct(ASV) %>%
+  pull(ASV) %>%
+  as.character()
+
+# (B) Incomplete taxonomy after review: any NA/blank in rank columns
+incomplete_asvs <- rownames(taxm2)[
+  apply(taxm2[, tax_cols_rank, drop = FALSE], 1, function(x) any(is.na(x) | trimws(x) == ""))
+]
+
+# Keep only ASVs actually present in phyloseq right now
+reviewer_removed <- intersect(reviewer_removed, taxa_names(ps))
+incomplete_asvs  <- intersect(incomplete_asvs,  taxa_names(ps))
+
+# Build a manifest (one row per ASV per reason)
+manifest <- dplyr::bind_rows(
+  data.frame(
+    ASV = reviewer_removed,
+    stage = rep("BLAST Review", length(reviewer_removed)),
+    reason = rep("Reviewer set Remove_ASV == yes", length(reviewer_removed)),
+    stringsAsFactors = FALSE
+  ),
+  data.frame(
+    ASV = incomplete_asvs,
+    stage = rep("Post BLAST Review", length(incomplete_asvs)),
+    reason = rep("Incomplete taxonomy ranks (NA/blank) after BLAST review; removed as did not meet BLAST % identity threshold.",
+                 length(incomplete_asvs)),
+    stringsAsFactors = FALSE
+  )
+) %>%
+  distinct(ASV, stage, reason)
+
+
+# Collapse to one row per ASV, combining multiple stages/reasons if needed
+manifest_one <- manifest %>%
+  group_by(ASV) %>%
+  summarise(
+    stage  = paste(unique(stage), collapse = ";"),
+    reason = paste(unique(reason), collapse = ";"),
+    .groups = "drop"
+  )
+
+removed_asvs_all <- intersect(manifest_one$ASV, taxa_names(ps))
+
+if (length(removed_asvs_all) > 0) {
+  message("\n============================================================")
+  message("Removing ", length(removed_asvs_all), " total ASVs from phyloseq object.")
+  message("Exporting removal manifest XLSX (with sequences if available): ", removed_all_xlsx)
+  message("============================================================\n")
+
+  # --- Get sequences for removed ASVs ---
+  seq_source <- rep(NA_character_, length(removed_asvs_all))
+  names(seq_source) <- removed_asvs_all
+  seq_str <- rep(NA_character_, length(removed_asvs_all))
+  names(seq_str) <- removed_asvs_all
+
+  # Option A: sequences stored as a column in tax_table (SEQ_COL)
+  if (!is.na(SEQ_COL) && SEQ_COL %in% colnames(taxm2)) {
+    v <- taxm2[removed_asvs_all, SEQ_COL, drop = TRUE]
+    v <- as.character(v)
+    v[is.na(v)] <- NA_character_
+    ok <- !is.na(v) & nzchar(trimws(v))
+    seq_str[removed_asvs_all[ok]] <- v[ok]
+    seq_source[removed_asvs_all[ok]] <- paste0("tax_table:", SEQ_COL)
+  }
+
+  # Option B: sequences in refseq(ps) (only fill missing)
+  rs <- tryCatch(phyloseq::refseq(ps), error = function(e) NULL)
+  if (!is.null(rs)) {
+    rs <- rs[removed_asvs_all]
+    # Convert to character strings
+    rs_chr <- as.character(rs)
+    missing <- is.na(seq_str) | !nzchar(trimws(seq_str))
+    fill_asvs <- removed_asvs_all[missing]
+    if (length(fill_asvs) > 0) {
+      seq_str[fill_asvs] <- rs_chr[fill_asvs]
+      seq_source[fill_asvs] <- "refseq(ps)"
+    }
+  }
+
+  # Build final report table
+  report <- manifest_one %>%
+    mutate(
+      sequence = unname(seq_str[ASV]),
+      sequence_source = unname(seq_source[ASV])
+    ) %>%
+    arrange(ASV)
+
+  # Write to Excel
+  wb_rm <- createWorkbook()
+  addWorksheet(wb_rm, "Removed_ASVs")
+  writeData(wb_rm, "Removed_ASVs", report, withFilter = TRUE)
+
+  freezePane(wb_rm, "Removed_ASVs", firstRow = TRUE)
+  setColWidths(wb_rm, "Removed_ASVs", cols = 1:ncol(report), widths = "auto")
+
+  headerStyle <- createStyle(textDecoration = "bold")
+  addStyle(wb_rm, "Removed_ASVs", style = headerStyle, rows = 1, cols = 1:ncol(report), gridExpand = TRUE)
+
+  # Wrap long text columns
+  wrap_cols <- intersect(c("reason", "sequence"), names(report))
+  if (length(wrap_cols) > 0) {
+    wrapStyle <- createStyle(wrapText = TRUE, valign = "top")
+    wrap_idx <- match(wrap_cols, names(report))
+    addStyle(
+      wb_rm, "Removed_ASVs", wrapStyle,
+      rows = 2:(nrow(report) + 1),
+      cols = wrap_idx,
+      gridExpand = TRUE,
+      stack = TRUE
+    )
+  }
+
+  saveWorkbook(wb_rm, removed_all_xlsx, overwrite = TRUE)
+
+  # Prune removed ASVs
+  ps <- prune_taxa(setdiff(taxa_names(ps), removed_asvs_all), ps)
+
+} else {
+  message("No ASVs flagged for removal (reviewer or incomplete taxonomy). No XLSX written.")
 }
+
 
 saveRDS(ps, updated_phyloseq_rds)
 message("Saved updated phyloseq object: ", updated_phyloseq_rds)
