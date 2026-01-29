@@ -64,12 +64,36 @@ conda activate "$ENV_PREFIX"
 # ----------------------------
 # Export env vars
 # ----------------------------
-PROJECT_NAME="$(cat "$HOME/Metabarcoding/current_project_name.txt")"
+PROJECT_NAME="$(tr -d '\r\n' < "$HOME/Metabarcoding/current_project_name.txt")"
 export PROJECT_NAME
 
-export PROJECT_DIR="$HOME/Metabarcoding/$PROJECT_NAME"
-export PHYLOSEQ_RDS="$PROJECT_DIR/output/phyloseq/dada2_phyloseq.rds"
-export REVIEW_OUTDIR="$PROJECT_DIR/output/BLAST/Review"
+export PROJECT_DIR="${HOME}/Metabarcoding/${PROJECT_NAME}"
+export PHYLOSEQ_RDS="${PROJECT_DIR}/output/phyloseq/dada2_phyloseq.rds"
+export REVIEW_OUTDIR="${PROJECT_DIR}/output/BLAST/Review"
+export BLAST_ALL_TSV="$PROJECT_DIR/output/BLAST/${PROJECT_NAME}_raw_blast_results_from_phyloseq_obj.tsv"
+
+
+# ---- Debug + safety checks (fail fast with useful info) ----
+
+if [[ -z "${PROJECT_DIR}" ]]; then
+  echo "ERROR: PROJECT_DIR is empty; cannot build paths." >&2
+  exit 1
+fi
+
+if [[ ! -d "${PROJECT_DIR}/output/BLAST" ]]; then
+  echo "ERROR: BLAST output directory not found: ${PROJECT_DIR}/output/BLAST" >&2
+  ls -lh "${PROJECT_DIR}/output" || true
+  exit 1
+fi
+
+if [[ ! -f "${BLAST_ALL_TSV}" ]]; then
+  echo "ERROR: BLAST_ALL_TSV not found at: ${BLAST_ALL_TSV}" >&2
+  echo "Here are files in ${PROJECT_DIR}/output/BLAST (to find the real name):" >&2
+  ls -lh "${PROJECT_DIR}/output/BLAST" >&2 || true
+  exit 1
+fi
+
+
 
 # ----------------------------
 # Run
