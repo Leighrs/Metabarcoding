@@ -853,6 +853,8 @@ This repository contains scripts and configuration files to:
 >"$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_run_review_and_update_phyloseq.sh" 
 > ```
 > - Your phyloseq object will now be updated with these taxonomic assignments.
+>    - Updated phyloseq object can be found at `$HOME/Metabarcoding/$PROJECT_NAME/output/BLAST/Review/phyloseq_${PROJECT_NAME}_UPDATED_reviewed_taxonomy.rds`.
+> - `$HOME/Metabarcoding/${PROJECT_NAME}/output/BLAST/Review/{PROJECT_NAME}_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx` now has an updated sheet with ASVs excluded after the review process.
 > - You can ignore the intermediate `${PROJECT_NAME}_reviewed_assignments.tsv` file created in the BLAST folder.
 >   
 >**Finally, exit from your interactive shell:**
@@ -928,6 +930,7 @@ This repository contains scripts and configuration files to:
 >conda exit
 >```
 </details>
+
 
 
 
