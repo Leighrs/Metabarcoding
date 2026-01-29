@@ -109,7 +109,7 @@ if (!dir.exists(params$scripts_dir)) {
 script_files <- sort(list.files(params$scripts_dir, pattern = "\\.R$", full.names = TRUE))
 
 # Exclude the master script / runner script(s) so we don't recurse
-script_files <- script_files[basename(script_files) != "test_GVL_metabarcoding_cleanup_main.R"]
+script_files <- script_files[basename(script_files) != "${PROJECT_NAME}_GVL_metabarcoding_cleanup_main.R"]
 
 
 # ===============================
@@ -122,5 +122,6 @@ for (script in script_files) {
 }
 
 message("Decontamination complete! Final phyloseq object stored at: $HOME/Metabarcoding/$PROJECT_NAME/output/ASV_cleanup_output/dada2_phyloseq_cleaned.rds")
+
 
 
