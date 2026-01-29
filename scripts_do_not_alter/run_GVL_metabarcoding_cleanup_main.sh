@@ -67,7 +67,7 @@ export PROJECT_DIR="$HOME/Metabarcoding/$PROJECT_NAME"
 export REVIEW_OUTDIR="$PROJECT_DIR/output/BLAST/Review"
 export SCRIPT_DIR="$PROJECT_DIR/scripts/${PROJECT_NAME}_R_ASV_cleanup_scripts"
 export ASV_CLEANUP_DIR="$PROJECT_DIR/output/ASV_cleanup_output"
-export PHYLOSEQ_RDS_REVIEWED="$REVIEW_OUTDIR/test_phyloseq_UPDATED_reviewed_taxonomy.rds"
+export PHYLOSEQ_RDS_REVIEWED="$REVIEW_OUTDIR/phyloseq_${PROJECT_NAME}_UPDATED_reviewed_taxonomy.rds"
 
 # ----------------------------
 # Run
