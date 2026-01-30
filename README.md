@@ -464,7 +464,7 @@ This repository contains scripts and configuration files to:
 > ```
 >  - Rules:
 >    - Needs to be a tab-deliminated text file or a .tsv file.
->    - First column is labeled "ID" for your sample IDs. These IDs match the sample IDs in your samplesheet you just made.
+>    - First column is labeled "ID" for your sample IDs. **Make sure these IDs match the sample IDs in your samplesheet you just made.**
 >    - If you wish to use a decontamination protocol later, add a column called "Control_Assign" to assign which controls are paired with which samples.
 >      - For example:
 >          
@@ -930,6 +930,7 @@ This repository contains scripts and configuration files to:
 >conda exit
 >```
 </details>
+
 
 
 
