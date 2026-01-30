@@ -798,7 +798,7 @@ This repository contains scripts and configuration files to:
 > - If you have MobaXterm, simply right click the file and open with Excel. 
 > - If you are using a MacOS, open your computer terminal in a separate window and use the `scp` command. This should be run on your computer, not on the cluster. After uploading the file, navigate to local directory and open the spreadsheet.
 > ```
-> scp -r [USER]@[CLUSTER].hpc.ucdavis.edu:~/[CLUSTER-DATA] local-directory
+> scp [USER]@[CLUSTER].hpc.ucdavis.edu:~/[CLUSTER-DATA] local-directory
 > 
 > # Example to upload to current local directory: scp leighrs@farm.hpc.ucdavis.edu:/home/leighrs/Metabarcoding/test/output/BLAST/test_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx .
 > # Example to upload to a specific local directory: scp leighrs@farm.hpc.ucdavis.edu:/home/leighrs/Metabarcoding/test/output/BLAST/test_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx C:\Users\Leighrs13\Metabarcoding
@@ -838,7 +838,7 @@ This repository contains scripts and configuration files to:
 > - If you have MobaXterm, simply save and close the file.
 > - If you are using a MacOS, open your computer terminal in a separate window and use the `scp` command. This should be run on your computer, not on the cluster.
 > ```
->scp -r local-directory [USER]@[CLUSTER].hpc.ucdavis.edu:~/[CLUSTER-DATA] 
+>scp local-directory [USER]@[CLUSTER].hpc.ucdavis.edu:~/[CLUSTER-DATA] 
 >
 ># Example to upload from local directory: scp test_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx leighrs@farm.hpc.ucdavis.edu:/home/leighrs/Metabarcoding/test/output/BLAST/ 
 ># Example to upload from a specific local directory: scp C:\Users\Leighrs13\Metabarcoding\test_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx leighrs@farm.hpc.ucdavis.edu:/home/leighrs/Metabarcoding/test/output/BLAST/ 
@@ -927,10 +927,30 @@ This repository contains scripts and configuration files to:
 >
 >**Finally, exit from your interactive shell:**
 >```
->conda exit
+>exit
 >```
+
+**10. Download your output:**
+
+> It is recommended to download your project directory to archive (usually on an external drive, the group directory, cloud service, etc.)
+> To download your project directory:
+>   - If you have MobaXterm, simply click on your `${PROJECT_NAME}` folder and export.
+>   - If you are using a MacOS, open your computer terminal in a separate window and use the `scp` command. This should be run on your computer, not on the cluster.
+> ```
+> scp -r [USER]@[CLUSTER].hpc.ucdavis.edu:~/[CLUSTER-DATA] local-directory
+>
+> # Example to upload to a specific local directory:
+>   ## I recommend renaming metabarcoding folder with something unique (rename XXX): scp -r leighrs@farm.hpc.ucdavis.edu:/home/leighrs/Metabarcoding/ D:\UCD_Bioinformatics\Metabarcoding_XXX\
+> ```
+>   - This folder will be quite large, especially if you have your fastq files stored in it instead of the group directory. I recommend downloading directly to an external hard drive. Or only locally downloading a few folders/files. See example below for only downloading the phyloseq object:
+> 
+>  - If you only want to download your final phyloseq object:
+>     - `"$HOME/Metabarcoding/$PROJECT_NAME/output/ASV_cleanup_output/dada2_phyloseq_cleaned.rds"`
+>     - Use the `scp` command to download to your local system.
+>     - Because you will **not** be on the FARM when using this command, remember to manually fill in your `$HOME` and `$PROJECT_NAME` variables.
 </details>
 
+---
 
 
 
