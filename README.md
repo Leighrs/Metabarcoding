@@ -1,4 +1,4 @@
-<img width="5120" height="1440" alt="image" src="https://github.com/user-attachments/assets/1dcf7f38-2d80-453d-94b0-6287059a75d7" />﻿# Metabarcoding Directory Setup & Pipeline
+# Metabarcoding Directory Setup & Pipeline
 
 ![GitHub Repo Size](https://img.shields.io/github/repo-size/Leighrs/Metabarcoding)
 ![License](https://img.shields.io/github/license/Leighrs/Metabarcoding)
@@ -974,6 +974,7 @@ This repository contains scripts and configuration files to:
 > Navigate to the (RTools: Toolchains for building R and R packages from source on Windows)[https://cran.rstudio.com/bin/windows/Rtools/] to download.
 
 </details>
+
 
 
 
