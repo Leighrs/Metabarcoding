@@ -953,7 +953,7 @@ This repository contains scripts and configuration files to:
 ---
 
 <details>
-<summary><h2>Set-up for using phyloseq objects: (WIP)/h2></summary>
+<summary><h2>Set-up for using phyloseq objects: (WIP)</h2></summary>
   
 <br>
 
@@ -974,6 +974,7 @@ This repository contains scripts and configuration files to:
 > Navigate to the (RTools: Toolchains for building R and R packages from source on Windows)[https://cran.rstudio.com/bin/windows/Rtools/] to download.
 
 </details>
+
 
 
 
