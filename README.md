@@ -1,4 +1,4 @@
-﻿# Metabarcoding Directory Setup & Pipeline
+<img width="5120" height="1440" alt="image" src="https://github.com/user-attachments/assets/1dcf7f38-2d80-453d-94b0-6287059a75d7" />﻿# Metabarcoding Directory Setup & Pipeline
 
 ![GitHub Repo Size](https://img.shields.io/github/repo-size/Leighrs/Metabarcoding)
 ![License](https://img.shields.io/github/license/Leighrs/Metabarcoding)
@@ -952,8 +952,26 @@ This repository contains scripts and configuration files to:
 
 ---
 
+<details>
+<summary><h2>Set-up for using phyloseq objects:/h2></summary>
+  
+<br>
 
+**1. Download base R:**
 
+> Navigate to the (The Comprehensive R Archive Network)[https://ftp.osuosl.org/pub/cran/] to download and install R.
+>  - For Windows: choose the option to (install R for the first time)[https://ftp.osuosl.org/pub/cran/].
+>  - For Mac: choose the option (R-4.5.2-arm64.pkg)[https://ftp.osuosl.org/pub/cran/bin/macosx/big-sur-arm64/base/R-4.5.2-arm64.pkg] for Apple silicon macs or (R-4.5.2-x86_64.pkg)[https://ftp.osuosl.org/pub/cran/bin/macosx/big-sur-x86_64/base/R-4.5.2-x86_64.pkg] for Intel Macs.
+
+**2. Download RStudio Desktop:**
+
+> Navigate to the (Posit RStudio Desktop site)[https://posit.co/download/rstudio-desktop/] to download and install RStudio.
+>  - (For Windows)[https://download1.rstudio.org/electron/windows/RStudio-2026.01.0-392.exe].
+>  - (For Mac)[https://download1.rstudio.org/electron/macos/RStudio-2026.01.0-392.dmg].
+
+**2. Download Rtools (for Windows only):**
+
+> Navigate to the (RTools: Toolchains for building R and R packages from source on Windows)[https://cran.rstudio.com/bin/windows/Rtools/] to download.
 
 
 
