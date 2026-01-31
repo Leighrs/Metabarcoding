@@ -76,7 +76,7 @@ case "$MODE" in
         echo "Selected mode: option1 (standard ampliseq FASTA)"
         ;;
     option2)
-        INPUT_FILE_SUFFIX="${PROJECT_NAME}_raw_blast_results_from_phyloseq_obj.tsv"
+        INPUT_FILE_SUFFIX="${PROJECT_NAME}_raw_blast_results.tsv"
         echo "Selected mode: option2 (phyloseq-derived FASTA)"
         ;;
     *)
