@@ -755,12 +755,6 @@ This repository contains scripts and configuration files to:
 >```bash
 >cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->
-># default metadata path (user may override)
->export METADATA_TSV="${PROJECT_DIR}/output/input/${PROJECT_NAME}_metadata.txt"
->
->export ASV_TABLE_TSV="${PROJECT_DIR}/output/dada2/DADA2_table.tsv"
->export ASV_FASTA="${PROJECT_DIR}/output/dada2/ASV_seqs.fasta"
 >sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_ncbi_taxonomy.slurm" option1
 >```
 > If you did use a custom RSD, run this code chunk instead:
@@ -798,6 +792,18 @@ This repository contains scripts and configuration files to:
 >     --mem=32G \
 >     --time=01:30:00 \
 >     --pty bash
+>```
+>
+>If you did NOT use a custom RSD, run this code chunk first:
+>   - If you used a custom RSD, skip this code and go to the next code chunk.
+>   - NOTE: Make sure you metadata file name is correct.
+>   - You can also choose this option if you decided to BLAST ALL of your ASVs from our fasta file instead.
+>```
+># default metadata path (user may override)
+>export METADATA_TSV="${PROJECT_DIR}/output/input/${PROJECT_NAME}_metadata.txt"
+>
+>export ASV_TABLE_TSV="${PROJECT_DIR}/output/dada2/DADA2_table.tsv"
+>export ASV_FASTA="${PROJECT_DIR}/output/dada2/ASV_seqs.fasta"
 >```
 >Then, run shell script to review BLAST assignments and update phylseq object:
 >```
@@ -986,6 +992,7 @@ This repository contains scripts and configuration files to:
 > Navigate to the (RTools: Toolchains for building R and R packages from source on Windows)[https://cran.rstudio.com/bin/windows/Rtools/] to download.
 
 </details>
+
 
 
 
