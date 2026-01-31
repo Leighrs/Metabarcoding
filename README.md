@@ -749,14 +749,26 @@ This repository contains scripts and configuration files to:
 >- Explanations for the final taxonomic assignment will be provided for each ASV.
 >- Hopefully this will make parsing through and proofreading BLAST assignments much easier.
 >
+> If you did NOT use a custom RSD, run this code chunk:
+>   - NOTE: Make sure you metadata file name is correct.
+>```bash
+>>cd ~
+>PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+>
+># default metadata path (user may override)
+>export METADATA_TSV="${PROJECT_DIR}/output/input/${PROJECT_NAME}_metadata.txt"
+>
+> # Do not alter these below
+>export ASV_TABLE_TSV="${PROJECT_DIR}/output/dada2/DADA2_table.tsv"
+>export ASV_FASTA="${PROJECT_DIR}/output/dada2/ASV_seqs.fasta"
+>sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_ncbi_taxonomy.slurm" option1
+>```
+> If you did NOT use a custom RSD, run this code chunk:
 >```bash
 >cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 >sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_ncbi_taxonomy.slurm" option2
 >```
->- `option1`: If you did not use a custom RSD.
->- `option2`: If you used a custom RSD.
->
 ><details>
 ><summary><strong>Expected output files (click to expand).</strong></summary>
 >
@@ -974,6 +986,7 @@ This repository contains scripts and configuration files to:
 > Navigate to the (RTools: Toolchains for building R and R packages from source on Windows)[https://cran.rstudio.com/bin/windows/Rtools/] to download.
 
 </details>
+
 
 
 
