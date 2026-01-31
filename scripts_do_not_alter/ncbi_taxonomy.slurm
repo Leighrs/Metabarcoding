@@ -72,7 +72,7 @@ fi
 
 case "$MODE" in
     option1)
-        INPUT_FILE_SUFFIX="${PROJECT_NAME}_blast_results.tsv"
+        INPUT_FILE_SUFFIX="${PROJECT_NAME}_raw_blast_results.tsv"
         echo "Selected mode: option1 (standard ampliseq FASTA)"
         ;;
     option2)
