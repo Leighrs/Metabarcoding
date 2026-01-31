@@ -752,7 +752,7 @@ This repository contains scripts and configuration files to:
 > If you did NOT use a custom RSD, run this code chunk:
 >   - NOTE: Make sure you metadata file name is correct.
 >```bash
->>cd ~
+>cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 >
 ># default metadata path (user may override)
@@ -986,6 +986,7 @@ This repository contains scripts and configuration files to:
 > Navigate to the (RTools: Toolchains for building R and R packages from source on Windows)[https://cran.rstudio.com/bin/windows/Rtools/] to download.
 
 </details>
+
 
 
 
