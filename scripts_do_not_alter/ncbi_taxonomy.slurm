@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --account=millermrgrp
 #SBATCH --partition=bmh
-#SBATCH --job-name=ncbi_blast_cleanup
+#SBATCH --job-name=blast_cleanup
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
