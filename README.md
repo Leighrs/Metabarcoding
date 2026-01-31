@@ -799,9 +799,10 @@ This repository contains scripts and configuration files to:
 >   - NOTE: Make sure you metadata file name is correct.
 >   - You can also choose this option if you decided to BLAST ALL of your ASVs from our fasta file instead.
 >```
-># default metadata path (user may override)
+># default metadata path (override if needed)
 >export METADATA_TSV="${PROJECT_DIR}/output/input/${PROJECT_NAME}_metadata.txt"
 >
+># do not override these paths (:
 >export ASV_TABLE_TSV="${PROJECT_DIR}/output/dada2/DADA2_table.tsv"
 >export ASV_FASTA="${PROJECT_DIR}/output/dada2/ASV_seqs.fasta"
 >```
@@ -992,6 +993,7 @@ This repository contains scripts and configuration files to:
 > Navigate to the (RTools: Toolchains for building R and R packages from source on Windows)[https://cran.rstudio.com/bin/windows/Rtools/] to download.
 
 </details>
+
 
 
 
