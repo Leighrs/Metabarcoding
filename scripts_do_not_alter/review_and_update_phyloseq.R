@@ -73,6 +73,102 @@ get_rank_order <- function(tax_cols_rank) {
   if (length(out) == 0) return(tax_cols_rank)
   out
 }
+# If phyloseq object is missing:
+
+suppressPackageStartupMessages({
+  library(phyloseq)
+  library(Biostrings)
+})
+
+read_tsv <- function(path) {
+  read.delim(path, header = TRUE, sep = "\t", check.names = FALSE, stringsAsFactors = FALSE)
+}
+
+make_phyloseq_from_dada2_table <- function(dada2_table_tsv, metadata_tsv) {
+  if (!file.exists(dada2_table_tsv)) stop("Missing DADA2 table: ", dada2_table_tsv, call.=FALSE)
+  if (!file.exists(metadata_tsv))    stop("Missing metadata: ", metadata_tsv, call.=FALSE)
+
+  tab <- read_tsv(dada2_table_tsv)
+
+  # --- require ASV_ID column ---
+  if (!("ASV_ID" %in% names(tab))) {
+    stop("DADA2_table.tsv must contain an 'ASV_ID' column. Found: ",
+         paste(names(tab), collapse = ", "), call.=FALSE)
+  }
+
+  asv_ids <- as.character(tab$ASV_ID)
+  if (any(!nzchar(asv_ids))) stop("Some ASV_ID values are empty.", call.=FALSE)
+
+  rownames(tab) <- make.unique(asv_ids)
+  tab$ASV_ID <- NULL
+
+  # --- handle sequence column if present ---
+  seqs <- NULL
+  if ("sequence" %in% names(tab)) {
+    seqs <- as.character(tab$sequence)
+    names(seqs) <- rownames(tab)
+    tab$sequence <- NULL
+  }
+
+  # remaining columns should be samples
+  otu_mat <- as.matrix(tab)
+  mode(otu_mat) <- "numeric"
+
+  # --- metadata ---
+meta <- read_tsv(metadata_tsv)
+
+# Prefer an explicit ID column if present
+id_col <- NULL
+for (cand in c("ID", "SampleID", "Sample_ID", "sample_id", "sample", "Sample")) {
+  if (cand %in% names(meta)) { id_col <- cand; break }
+}
+
+if (!is.null(id_col)) {
+  rownames(meta) <- make.unique(as.character(meta[[id_col]]))
+  meta[[id_col]] <- NULL
+} else {
+  # fallback: first column
+  rownames(meta) <- make.unique(as.character(meta[[1]]))
+  meta[[1]] <- NULL
+}
+
+# Trim whitespace just in case
+rownames(meta) <- trimws(rownames(meta))
+colnames(meta) <- trimws(colnames(meta))
+
+
+  shared_samples <- intersect(colnames(otu_mat), rownames(meta))
+  if (length(shared_samples) == 0) {
+    stop(
+      "No overlapping sample names between DADA2 table columns and metadata rownames.\n",
+      "DADA2 table samples: ", paste(head(colnames(otu_mat)), collapse = ", "), "\n",
+      "Metadata samples: ", paste(head(rownames(meta)), collapse = ", "),
+      call.=FALSE
+    )
+  }
+
+  otu_mat <- otu_mat[, shared_samples, drop = FALSE]
+  meta <- meta[shared_samples, , drop = FALSE]
+
+  ps <- phyloseq(
+    otu_table(otu_mat, taxa_are_rows = TRUE),
+    sample_data(meta)
+  )
+
+
+  # --- create placeholder taxonomy table (so your downstream code finds Species/etc.) ---
+  rank_cols <- c("Kingdom","Phylum","Class","Order","Family","Genus","Species","Common","confidence","ASV_sequence")
+  tax_stub <- matrix("", nrow = ntaxa(ps), ncol = length(rank_cols))
+  rownames(tax_stub) <- taxa_names(ps)
+  colnames(tax_stub) <- rank_cols
+
+  if (!is.null(seqs)) tax_stub[names(seqs), "ASV_sequence"] <- seqs
+
+  tax_table(ps) <- tax_table(tax_stub)
+
+  ps
+}
+
 
 # ----------------------------
 # README text
@@ -89,6 +185,7 @@ readme_lines <- c(
   "",
   "For_Review Tab Contents:",
   "  - Columns E-L: Current taxonomic assignments produced by the nf-core/ampliseq pipeline, using your custom RSD.",
+  "    - If you did get nf-core/ampliseq to assign taxonomy, these will be blank.",
   "  - Columns M-T: Proposed taxonomic assignments generated from BLAST.",
   "  - Column U: Approval of BLAST assignmment.",
   "    - Do you agree with the BLAST taxonomic assignments (columns M-T)?",
@@ -151,13 +248,34 @@ host <- sub("^([^.]+)\\.\\1\\.", "\\1.", host)
 if (!nzchar(host)) stop("Could not determine hostname for scp instructions.", call. = FALSE)
 
 if (!file.exists(BLAST_FILE)) stop("Cannot find BLAST taxonomy file: ", BLAST_FILE, call. = FALSE)
-if (!file.exists(PHYLOSEQ_RDS)) stop("Cannot find phyloseq RDS: ", PHYLOSEQ_RDS, call. = FALSE)
 
 # ----------------------------
-# Load phyloseq to discover tax table columns
+# Load or create phyloseq
 # ----------------------------
-ps <- readRDS(PHYLOSEQ_RDS)
-if (!inherits(ps, "phyloseq")) stop("Loaded object is not a phyloseq object: ", PHYLOSEQ_RDS, call. = FALSE)
+
+if (!file.exists(PHYLOSEQ_RDS)) {
+  ASV_TABLE_TSV <- Sys.getenv("ASV_TABLE_TSV", unset = "")
+  METADATA_TSV  <- Sys.getenv("METADATA_TSV", unset = "")
+
+  stop_if_missing(ASV_TABLE_TSV, "ASV_TABLE_TSV")
+  stop_if_missing(METADATA_TSV,  "METADATA_TSV")
+
+  message("PHYLOSEQ_RDS not found. Creating phyloseq from DADA2 table + metadata...")
+  ps <- make_phyloseq_from_dada2_table(ASV_TABLE_TSV, METADATA_TSV)
+
+  dir.create(dirname(PHYLOSEQ_RDS), recursive = TRUE, showWarnings = FALSE)
+
+  saveRDS(ps, PHYLOSEQ_RDS)
+  message("Saved new phyloseq object to: ", PHYLOSEQ_RDS)
+
+  message("Saved new phyloseq object to: ", PHYLOSEQ_RDS)
+} else {
+  ps <- readRDS(PHYLOSEQ_RDS)
+  if (!inherits(ps, "phyloseq")) {
+    stop("Loaded object is not a phyloseq object: ", PHYLOSEQ_RDS, call.=FALSE)
+  }
+}
+
 
 tax <- tax_table(ps)
 tax_mat <- as(tax, "matrix")
