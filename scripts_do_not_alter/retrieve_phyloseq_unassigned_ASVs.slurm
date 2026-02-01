@@ -269,7 +269,7 @@ BLAST_DIR="$PROJECT_DIR/output/BLAST"
 
 
 QUERY="$PROJECT_DIR/output/R/${PROJECT_NAME}_DADA2_unassigned_ASVs.fasta"
-OUTFILE="$BLAST_DIR/${PROJECT_NAME}_raw_blast_results_from_phyloseq_obj.tsv"
+OUTFILE="$BLAST_DIR/${PROJECT_NAME}_raw_blast_results.tsv"
 
 # -------------------------------
 # 5. Run BLAST using the group database
