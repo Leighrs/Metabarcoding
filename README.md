@@ -301,15 +301,13 @@ This repository contains scripts and configuration files to:
 >
 > **When reviewing the test data:**
 >   - You should see one unassigned ASV that BLASTed to Lucania (Killifish) genus. This ASV was not assigned in the nf-core/ampliseq pipeline because I removed this species from the reference sequence database so that we could practice getting assignments for ASVs that need to be BLASTed.
->   - Select "no" for E column to disapprove of the BLAST assignment.
->   - For the dissapproval reasoning in column F: 
->     - "I want to override some taxon name ranks". 
->   - Fill in the new taxon ranks:
->        - Column K: Cyprinodontiformes
->        - Column L: Fundulidae
->        - Column M: Lucania
->        - Column N: Lucania spp
->        - Column O: Killifish spp
+>   - Columns E-L: Current taxonomic classification based on nf-core/ampliseq pipeline DADA2 taxonomic assignment using custom RSD.
+>   - Columns: M-T: Proposed BLAST taxonomic classification.
+>   - Leave the U column to approve of the BLAST assignment.
+>   - Fill in the missing taxa ranks into columns X-AE that BLAST did not assign:
+>        - Column AA: Cyprinodontiformes
+>        - Column AB: Fundulidae
+>        - Column AE: Killifish spp
 
 >**C. Save edited spreadsheet (same file name) and upload to FARM:**
 > - If you have MobaXterm, simply save and close the file.
@@ -995,6 +993,7 @@ This repository contains scripts and configuration files to:
 > Navigate to the (RTools: Toolchains for building R and R packages from source on Windows)[https://cran.rstudio.com/bin/windows/Rtools/] to download.
 
 </details>
+
 
 
 
