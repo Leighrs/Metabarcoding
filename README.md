@@ -152,6 +152,7 @@ This repository contains scripts and configuration files to:
 >    "RV_primer": "CATAGTGGGGTATCTAATCCCAGTTTG",
 >
 >    "metadata": "$HOME/Metabarcoding/$PROJECT_NAME/input/${PROJECT_NAME}_metadata.txt",
+>    "outdir": "$HOME/Metabarcoding/$PROJECT_NAME/output/",
 >
 >    "seed": 13,
 >
@@ -994,6 +995,7 @@ This repository contains scripts and configuration files to:
 > Navigate to the (RTools: Toolchains for building R and R packages from source on Windows)[https://cran.rstudio.com/bin/windows/Rtools/] to download.
 
 </details>
+
 
 
 
