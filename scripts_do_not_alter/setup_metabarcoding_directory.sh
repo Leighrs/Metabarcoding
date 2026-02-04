@@ -164,6 +164,7 @@ declare -A FILES=(
     ["review_and_update_phyloseq.R"]="${PROJECT}_review_and_update_phyloseq.R"
     ["run_review_and_update_phyloseq.sh"]="${PROJECT}_run_review_and_update_phyloseq.sh"
     ["run_GVL_metabarcoding_cleanup_main.sh"]="${PROJECT}_run_GVL_metabarcoding_cleanup_main.sh"
+    ["check_ids_match.sh"]="${PROJECT}_check_ids_match.sh"
 )
 
 for SRCFILE in "${!FILES[@]}"; do
