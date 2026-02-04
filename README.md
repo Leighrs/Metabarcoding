@@ -272,8 +272,8 @@ This repository contains scripts and configuration files to:
 > ```
 > scp -r [USER]@[CLUSTER].hpc.ucdavis.edu:~/[CLUSTER-DATA] local-directory
 > 
-> # Example to upload to current local directory: scp leighrs@farm.hpc.ucdavis.edu:/home/leighrs/Metabarcoding/test/output/BLAST/test_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx .
-> # Example to upload to a specific local directory: scp leighrs@farm.hpc.ucdavis.edu:/home/leighrs/Metabarcoding/test/output/BLAST/test_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx C:\Users\Leighrs13\Metabarcoding
+> # Example to upload to current local directory: scp leighrs@farm.hpc.ucdavis.edu:/home/leighrs/Metabarcoding/test/output/BLAST/Review/test_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx .
+> # Example to upload to a specific local directory: scp leighrs@farm.hpc.ucdavis.edu:/home/leighrs/Metabarcoding/test/output/BLAST/Review/test_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx C:\Users\Leighrs13\Metabarcoding
 > ```
 
 >**B. Manually review BLAST taxonomic assignments:**
@@ -318,8 +318,8 @@ This repository contains scripts and configuration files to:
 > ```
 >scp -r local-directory [USER]@[CLUSTER].hpc.ucdavis.edu:~/[CLUSTER-DATA] 
 >
-># Example to upload from local directory: scp test_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx leighrs@farm.hpc.ucdavis.edu:/home/leighrs/Metabarcoding/test/output/BLAST/ 
-># Example to upload from a specific local directory: scp C:\Users\Leighrs13\Metabarcoding\test_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx leighrs@farm.hpc.ucdavis.edu:/home/leighrs/Metabarcoding/test/output/BLAST/ 
+># Example to upload from local directory: scp test_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx leighrs@farm.hpc.ucdavis.edu:/home/leighrs/Metabarcoding/test/output/BLAST/Review/ 
+># Example to upload from a specific local directory: scp C:\Users\Leighrs13\Metabarcoding\test_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx leighrs@farm.hpc.ucdavis.edu:/home/leighrs/Metabarcoding/test/output/BLAST/Review/ 
 > ```
 
 > **D. After uploading edited spreadsheet into FARM, navigate back to terminal with FARM running your interactive shell and re-run the following code:**
@@ -969,6 +969,7 @@ This repository contains scripts and configuration files to:
 > Navigate to the (RTools: Toolchains for building R and R packages from source on Windows)[https://cran.rstudio.com/bin/windows/Rtools/] to download.
 
 </details>
+
 
 
 
