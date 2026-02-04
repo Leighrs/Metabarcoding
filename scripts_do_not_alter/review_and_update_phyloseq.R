@@ -243,9 +243,7 @@ is_resume <- file.exists(review_xlsx)
 user <- Sys.getenv("USER", unset = "")
 stop_if_missing(user, "USER")
 
-host <- trimws(tryCatch(system("hostname -f", intern = TRUE), error = function(e) ""))
-host <- sub("^([^.]+)\\.\\1\\.", "\\1.", host)
-if (!nzchar(host)) stop("Could not determine hostname for scp instructions.", call. = FALSE)
+host <- farm
 
 if (!file.exists(BLAST_FILE)) stop("Cannot find BLAST taxonomy file: ", BLAST_FILE, call. = FALSE)
 
@@ -764,3 +762,4 @@ saveWorkbook(wb, review_xlsx, overwrite = TRUE)
 message("Updated review workbook with Excluded_by_Reviewer tab: ", review_xlsx)
 
 message("Done.")
+
