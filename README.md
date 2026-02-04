@@ -129,6 +129,7 @@ This repository contains scripts and configuration files to:
 > - Edit this file so that the input paths, primer sequences, and filtering settings match your dataset.
 >
 >```
+>cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 >nano $HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_nf-params.json
 >```
@@ -181,6 +182,7 @@ This repository contains scripts and configuration files to:
 > JSON files can't expand environment variables, like `$HOME` or `$PROJECT_NAME`. Create a file with an expanded variable unique to your system.
 > 
 >```
+>cd ~
 >export PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 >envsubst '$HOME $PROJECT_NAME' \
 >  < "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_nf-params.json" \
@@ -248,6 +250,7 @@ This repository contains scripts and configuration files to:
 >
 >Start an interactive shell:
 >```
+>cd ~
 >srun --account=millermrgrp \
 >     --partition=bmh \
 >     --ntasks=1 \
@@ -339,6 +342,7 @@ This repository contains scripts and configuration files to:
 
 >Start an interactive shell:
 >```
+>cd ~
 >srun --account=millermrgrp \
 >     --partition=bmh \
 >     --ntasks=1 \
@@ -350,6 +354,7 @@ This repository contains scripts and configuration files to:
 >>
 >Define label parameters:
 >```
+>cd ~
 >export SAMPLE_TYPE_COL="Sample_or_Control"
 >export SAMPLE_LABEL="Sample"
 >export CONTROL_LABEL="Control"
@@ -373,6 +378,7 @@ This repository contains scripts and configuration files to:
 >
 >Define threshold parameters:
 >```
+>cd ~
 >export SAMPLE_THRES=0.0005
 >export MIN_DEPTH_THRES=10
 >```
@@ -583,6 +589,7 @@ This repository contains scripts and configuration files to:
 > - Edit this file so that the input paths, primer sequences, and filtering settings match your dataset.
 >
 >```
+>cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 >nano $HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_nf-params.json
 >```
@@ -712,6 +719,7 @@ This repository contains scripts and configuration files to:
 >Set your percent identity threshold and the max number of BLAST hits reported:
 >  - *If these environmental variables are not exported, the script will default to 97% identity and 5 hits.*
 >```
+>cd ~
 >export BLAST_PERC_IDENTITY=97
 >export BLAST_MAX_TARGET_SEQS=5
 >```
@@ -784,6 +792,7 @@ This repository contains scripts and configuration files to:
 >
 >Start an interactive shell:
 >```
+>cd ~
 >srun --account=millermrgrp \
 >     --partition=bmh \
 >     --ntasks=1 \
@@ -798,6 +807,7 @@ This repository contains scripts and configuration files to:
 >   - NOTE: Make sure you metadata file name is correct.
 >   - You can also choose this option if you decided to BLAST ALL of your ASVs from our fasta file instead.
 >```
+>cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 ># default metadata path (override if needed)
 >export METADATA_TSV="$HOME/Metabarcoding/$PROJECT_NAME/output/input/${PROJECT_NAME}_metadata.txt"
@@ -886,6 +896,7 @@ This repository contains scripts and configuration files to:
 >
 >Start an interactive shell:
 >```
+>cd ~
 >srun --account=millermrgrp \
 >     --partition=bmh \
 >     --ntasks=1 \
@@ -897,6 +908,7 @@ This repository contains scripts and configuration files to:
 >
 >Define label parameters:
 >```
+>cd ~
 >export SAMPLE_TYPE_COL="Sample_or_Control"
 >export SAMPLE_LABEL="Sample"
 >export CONTROL_LABEL="Control"
@@ -920,6 +932,7 @@ This repository contains scripts and configuration files to:
 >
 >Define threshold parameters:
 >```
+>cd ~
 >export SAMPLE_THRES=0.0005
 >export MIN_DEPTH_THRES=0.0005
 >```
@@ -993,6 +1006,7 @@ This repository contains scripts and configuration files to:
 > Navigate to the (RTools: Toolchains for building R and R packages from source on Windows)[https://cran.rstudio.com/bin/windows/Rtools/] to download.
 
 </details>
+
 
 
 
