@@ -129,6 +129,7 @@ This repository contains scripts and configuration files to:
 > - Edit this file so that the input paths, primer sequences, and filtering settings match your dataset.
 >
 >```
+>cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 >nano $HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_nf-params.json
 >```
@@ -181,6 +182,7 @@ This repository contains scripts and configuration files to:
 > JSON files can't expand environment variables, like `$HOME` or `$PROJECT_NAME`. Create a file with an expanded variable unique to your system.
 > 
 >```
+>cd ~
 >export PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 >envsubst '$HOME $PROJECT_NAME' \
 >  < "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_nf-params.json" \
@@ -248,6 +250,7 @@ This repository contains scripts and configuration files to:
 >
 >Start an interactive shell:
 >```
+>cd ~
 >srun --account=millermrgrp \
 >     --partition=bmh \
 >     --ntasks=1 \
@@ -339,6 +342,7 @@ This repository contains scripts and configuration files to:
 
 >Start an interactive shell:
 >```
+>cd ~
 >srun --account=millermrgrp \
 >     --partition=bmh \
 >     --ntasks=1 \
@@ -350,6 +354,7 @@ This repository contains scripts and configuration files to:
 >>
 >Define label parameters:
 >```
+>cd ~
 >export SAMPLE_TYPE_COL="Sample_or_Control"
 >export SAMPLE_LABEL="Sample"
 >export CONTROL_LABEL="Control"
@@ -373,6 +378,7 @@ This repository contains scripts and configuration files to:
 >
 >Define threshold parameters:
 >```
+>cd ~
 >export SAMPLE_THRES=0.0005
 >export MIN_DEPTH_THRES=10
 >```
@@ -516,50 +522,13 @@ This repository contains scripts and configuration files to:
 >      - If you answer ${\color{red}no}$: All samples will be assigned to a single run "A"
 >      - If you answer ${\color{green}yes}$: Sequencing run ID will not be assigned on the samplesheet. You must go into the samplesheet and manually assign sequence IDs to the last column for each sample. Each sequencing run needs to be assigned a unique letter (e.g., A, B, C, ...).
 >     
-> The script's default is to extrapolate sample names from the forward reads (R1) using the first two fields of the `_R1_001.fastq.gz` file names separated by and underscore ("_").
-> 
-> For example:
-> 
->        File name: B12A1_02_4_S14_L001_R1_001.fastq.gz  ->  Sample ID: B12A1_02
 >
 ><details>
 >
-><summary><strong>If you wish to extrapolate a different part of the file name or if your fastq files have a different file name ending, click to expand:</strong></summary>
+><summary><strong>If you wish to extrapolate a different part of the file name using the awk command, click to expand:</strong></summary>
 >
 ><br>
-> 
-> First, open sample sheet generation shell script:
->```bash
->PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->nano $HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_generate_samplesheet_table.sh
->```
 >
-> Second, locate the following code chunk in the script:
-> 
-> ```bash
->extract_sample_id() {
->   local filename="$1"
->    
->    # Remove R1/R2 etc. suffix from filename
->    local base="${filename%_R1_001.fastq.gz}"
->
->    # --- DEFAULT RULE ---
->    # Extract the first TWO underscore-separated fields
->    # e.g. B12A1_02_4_S14 ? B12A1_02
->    echo "$base" | awk -F'_' '{print $1"_"$2}'
->}
-> ```
->
-> Third, if you have a different forward fastq file ending than `_R1_001.fasq.gz`, edit this field with the appropiate ending:
->
-> ```bash
-> local base="${filename%_R1_001.fastq.gz}"
-> ```
->
-> Lastly, if you need to extrapolate a different part of the file name for your sample IDs, edit this field:
-> ```bash
->    # Extract ONLY the first underscore-separated field
->    echo "$base" | awk -F'_' '{print $1}'
 >```
 > When using awk, the input line is automatically split into fields based on a delimiter (also called the field separator). In this case the delimiter is set to be an underscore.
 >
@@ -583,6 +552,7 @@ This repository contains scripts and configuration files to:
 > - Edit this file so that the input paths, primer sequences, and filtering settings match your dataset.
 >
 >```
+>cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 >nano $HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_nf-params.json
 >```
@@ -712,6 +682,7 @@ This repository contains scripts and configuration files to:
 >Set your percent identity threshold and the max number of BLAST hits reported:
 >  - *If these environmental variables are not exported, the script will default to 97% identity and 5 hits.*
 >```
+>cd ~
 >export BLAST_PERC_IDENTITY=97
 >export BLAST_MAX_TARGET_SEQS=5
 >```
@@ -784,6 +755,7 @@ This repository contains scripts and configuration files to:
 >
 >Start an interactive shell:
 >```
+>cd ~
 >srun --account=millermrgrp \
 >     --partition=bmh \
 >     --ntasks=1 \
@@ -798,6 +770,7 @@ This repository contains scripts and configuration files to:
 >   - NOTE: Make sure you metadata file name is correct.
 >   - You can also choose this option if you decided to BLAST ALL of your ASVs from our fasta file instead.
 >```
+>cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 ># default metadata path (override if needed)
 >export METADATA_TSV="$HOME/Metabarcoding/$PROJECT_NAME/output/input/${PROJECT_NAME}_metadata.txt"
@@ -886,6 +859,7 @@ This repository contains scripts and configuration files to:
 >
 >Start an interactive shell:
 >```
+>cd ~
 >srun --account=millermrgrp \
 >     --partition=bmh \
 >     --ntasks=1 \
@@ -897,6 +871,7 @@ This repository contains scripts and configuration files to:
 >
 >Define label parameters:
 >```
+>cd ~
 >export SAMPLE_TYPE_COL="Sample_or_Control"
 >export SAMPLE_LABEL="Sample"
 >export CONTROL_LABEL="Control"
@@ -920,6 +895,7 @@ This repository contains scripts and configuration files to:
 >
 >Define threshold parameters:
 >```
+>cd ~
 >export SAMPLE_THRES=0.0005
 >export MIN_DEPTH_THRES=0.0005
 >```
@@ -993,6 +969,8 @@ This repository contains scripts and configuration files to:
 > Navigate to the (RTools: Toolchains for building R and R packages from source on Windows)[https://cran.rstudio.com/bin/windows/Rtools/] to download.
 
 </details>
+
+
 
 
 
