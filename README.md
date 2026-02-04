@@ -522,50 +522,13 @@ This repository contains scripts and configuration files to:
 >      - If you answer ${\color{red}no}$: All samples will be assigned to a single run "A"
 >      - If you answer ${\color{green}yes}$: Sequencing run ID will not be assigned on the samplesheet. You must go into the samplesheet and manually assign sequence IDs to the last column for each sample. Each sequencing run needs to be assigned a unique letter (e.g., A, B, C, ...).
 >     
-> The script's default is to extrapolate sample names from the forward reads (R1) using the first two fields of the `_R1_001.fastq.gz` file names separated by and underscore ("_").
-> 
-> For example:
-> 
->        File name: B12A1_02_4_S14_L001_R1_001.fastq.gz  ->  Sample ID: B12A1_02
 >
 ><details>
 >
-><summary><strong>If you wish to extrapolate a different part of the file name or if your fastq files have a different file name ending, click to expand:</strong></summary>
+><summary><strong>If you wish to extrapolate a different part of the file name using the awk command, click to expand:</strong></summary>
 >
 ><br>
-> 
-> First, open sample sheet generation shell script:
->```bash
->PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->nano $HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_generate_samplesheet_table.sh
->```
 >
-> Second, locate the following code chunk in the script:
-> 
-> ```bash
->extract_sample_id() {
->   local filename="$1"
->    
->    # Remove R1/R2 etc. suffix from filename
->    local base="${filename%_R1_001.fastq.gz}"
->
->    # --- DEFAULT RULE ---
->    # Extract the first TWO underscore-separated fields
->    # e.g. B12A1_02_4_S14 ? B12A1_02
->    echo "$base" | awk -F'_' '{print $1"_"$2}'
->}
-> ```
->
-> Third, if you have a different forward fastq file ending than `_R1_001.fasq.gz`, edit this field with the appropiate ending:
->
-> ```bash
-> local base="${filename%_R1_001.fastq.gz}"
-> ```
->
-> Lastly, if you need to extrapolate a different part of the file name for your sample IDs, edit this field:
-> ```bash
->    # Extract ONLY the first underscore-separated field
->    echo "$base" | awk -F'_' '{print $1}'
 >```
 > When using awk, the input line is automatically split into fields based on a delimiter (also called the field separator). In this case the delimiter is set to be an underscore.
 >
@@ -1006,6 +969,7 @@ This repository contains scripts and configuration files to:
 > Navigate to the (RTools: Toolchains for building R and R packages from source on Windows)[https://cran.rstudio.com/bin/windows/Rtools/] to download.
 
 </details>
+
 
 
 
