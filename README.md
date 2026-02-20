@@ -89,7 +89,9 @@ This repository contains scripts and configuration files to:
 >- **When prompted:**
 >    - *Enter project name:* ${\color{green}test}$
 >    - *Reference database choice:* ${\color{green}2}$
+>    - If you get this prompt -> *Cache directory already exists:* ${\color{green}R}$
 >    - *Where do you want to store FASTQ files?:* ${\color{green}1}$
+>    - *Which reference database do you want to use?:* ${\color{green}1}$
 
 **3. Import fastq files, metadata, and custom reference sequence database.**
 
@@ -969,6 +971,7 @@ This repository contains scripts and configuration files to:
 > Navigate to the (RTools: Toolchains for building R and R packages from source on Windows)[https://cran.rstudio.com/bin/windows/Rtools/] to download.
 
 </details>
+
 
 
 
