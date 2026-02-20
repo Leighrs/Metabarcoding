@@ -121,6 +121,7 @@ This repository contains scripts and configuration files to:
 
 >- **When prompted:**
 >    - *Did you sequence samples using multiple sequencing runs?:* ${\color{red}no}$
+>    - *How should sampleID be extracted from FASTQ filenames?:* ${\color{green}2}$ 
 
 **5. Edit Run Parameters.**
 
@@ -970,6 +971,7 @@ This repository contains scripts and configuration files to:
 > Navigate to the (RTools: Toolchains for building R and R packages from source on Windows)[https://cran.rstudio.com/bin/windows/Rtools/] to download.
 
 </details>
+
 
 
 
