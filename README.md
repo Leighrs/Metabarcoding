@@ -146,7 +146,7 @@ This repository contains scripts and configuration files to:
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 >nano $HOME/Metabarcoding/$PROJECT_NAME/params/${PROJECT_NAME}_nf-params.json
 >```
-> **Replace RSD path in parameter file using the following information for the test data:**
+> **For the test data, only replace the RSD path using the following information:**
 > 
 > Nano files are little tricky to work with. Here are some tips for ${\color{red}Windows}$ Users:
 >
@@ -952,6 +952,7 @@ This repository contains scripts and configuration files to:
 > Navigate to the (RTools: Toolchains for building R and R packages from source on Windows)[https://cran.rstudio.com/bin/windows/Rtools/] to download.
 
 </details>
+
 
 
 
