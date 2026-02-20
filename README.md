@@ -89,7 +89,9 @@ This repository contains scripts and configuration files to:
 >- **When prompted:**
 >    - *Enter project name:* ${\color{green}test}$
 >    - *Reference database choice:* ${\color{green}2}$
+>    - If you get this prompt -> *Cache directory already exists:* ${\color{green}R}$
 >    - *Where do you want to store FASTQ files?:* ${\color{green}1}$
+>    - *Which reference database do you want to use?:* ${\color{green}1}$
 
 **3. Import fastq files, metadata, and custom reference sequence database.**
 
@@ -115,13 +117,25 @@ This repository contains scripts and configuration files to:
 >```
 >cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->"$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_generate_samplesheet_table.sh" 
+>"$HOME/Metabarcoding/scripts_do_not_alter/generate_samplesheet_table.sh" 
 >```
 
 >- **When prompted:**
 >    - *Did you sequence samples using multiple sequencing runs?:* ${\color{red}no}$
+>    - *How should sampleID be extracted from FASTQ filenames?:* ${\color{green}2}$
 
-**5. Edit Run Parameters.**
+**5. Confirm that sample IDs are valid and match between metadata and samplesheet:** 
+
+> Ensure you are in your home directory and run the following shell script.
+>
+>```
+>cd ~
+>PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+>"$HOME/Metabarcoding/scripts_do_not_alter/check_ids_match.sh"
+>```
+>This script will also locate your metafile and add that path to your params file.
+
+**6. Edit Run Parameters.**
 
 > Open the parameter file for the nf-core/ampliseq pipeline:
 > 
@@ -131,52 +145,22 @@ This repository contains scripts and configuration files to:
 >```
 >cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->nano $HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_nf-params.json
+>nano $HOME/Metabarcoding/$PROJECT_NAME/params/${PROJECT_NAME}_nf-params.json
 >```
-> **Replace these parameters for the test data using the following information:**
+> **For the test data, only replace the RSD path using the following information:**
 > 
-> Nano files are little tricky to work with. Here are some tips:
+> Nano files are little tricky to work with. Here are some tips for ${\color{red}Windows}$ Users:
 >
->- First, highlight the entire script:
->  - Go to the top of the script using `Ctrl` + `_`, then type 1, press **Enter**.
->  - Then, start selecting text using `Ctrl` + `^`.
->  - Highlight the rest of the script using `Ctrl` + `_`, then type 100, press **Enter**.
->  - Everything should now be selected.
->- Delete all the text in the scriptusing `Ctrl` + `K`.
->- Copy the new text below, and paste into the empty script using a right-click to paste. Some terminals may require `Ctrl` + `Shift` + `V`.
->- Exit the script using `Ctrl` + `X`. Then `Y` to save. Press **Enter**.
+>  - First, navigate to the end of the parameter you want to edit using your arrow keys.
+>  - Backspace to remove file path, string, or number.
+>  - Copy new file path, string, or number.
+>  - Right click to paste into parameter file.
+>  - Exit the script using `Ctrl` + `X`. Then `Y` to save. Press **Enter**.
 >
 >```
 >{
->    "input": "$HOME/Metabarcoding/$PROJECT_NAME/input/${PROJECT_NAME}_samplesheet.txt",
->    "FW_primer": "GTCGGTAAAACTCGTGCCAGC",
->    "RV_primer": "CATAGTGGGGTATCTAATCCCAGTTTG",
->
->    "metadata": "$HOME/Metabarcoding/$PROJECT_NAME/input/${PROJECT_NAME}_metadata.txt",
->    "outdir": "$HOME/Metabarcoding/$PROJECT_NAME/output/",
->
->    "seed": 13,
->
->    "ignore_failed_trimming": true,
->    "ignore_failed_filtering": true,
->
->    "trunclenf": 120,
->    "trunclenr": 120,
->
->    "dada_ref_taxonomy": false,
->    "skip_dada_addspecies": true,
 >    "dada_ref_tax_custom": "$HOME/Metabarcoding/$PROJECT_NAME/input/${PROJECT_NAME}_12S_RSD.txt",
->    "dada_min_boot": 80,
->    "dada_assign_taxlevels": "Kingdom,Phylum,Class,Order,Family,Genus,Species,Common",
->
->    "exclude_taxa": "none",
->
->    "skip_qiime": true,
->    "skip_barrnap": true,
->    "skip_dada_addspecies": true,
->    "skip_tse": true
 >}
->
 >```
 >
 > JSON files can't expand environment variables, like `$HOME` or `$PROJECT_NAME`. Create a file with an expanded variable unique to your system.
@@ -185,33 +169,33 @@ This repository contains scripts and configuration files to:
 >cd ~
 >export PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 >envsubst '$HOME $PROJECT_NAME' \
->  < "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_nf-params.json" \
->  > "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_nf-params_expanded.json"
+>  < "$HOME/Metabarcoding/$PROJECT_NAME/params/${PROJECT_NAME}_nf-params.json" \
+>  > "$HOME/Metabarcoding/$PROJECT_NAME/params/${PROJECT_NAME}_nf-params_expanded.json"
 >```
 
-**6. Run the nf-core/ampliseq Pipeline:** 
+**7. Run the nf-core/ampliseq Pipeline:** 
 
 > Ensure you are in your home directory and run the following shell script.
 >
 >```
 >cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_run_nf-core_ampliseq.slurm"
+>sbatch "$HOME/Metabarcoding/scripts_do_not_alter/run_nf-core_ampliseq.slurm"
 >```
 
-**7. BLAST Unknown ASVs:**
+**8. BLAST Unknown ASVs:**
 
 > To BLAST your ASVs that did not assign during the nf-core/ampliseq pipeline, run the following code:
 >
 >```bash
 >cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->RUN_BLAST=yes sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_retrieve_phyloseq_unassigned_ASVs.slurm"
+>RUN_BLAST=yes sbatch "$HOME/Metabarcoding/scripts_do_not_alter/retrieve_phyloseq_unassigned_ASVs.slurm"
 >```
 >  - `RUN_BLAST=no` will extract your unassigned ASVs into a fasta file for you to see, but will not BLAST them.
 >  - *NOTE: When working with your real data, this code chunk will only work if you used a custom reference sequence database (RSD). If you did not use a custom RSD, a separate code chunk will be provided.*
  
-**8. Clean up NCBI Blast Taxonomy:**
+**9. Clean up NCBI Blast Taxonomy:**
    
 > This script will auto process your raw BLAST output to output the single 'best' taxonomic rank for each assigned ASV:
 >
@@ -223,7 +207,7 @@ This repository contains scripts and configuration files to:
 >```bash
 >cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_ncbi_taxonomy.slurm" option2
+>sbatch "$HOME/Metabarcoding/scripts_do_not_alter/ncbi_taxonomy.slurm" option2
 >```
 >
 >- `option2`: If you used a custom RSD, which we did for this test data.
@@ -244,26 +228,15 @@ This repository contains scripts and configuration files to:
 >
 ></details>
 
-**9. Review and approve BLAST taxonomic assignments:**
+**10. Review and approve BLAST taxonomic assignments:**
 
 > This script requires a manual review step to approve/dissaprove and change BLAST taxonomic assignments if needed.
 >
->Start an interactive shell:
->```
->cd ~
->srun --account=millermrgrp \
->     --partition=bmh \
->     --ntasks=1 \
->     --cpus-per-task=1 \
->     --mem=32G \
->     --time=01:30:00 \
->     --pty bash
->```
->Then, run shell script to review BLAST assignments and update phylseq object:
+>First, run a shell script to review BLAST assignments and update phylseq object:
 >```
 >cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->"$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_run_review_and_update_phyloseq.sh" 
+>"$HOME/Metabarcoding/scripts_do_not_alter/run_review_and_update_phyloseq.sh" 
 >```
 
 >**A. When prompted, open the `${PROJECT_NAME}_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx` spreadsheet.** 
@@ -322,36 +295,18 @@ This repository contains scripts and configuration files to:
 ># Example to upload from a specific local directory: scp C:\Users\Leighrs13\Metabarcoding\test_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx leighrs@farm.hpc.ucdavis.edu:/home/leighrs/Metabarcoding/test/output/BLAST/Review/ 
 > ```
 
-> **D. After uploading edited spreadsheet into FARM, navigate back to terminal with FARM running your interactive shell and re-run the following code:**
+> **D. After uploading edited spreadsheet into FARM, navigate back to terminal with FARM and re-run the following code:**
 > 
-> If your interactive shell has ended, restart it using the  `srun` code above.
 > ```
 > cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->"$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_run_review_and_update_phyloseq.sh" 
+>"$HOME/Metabarcoding/scripts_do_not_alter/run_review_and_update_phyloseq.sh" 
 > ```
 > - Your phyloseq object will now be updated with these taxonomic assignments.
 > - You can ignore the intermediate `test_reviewed_assignments.tsv` file created in the BLAST folder.
->   
->**Finally, exit from your interactive shell:**
->```
->exit
->```
 
-**10. Remove contaminant reads from ASVs:**
+**11. Remove contaminant reads from ASVs:**
 
->Start an interactive shell:
->```
->cd ~
->srun --account=millermrgrp \
->     --partition=bmh \
->     --ntasks=1 \
->     --cpus-per-task=1 \
->     --mem=32G \
->     --time=01:30:00 \
->     --pty bash
->```
->>
 >Define label parameters:
 >```
 >cd ~
@@ -380,7 +335,7 @@ This repository contains scripts and configuration files to:
 >```
 >cd ~
 >export SAMPLE_THRES=0.0005
->export MIN_DEPTH_THRES=10
+>export MIN_DEPTH_THRES=0.0005
 >```
 > - `SAMPLE_THRES`: Defines per-sample ASV threshold to be applied. You can define as a proportion (e.g., 0.01) or an absolute read count (e.g., 10).
 >   - Removes ASVs that do not reach a minimum read count.
@@ -400,13 +355,23 @@ This repository contains scripts and configuration files to:
 >```
 >cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->"$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_run_GVL_metabarcoding_cleanup_main.sh" 
+>"$HOME/Metabarcoding/scripts_do_not_alter/run_GVL_metabarcoding_cleanup_main.sh"
 >```
->
->**Finally, exit from your interactive shell:**
+>You will now have a cleaned ready-to-go phyloseq object to start your data analyses!
+>   - Originally developed for microbial communites, a `phyloseq.rds` object operates as a single container designed to simplify data management and ensure that all data compenents are tracked and manipulated together. The main classes of data that a `phyloseq.rds` object hold:
+>     - `otu_table`: A matrix containing abundance data for OTU/ASV across all samples.
+>     - `sam_data`: A data frame containing all your metadata.
+>     - `tax_table`: A matrix containing taxa assignments for each ASV/OTU.
+>     -  It can also hold an optional `refseq` class to contain representative DNA sequences for each OTU/ASV. This allows the sequences to be renamed to something simpler in the other classes.
+>     -  A `phylo` class can also be created to show evolutionary relationshiops among OTUs/ASVs.
+>  - There are lots of analyses and data visualizations you can do with your phyloseq object. But to get started, try installing phyloseq in RStudio and importing in your final, cleaned phyloseq object from: `$HOME/Metabarcoding/$PROJECT_NAME/output/ASV_cleanup_output/dada2_phyloseq_cleaned.rds`
+>  - In R:
 >```
->exit
+>View(dada2_phyloseq_cleaned@sam_data) # Shows you your metadata
+>View(dada2_phyloseq_cleaned@tax_table) # Shows you your taxa assignments
+>View(dada2_phyloseq_cleaned@otu_table) # Shows you your ASV abundance matrix
 >```
+
 </details>
 
 ---
@@ -969,6 +934,19 @@ This repository contains scripts and configuration files to:
 > Navigate to the (RTools: Toolchains for building R and R packages from source on Windows)[https://cran.rstudio.com/bin/windows/Rtools/] to download.
 
 </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
