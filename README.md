@@ -146,50 +146,20 @@ This repository contains scripts and configuration files to:
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 >nano $HOME/Metabarcoding/$PROJECT_NAME/params/${PROJECT_NAME}_nf-params.json
 >```
-> **Replace these parameters for the test data using the following information:**
+> **Replace RSD path in parameter file using the following information for the test data:**
 > 
 > Nano files are little tricky to work with. Here are some tips for ${\color{red}Windows}$ Users:
 >
->- First, highlight the entire script:
->  - Go to the top of the script using `Ctrl` + `_`, then type 1, press **Enter**.
->  - Then, start selecting text using `Ctrl` + `^`.
->  - Highlight the rest of the script using `Ctrl` + `_`, then type 100, press **Enter**.
->  - Everything should now be selected.
->- Delete all the text in the scriptusing `Ctrl` + `K`.
->- Copy the new text below, and paste into the empty script using a right-click to paste. Some terminals may require `Ctrl` + `Shift` + `V`.
->- Exit the script using `Ctrl` + `X`. Then `Y` to save. Press **Enter**.
+>  - First, navigate to the end of the parameter you want to edit using your arrow keys.
+>  - Backspace to remove file path, string, or number.
+>  - Copy new file path, string, or number.
+>  - Right click to paste into parameter file.
+>  - Exit the script using `Ctrl` + `X`. Then `Y` to save. Press **Enter**.
 >
 >```
 >{
->    "input": "$HOME/Metabarcoding/$PROJECT_NAME/input/${PROJECT_NAME}_samplesheet.txt",
->    "FW_primer": "GTCGGTAAAACTCGTGCCAGC",
->    "RV_primer": "CATAGTGGGGTATCTAATCCCAGTTTG",
->
->    "metadata": "$HOME/Metabarcoding/$PROJECT_NAME/input/${PROJECT_NAME}_metadata.txt",
->    "outdir": "$HOME/Metabarcoding/$PROJECT_NAME/output/",
->
->    "seed": 13,
->
->    "ignore_failed_trimming": true,
->    "ignore_failed_filtering": true,
->
->    "trunclenf": 120,
->    "trunclenr": 120,
->
->    "dada_ref_taxonomy": false,
->    "skip_dada_addspecies": true,
 >    "dada_ref_tax_custom": "$HOME/Metabarcoding/$PROJECT_NAME/input/${PROJECT_NAME}_12S_RSD.txt",
->    "dada_min_boot": 80,
->    "dada_assign_taxlevels": "Kingdom,Phylum,Class,Order,Family,Genus,Species,Common",
->
->    "exclude_taxa": "none",
->
->    "skip_qiime": true,
->    "skip_barrnap": true,
->    "skip_dada_addspecies": true,
->    "skip_tse": true
 >}
->
 >```
 >
 > JSON files can't expand environment variables, like `$HOME` or `$PROJECT_NAME`. Create a file with an expanded variable unique to your system.
@@ -982,6 +952,7 @@ This repository contains scripts and configuration files to:
 > Navigate to the (RTools: Toolchains for building R and R packages from source on Windows)[https://cran.rstudio.com/bin/windows/Rtools/] to download.
 
 </details>
+
 
 
 
