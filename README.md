@@ -137,7 +137,7 @@ This repository contains scripts and configuration files to:
 >```
 > **Replace these parameters for the test data using the following information:**
 > 
-> Nano files are little tricky to work with. Here are some tips:
+> Nano files are little tricky to work with. Here are some tips for ${\color{red}Windows}$ Users:
 >
 >- First, highlight the entire script:
 >  - Go to the top of the script using `Ctrl` + `_`, then type 1, press **Enter**.
@@ -971,6 +971,7 @@ This repository contains scripts and configuration files to:
 > Navigate to the (RTools: Toolchains for building R and R packages from source on Windows)[https://cran.rstudio.com/bin/windows/Rtools/] to download.
 
 </details>
+
 
 
 
