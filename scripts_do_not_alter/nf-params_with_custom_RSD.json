@@ -7,6 +7,7 @@
     "outdir": "$HOME/Metabarcoding/$PROJECT_NAME/output/",
     
     "seed": 13,
+    "min_len": 50,
     
     "ignore_failed_trimming": true,
     "ignore_failed_filtering": true,
@@ -27,6 +28,7 @@
     "skip_dada_addspecies": true,
     "skip_tse": true
 }
+
 
 
 
