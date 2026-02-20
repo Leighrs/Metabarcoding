@@ -189,7 +189,7 @@ This repository contains scripts and configuration files to:
 >```bash
 >cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->RUN_BLAST=yes sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_retrieve_phyloseq_unassigned_ASVs.slurm"
+>RUN_BLAST=yes sbatch "$HOME/Metabarcoding/scripts_do_not_alter/retrieve_phyloseq_unassigned_ASVs.slurm"
 >```
 >  - `RUN_BLAST=no` will extract your unassigned ASVs into a fasta file for you to see, but will not BLAST them.
 >  - *NOTE: When working with your real data, this code chunk will only work if you used a custom reference sequence database (RSD). If you did not use a custom RSD, a separate code chunk will be provided.*
@@ -952,6 +952,7 @@ This repository contains scripts and configuration files to:
 > Navigate to the (RTools: Toolchains for building R and R packages from source on Windows)[https://cran.rstudio.com/bin/windows/Rtools/] to download.
 
 </details>
+
 
 
 
