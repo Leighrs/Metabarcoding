@@ -9,8 +9,70 @@
 #SBATCH --output=Metabarcoding/Logs_archive/ncbi_blast_cleanup_%j.out
 #SBATCH --error=Metabarcoding/Logs_archive/ncbi_blast_cleanup_%j.err
 
-module load apptainer
+set -euo pipefail
+
+
 echo "Job running on node: $(hostname)"
+
+# ----------------------------
+# Config
+# ----------------------------
+ENV_PREFIX_ncbi="/group/ajfingergrp/Metabarcoding/conda_envs/ncbi_env"
+
+# ----------------------------
+# Load conda (Farm module system)
+# ----------------------------
+module load conda
+
+if [[ -f "$(conda info --base)/etc/profile.d/conda.sh" ]]; then
+  # shellcheck disable=SC1090
+  source "$(conda info --base)/etc/profile.d/conda.sh"
+else
+  echo "ERROR: Could not find conda.sh at: $(conda info --base)/etc/profile.d/conda.sh" >&2
+  exit 1
+fi
+
+# ----------------------------
+# Ensure mamba exists
+# ----------------------------
+if ! command -v mamba >/dev/null 2>&1; then
+  echo "mamba not found; installing into base environment..."
+  conda activate base
+  conda install -y -n base -c conda-forge mamba
+fi
+
+# ----------------------------
+# Create env if missing (with lock)
+# ----------------------------
+ENV_DIR_ncbi="$(dirname "$ENV_PREFIX_ncbi")"
+mkdir -p "$ENV_DIR_ncbi" || { echo "ERROR: cannot create $ENV_DIR_ncbi (permissions?)" >&2; exit 1; }
+
+if [[ ! -d "$ENV_PREFIX_ncbi/conda-meta" ]]; then
+  LOCKFILE_ncbi="$ENV_DIR_ncbi/ncbi_env.lock"
+  exec 9>"$LOCKFILE_ncbi"
+  flock -n 9 || {
+    echo "Conda env creation already in progress by another user."
+    echo "If this seems stuck, check/remove: $LOCKFILE_ncbi"
+    exit 0
+  }
+
+  echo "Creating conda env at: $ENV_PREFIX_ncbi"
+  mamba create -y -p "$ENV_PREFIX_ncbi" \
+    -c conda-forge -c bioconda \
+    python \
+    biopython \
+    pandas \
+    tqdm
+else
+  echo "Conda env already exists at: $ENV_PREFIX_ncbi"
+fi
+
+
+# ----------------------------
+# Activate env
+# ----------------------------
+conda activate "$ENV_PREFIX_ncbi"
+
 
 # ------------------------------------------------------------
 # Read project name
@@ -44,18 +106,6 @@ else
     echo "BLAST directory exists: $BLAST_DIR"
 fi
 
-# ------------------------------------------------------------
-# Ensure Apptainer container exists
-# ------------------------------------------------------------
-mkdir -p "/group/ajfingergrp/Metabarcoding/Containers"
-
-CONTAINER="/group/ajfingergrp/Metabarcoding/Containers/GVL_ncbi_taxonomy.sif"
-CONTAINER_URL="oras://community.wave.seqera.io/library/biopython_pandas_python_tqdm:f7738f3fa810f52d"
-
-if [[ ! -f "$CONTAINER" ]]; then
-    echo "Container missing — downloading..."
-    apptainer pull "$CONTAINER" "$CONTAINER_URL"
-fi
 
 # ------------------------------------------------------------
 # Read FASTA/BLAST mode from command-line argument
@@ -120,14 +170,14 @@ fi
 # ------------------------------------------------------------
 # Run Python inside container
 # ------------------------------------------------------------
-PYTHON_SCRIPT="$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_ncbi_pipeline.py"
+PYTHON_SCRIPT="$HOME/Metabarcoding/scripts_do_not_alter/ncbi_pipeline.py"
 
 if [[ ! -f "$PYTHON_SCRIPT" ]]; then
     echo "ERROR: Python script not found: $PYTHON_SCRIPT"
     exit 1
 fi
 
-echo "Launching Apptainer + Python pipeline..."
-apptainer exec "$CONTAINER" python3 "$PYTHON_SCRIPT"
+echo "Running Python pipeline..."
+python "$PYTHON_SCRIPT"
 
 echo "Done."
