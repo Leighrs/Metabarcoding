@@ -172,17 +172,17 @@ This repository contains scripts and configuration files to:
 >  > "$HOME/Metabarcoding/$PROJECT_NAME/params/${PROJECT_NAME}_nf-params_expanded.json"
 >```
 
-**6. Run the nf-core/ampliseq Pipeline:** 
+**7. Run the nf-core/ampliseq Pipeline:** 
 
 > Ensure you are in your home directory and run the following shell script.
 >
 >```
 >cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_run_nf-core_ampliseq.slurm"
+>sbatch "$HOME/Metabarcoding/scripts_do_not_alter/run_nf-core_ampliseq.slurm"
 >```
 
-**7. BLAST Unknown ASVs:**
+**8. BLAST Unknown ASVs:**
 
 > To BLAST your ASVs that did not assign during the nf-core/ampliseq pipeline, run the following code:
 >
@@ -194,7 +194,7 @@ This repository contains scripts and configuration files to:
 >  - `RUN_BLAST=no` will extract your unassigned ASVs into a fasta file for you to see, but will not BLAST them.
 >  - *NOTE: When working with your real data, this code chunk will only work if you used a custom reference sequence database (RSD). If you did not use a custom RSD, a separate code chunk will be provided.*
  
-**8. Clean up NCBI Blast Taxonomy:**
+**9. Clean up NCBI Blast Taxonomy:**
    
 > This script will auto process your raw BLAST output to output the single 'best' taxonomic rank for each assigned ASV:
 >
@@ -227,7 +227,7 @@ This repository contains scripts and configuration files to:
 >
 ></details>
 
-**9. Review and approve BLAST taxonomic assignments:**
+**10. Review and approve BLAST taxonomic assignments:**
 
 > This script requires a manual review step to approve/dissaprove and change BLAST taxonomic assignments if needed.
 >
@@ -321,7 +321,7 @@ This repository contains scripts and configuration files to:
 >exit
 >```
 
-**10. Remove contaminant reads from ASVs:**
+**11. Remove contaminant reads from ASVs:**
 
 >Start an interactive shell:
 >```
@@ -952,6 +952,7 @@ This repository contains scripts and configuration files to:
 > Navigate to the (RTools: Toolchains for building R and R packages from source on Windows)[https://cran.rstudio.com/bin/windows/Rtools/] to download.
 
 </details>
+
 
 
 
