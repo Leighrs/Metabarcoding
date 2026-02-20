@@ -116,6 +116,7 @@ This repository contains scripts and configuration files to:
 >
 >```
 >cd ~
+>PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 >"$HOME/Metabarcoding/scripts_do_not_alter/generate_samplesheet_table.sh" 
 >```
 
@@ -206,7 +207,7 @@ This repository contains scripts and configuration files to:
 >```bash
 >cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_ncbi_taxonomy.slurm" option2
+>sbatch "$HOME/Metabarcoding/scripts_do_not_alter/ncbi_taxonomy.slurm" option2
 >```
 >
 >- `option2`: If you used a custom RSD, which we did for this test data.
@@ -231,22 +232,11 @@ This repository contains scripts and configuration files to:
 
 > This script requires a manual review step to approve/dissaprove and change BLAST taxonomic assignments if needed.
 >
->Start an interactive shell:
->```
->cd ~
->srun --account=millermrgrp \
->     --partition=bmh \
->     --ntasks=1 \
->     --cpus-per-task=1 \
->     --mem=32G \
->     --time=01:30:00 \
->     --pty bash
->```
->Then, run shell script to review BLAST assignments and update phylseq object:
+>First, run a shell script to review BLAST assignments and update phylseq object:
 >```
 >cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->"$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_run_review_and_update_phyloseq.sh" 
+>"$HOME/Metabarcoding/scripts_do_not_alter/run_review_and_update_phyloseq.sh" 
 >```
 
 >**A. When prompted, open the `${PROJECT_NAME}_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx` spreadsheet.** 
@@ -305,36 +295,18 @@ This repository contains scripts and configuration files to:
 ># Example to upload from a specific local directory: scp C:\Users\Leighrs13\Metabarcoding\test_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx leighrs@farm.hpc.ucdavis.edu:/home/leighrs/Metabarcoding/test/output/BLAST/Review/ 
 > ```
 
-> **D. After uploading edited spreadsheet into FARM, navigate back to terminal with FARM running your interactive shell and re-run the following code:**
+> **D. After uploading edited spreadsheet into FARM, navigate back to terminal with FARM and re-run the following code:**
 > 
-> If your interactive shell has ended, restart it using the  `srun` code above.
 > ```
 > cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->"$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_run_review_and_update_phyloseq.sh" 
+>"$HOME/Metabarcoding/scripts_do_not_alter/run_review_and_update_phyloseq.sh" 
 > ```
 > - Your phyloseq object will now be updated with these taxonomic assignments.
 > - You can ignore the intermediate `test_reviewed_assignments.tsv` file created in the BLAST folder.
->   
->**Finally, exit from your interactive shell:**
->```
->exit
->```
 
 **11. Remove contaminant reads from ASVs:**
 
->Start an interactive shell:
->```
->cd ~
->srun --account=millermrgrp \
->     --partition=bmh \
->     --ntasks=1 \
->     --cpus-per-task=1 \
->     --mem=32G \
->     --time=01:30:00 \
->     --pty bash
->```
->>
 >Define label parameters:
 >```
 >cd ~
@@ -363,7 +335,7 @@ This repository contains scripts and configuration files to:
 >```
 >cd ~
 >export SAMPLE_THRES=0.0005
->export MIN_DEPTH_THRES=10
+>export MIN_DEPTH_THRES=0.0005
 >```
 > - `SAMPLE_THRES`: Defines per-sample ASV threshold to be applied. You can define as a proportion (e.g., 0.01) or an absolute read count (e.g., 10).
 >   - Removes ASVs that do not reach a minimum read count.
@@ -383,13 +355,23 @@ This repository contains scripts and configuration files to:
 >```
 >cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->"$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_run_GVL_metabarcoding_cleanup_main.sh" 
+>"$HOME/Metabarcoding/scripts_do_not_alter/run_GVL_metabarcoding_cleanup_main.sh"
 >```
->
->**Finally, exit from your interactive shell:**
+>You will now have a cleaned ready-to-go phyloseq object to start your data analyses!
+>   - Originally developed for microbial communites, a `phyloseq.rds` object operates as a single container designed to simplify data management and ensure that all data compenents are tracked and manipulated together. The main classes of data that a `phyloseq.rds` object hold:
+>     - `otu_table`: A matrix containing abundance data for OTU/ASV across all samples.
+>     - `sam_data`: A data frame containing all your metadata.
+>     - `tax_table`: A matrix containing taxa assignments for each ASV/OTU.
+>     -  It can also hold an optional `refseq` class to contain representative DNA sequences for each OTU/ASV. This allows the sequences to be renamed to something simpler in the other classes.
+>     -  A `phylo` class can also be created to show evolutionary relationshiops among OTUs/ASVs.
+>  - There are lots of analyses and data visualizations you can do with your phyloseq object. But to get started, try installing phyloseq in RStudio and importing in your final, cleaned phyloseq object from: `$HOME/Metabarcoding/$PROJECT_NAME/output/ASV_cleanup_output/dada2_phyloseq_cleaned.rds`
+>  - In R:
 >```
->exit
+>View(dada2_phyloseq_cleaned@sam_data) # Shows you your metadata
+>View(dada2_phyloseq_cleaned@tax_table) # Shows you your taxa assignments
+>View(dada2_phyloseq_cleaned@otu_table) # Shows you your ASV abundance matrix
 >```
+
 </details>
 
 ---
@@ -952,6 +934,7 @@ This repository contains scripts and configuration files to:
 > Navigate to the (RTools: Toolchains for building R and R packages from source on Windows)[https://cran.rstudio.com/bin/windows/Rtools/] to download.
 
 </details>
+
 
 
 
