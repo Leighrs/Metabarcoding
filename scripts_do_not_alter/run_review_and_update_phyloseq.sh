@@ -67,7 +67,7 @@ conda activate "$ENV_PREFIX"
 PROJECT_NAME="$(tr -d '\r\n' < "$HOME/Metabarcoding/current_project_name.txt")"
 export PROJECT_NAME
 
-export PROJECT_DIR="${HOME}/Metabarcoding/${PROJECT_NAME}"
+export PROJECT_DIR="$HOME/Metabarcoding/${PROJECT_NAME}"
 export PHYLOSEQ_RDS="${PROJECT_DIR}/output/phyloseq/dada2_phyloseq.rds"
 export REVIEW_OUTDIR="${PROJECT_DIR}/output/BLAST/Review"
 export BLAST_ALL_TSV="$PROJECT_DIR/output/BLAST/${PROJECT_NAME}_raw_blast_results.tsv"
@@ -98,7 +98,7 @@ fi
 # ----------------------------
 # Run
 # ----------------------------
-SCRIPT_PATH="$PROJECT_DIR/scripts/${PROJECT_NAME}_review_and_update_phyloseq.R"
+SCRIPT_PATH="$HOME/Metabarcoding/scripts_do_not_alter/review_and_update_phyloseq.R"
 
 if [[ ! -f "$SCRIPT_PATH" ]]; then
   echo "ERROR: R script not found: $SCRIPT_PATH" >&2

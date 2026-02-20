@@ -8,11 +8,10 @@
     
     "seed": 13,
     
+    "min_len": 50,
+    
     "ignore_failed_trimming": true,
     "ignore_failed_filtering": true,
-    
-    "trunclenf": <TRUNC_VALUE_FORWARD>,
-    "trunclenr": <TRUNC_VALUE_REVERSE>,
     
     "exclude_taxa": "none",
     "skip_taxonomy": true,

@@ -109,7 +109,7 @@ if (!dir.exists(params$scripts_dir)) {
 script_files <- sort(list.files(params$scripts_dir, pattern = "\\.R$", full.names = TRUE))
 
 # Exclude the master script / runner script(s) so we don't recurse
-master_name <- paste0(PROJECT_NAME, "_GVL_metabarcoding_cleanup_main.R")
+master_name <- paste0("GVL_metabarcoding_cleanup_main.R")
 script_files <- script_files[basename(script_files) != master_name]
 
 

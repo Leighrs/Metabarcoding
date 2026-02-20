@@ -243,7 +243,7 @@ is_resume <- file.exists(review_xlsx)
 user <- Sys.getenv("USER", unset = "")
 stop_if_missing(user, "USER")
 
-host <- farm
+host <- "farm"
 
 if (!file.exists(BLAST_FILE)) stop("Cannot find BLAST taxonomy file: ", BLAST_FILE, call. = FALSE)
 
