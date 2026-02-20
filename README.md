@@ -187,8 +187,8 @@ This repository contains scripts and configuration files to:
 >cd ~
 >export PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 >envsubst '$HOME $PROJECT_NAME' \
->  < "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_nf-params.json" \
->  > "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_nf-params_expanded.json"
+>  < "$HOME/Metabarcoding/$PROJECT_NAME/params/${PROJECT_NAME}_nf-params.json" \
+>  > "$HOME/Metabarcoding/$PROJECT_NAME/params/${PROJECT_NAME}_nf-params_expanded.json"
 >```
 
 **6. Run the nf-core/ampliseq Pipeline:** 
@@ -971,6 +971,7 @@ This repository contains scripts and configuration files to:
 > Navigate to the (RTools: Toolchains for building R and R packages from source on Windows)[https://cran.rstudio.com/bin/windows/Rtools/] to download.
 
 </details>
+
 
 
 
