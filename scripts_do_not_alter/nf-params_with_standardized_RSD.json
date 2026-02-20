@@ -7,6 +7,7 @@
     "outdir": "$HOME/Metabarcoding/$PROJECT_NAME/output/",
     
     "seed": 13,
+    "min_len": 50,
     
     "trunclenf": <TRUNC_VALUE_FORWARD>,
     "trunclenr": <TRUNC_VALUE_REVERSE>,
