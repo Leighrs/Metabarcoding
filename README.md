@@ -121,9 +121,20 @@ This repository contains scripts and configuration files to:
 
 >- **When prompted:**
 >    - *Did you sequence samples using multiple sequencing runs?:* ${\color{red}no}$
->    - *How should sampleID be extracted from FASTQ filenames?:* ${\color{green}2}$ 
+>    - *How should sampleID be extracted from FASTQ filenames?:* ${\color{green}2}$
 
-**5. Edit Run Parameters.**
+**5. Confirm that sample IDs match between metadata and samplesheet:** 
+
+> Ensure you are in your home directory and run the following shell script.
+>
+>```
+>cd ~
+>PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+>"$HOME/Metabarcoding/scripts_do_not_alter/check_ids_match.sh"
+>```
+>This script will also locate your metafile and add that path to your params file.
+
+**6. Edit Run Parameters.**
 
 > Open the parameter file for the nf-core/ampliseq pipeline:
 > 
@@ -971,6 +982,7 @@ This repository contains scripts and configuration files to:
 > Navigate to the (RTools: Toolchains for building R and R packages from source on Windows)[https://cran.rstudio.com/bin/windows/Rtools/] to download.
 
 </details>
+
 
 
 
