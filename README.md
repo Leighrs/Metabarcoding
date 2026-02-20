@@ -123,7 +123,7 @@ This repository contains scripts and configuration files to:
 >    - *Did you sequence samples using multiple sequencing runs?:* ${\color{red}no}$
 >    - *How should sampleID be extracted from FASTQ filenames?:* ${\color{green}2}$
 
-**5. Confirm that sample IDs match between metadata and samplesheet:** 
+**5. Confirm that sample IDs are valid and match between metadata and samplesheet:** 
 
 > Ensure you are in your home directory and run the following shell script.
 >
@@ -982,6 +982,7 @@ This repository contains scripts and configuration files to:
 > Navigate to the (RTools: Toolchains for building R and R packages from source on Windows)[https://cran.rstudio.com/bin/windows/Rtools/] to download.
 
 </details>
+
 
 
 
