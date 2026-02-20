@@ -116,8 +116,7 @@ This repository contains scripts and configuration files to:
 >
 >```
 >cd ~
->PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->"$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_generate_samplesheet_table.sh" 
+>"$HOME/Metabarcoding/scripts_do_not_alter/generate_samplesheet_table.sh" 
 >```
 
 >- **When prompted:**
@@ -971,6 +970,7 @@ This repository contains scripts and configuration files to:
 > Navigate to the (RTools: Toolchains for building R and R packages from source on Windows)[https://cran.rstudio.com/bin/windows/Rtools/] to download.
 
 </details>
+
 
 
 
