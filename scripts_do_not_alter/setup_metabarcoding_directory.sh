@@ -15,6 +15,11 @@ RESET="\e[0m"
 read -p "Enter project name: " PROJECT
 
 # ---------------------------
+#  CACHE DIRECTORY BASE (GROUP)
+# ---------------------------
+CACHE_BASE="/group/ajfingergrp/Metabarcoding/intermediates_logs_cache"
+
+# ---------------------------
 #  PROMPT: STANDARD / CUSTOM / NEITHER
 # ---------------------------
 while true; do
@@ -34,15 +39,64 @@ while true; do
 done
 
 # ---------------------------
+#  HANDLE PROJECT CACHE DIR:
+#   - create ${PROJECT}_cache under CACHE_BASE
+#   - if exists: prompt remove OR pick new PROJECT
+# ---------------------------
+while true; do
+    PROJECT_CACHE_DIR="${CACHE_BASE}/${PROJECT}_cache"
+
+    if [[ -d "$PROJECT_CACHE_DIR" ]]; then
+        echo
+        echo -e "${YELLOW}Cache directory already exists:${RESET} $PROJECT_CACHE_DIR"
+        echo "Choose an option:"
+        echo "  [R] Remove existing cache folder"
+        echo "  [N] Enter a new project name (new project ID)"
+        echo "  [A] Abort"
+
+        read -rp "Selection (R/N/A): " choice
+        case "$choice" in
+            R|r)
+                echo -e "${YELLOW}Removing:${RESET} $PROJECT_CACHE_DIR"
+                rm -rf "$PROJECT_CACHE_DIR"
+                if [[ -d "$PROJECT_CACHE_DIR" ]]; then
+                    echo -e "${RED}ERROR: Failed to remove $PROJECT_CACHE_DIR${RESET}"
+                    exit 1
+                fi
+                echo -e "${GREEN}Removed existing cache directory.${RESET}"
+                break
+                ;;
+            N|n)
+                read -rp "Enter new project name: " PROJECT
+                ;;
+            A|a)
+                echo -e "${RED}Aborting.${RESET}"
+                exit 1
+                ;;
+            *)
+                echo -e "${RED}Invalid selection. Please choose R, N, or A.${RESET}"
+                ;;
+        esac
+    else
+        break
+    fi
+done
+
+
+# ---------------------------
 #  CREATE DIRECTORIES
 # ---------------------------
 mkdir -p "Metabarcoding/$PROJECT"
 mkdir -p "Metabarcoding/Logs_archive"
-mkdir -p "Metabarcoding/$PROJECT/scripts"
+mkdir -p "Metabarcoding/$PROJECT/params"
 mkdir -p "Metabarcoding/$PROJECT/input"
-mkdir -p "Metabarcoding/$PROJECT/output/intermediates_logs_cache/singularity"
+mkdir -p "Metabarcoding/$PROJECT/Example_files"
+mkdir -p "Metabarcoding/$PROJECT/output"
+mkdir -p "$PROJECT_CACHE_DIR"
+mkdir -p "${PROJECT_CACHE_DIR}/singularity"
 mkdir -p "/group/ajfingergrp/Metabarcoding/fastq_storage"
 
+echo "$PROJECT_CACHE_DIR" > "Metabarcoding/$PROJECT/input/project_cache_path.txt"
 # ---------------------------
 #  PROMPT: FASTQ STORAGE LOCATION
 # ---------------------------
@@ -94,22 +148,30 @@ echo -e "${GREEN}Directory structure created.${RESET}"
 # ---------------------------
 #  CREATE EXAMPLE FILES
 # ---------------------------
-cat <<EOT > "Metabarcoding/$PROJECT/input/Example_samplesheet.txt"
+cat <<EOT > "Metabarcoding/$PROJECT/Example_files/Example_samplesheet.txt"
 sampleID	forwardReads	reverseReads	run
-B12A1_02	${FASTQ_DIR}/B12A1_02_R1.fastq.gz	${FASTQ_DIR}/B12A1_02_R2.fastq.gz	A
-B12A2_02	${FASTQ_DIR}/B12A2_02_R1.fastq.gz	${FASTQ_DIR}/B12A2_02_R2.fastq.gz	A
-B12A3_02	${FASTQ_DIR}/B12A3_02_R1.fastq.gz	${FASTQ_DIR}/B12A3_02_R2.fastq.gz	A
+B12A1	${FASTQ_DIR}/B12A1_02_R1.fastq.gz	${FASTQ_DIR}/B12A1_02_R2.fastq.gz	A
+B12A2	${FASTQ_DIR}/B12A2_02_R1.fastq.gz	${FASTQ_DIR}/B12A2_02_R2.fastq.gz	A
+B12A3	${FASTQ_DIR}/B12A3_02_R1.fastq.gz	${FASTQ_DIR}/B12A3_02_R2.fastq.gz	A
+B12AB	${FASTQ_DIR}/B12AB_02_R1.fastq.gz	${FASTQ_DIR}/B12AB_02_R2.fastq.gz	A
+EXT1	${FASTQ_DIR}/EXT1_02_R1.fastq.gz	${FASTQ_DIR}/EXT1_02_R2.fastq.gz	A
+PCR1	${FASTQ_DIR}/PCR1_02_R1.fastq.gz	${FASTQ_DIR}/PCR1_02_R2.fastq.gz	A
+PCR2	${FASTQ_DIR}/PCR2_02_R1.fastq.gz	${FASTQ_DIR}/PCR2_02_R2.fastq.gz	A
 EOT
 
-cat <<EOT > "Metabarcoding/$PROJECT/input/Example_metadata.txt"
+cat <<EOT > "Metabarcoding/$PROJECT/Example_files/Example_metadata.txt"
 ID	Replicate	Control_Assign	Sample_or_Control	Site	Month	Year
-B12A1_02	A1	1,2,4	Sample	Browns_Island	February	2023
-B12A2_02	A2	1,2,4	Sample	Browns_Island	February	2023
-B12A3_02	A3	1,2,4	Sample	Browns_Island	February	2023
+B12A1	A1	1,E1,T1	Sample	Browns_Island	February	2023
+B12A2	A2	1,E1,T1	Sample	Browns_Island	February	2023
+B12A3	A3	1,E1,T2	Sample	Browns_Island	February	2023
+B12AB	AB	1  Control	Control	Control	Control
+EXT1  NA	E1	Control	Control	Control	Control
+PCR1  NA	T1	Control	Control	Control	Control
+PCR2	NA	T2	Control	Control	Control	Control
 EOT
 
 if [[ "$DB_MODE" == "custom" ]]; then
-cat <<EOT > "Metabarcoding/$PROJECT/input/Example_RSD.txt"
+cat <<EOT > "Metabarcoding/$PROJECT/Example_files/Example_RSD.txt"
 >Animalia;Chordata;Actinopterygii;Cypriniformes;Catostomidae;Catostomus;Catostomus occidentalis;
 CACCGCGGTTATACGAGAGGCCCTAGTTGATA...
 EOT
@@ -126,7 +188,7 @@ echo -e "${GREEN}Example input files created.${RESET}"
 SRC_STANDARD="$HOME/Metabarcoding/scripts_do_not_alter/nf-params_with_standardized_RSD.json"
 SRC_CUSTOM="$HOME/Metabarcoding/scripts_do_not_alter/nf-params_with_custom_RSD.json"
 SRC_NONE="$HOME/Metabarcoding/scripts_do_not_alter/nf-params_no_RSD.json"
-DEST_JSON="$HOME/Metabarcoding/$PROJECT/scripts/${PROJECT}_nf-params.json"
+DEST_JSON="$HOME/Metabarcoding/$PROJECT/params/${PROJECT}_nf-params.json"
 
 case "$DB_MODE" in
   standard)
@@ -151,57 +213,166 @@ else
 fi
 
 # ---------------------------
-#  COPY OTHER PIPELINE SCRIPTS
+#  JSON UPDATE HELPERS (usable in custom + none)
 # ---------------------------
-declare -A FILES=(
-    ["ncbi_taxonomy.slurm"]="${PROJECT}_ncbi_taxonomy.slurm"
-    ["blast_asv.slurm"]="${PROJECT}_blast_asv.slurm"
-    ["update_blast_db.slurm"]="${PROJECT}_update_blast_db.slurm"
-    ["generate_samplesheet_table.sh"]="${PROJECT}_generate_samplesheet_table.sh"
-    ["run_nf-core_ampliseq.slurm"]="${PROJECT}_run_nf-core_ampliseq.slurm"
-    ["ncbi_pipeline.py"]="${PROJECT}_ncbi_pipeline.py"
-    ["retrieve_phyloseq_unassigned_ASVs.slurm"]="${PROJECT}_retrieve_phyloseq_unassigned_ASVs.slurm"
-    ["review_and_update_phyloseq.R"]="${PROJECT}_review_and_update_phyloseq.R"
-    ["run_review_and_update_phyloseq.sh"]="${PROJECT}_run_review_and_update_phyloseq.sh"
-    ["run_GVL_metabarcoding_cleanup_main.sh"]="${PROJECT}_run_GVL_metabarcoding_cleanup_main.sh"
-    ["check_ids_match.sh"]="${PROJECT}_check_ids_match.sh"
-)
+set_json_int () {
+    local key="$1"
+    local val="$2"
+    sed -i -E "s#(\"${key}\"[[:space:]]*:[[:space:]]*)(<[^>]+>|[0-9]+)#\1${val}#g" "$DEST_JSON"
+}
 
-for SRCFILE in "${!FILES[@]}"; do
-    SRC="$HOME/Metabarcoding/scripts_do_not_alter/$SRCFILE"
-    DEST="$HOME/Metabarcoding/$PROJECT/scripts/${FILES[$SRCFILE]}"
-
-    if [[ -f "$SRC" ]]; then
-        cp "$SRC" "$DEST"
-        echo -e "${GREEN}Copied $SRCFILE${RESET}"
-    else
-        echo -e "${YELLOW}WARNING: $SRCFILE missing.${RESET}"
-    fi
-done
+set_json_str () {
+    local key="$1"
+    local val="$2"
+    sed -i -E "s#(\"${key}\"[[:space:]]*:[[:space:]]*\")[^\"]*(\")#\1${val}\2#g" "$DEST_JSON"
+}
 
 # ---------------------------
-#  COPY R CLEANUP SCRIPTS
+#  IF CUSTOM DB MODE: ASK WHICH REF DB, COPY IT TO INPUT, AND UPDATE PARAMS JSON
 # ---------------------------
-SRC_CON="$HOME/Metabarcoding/scripts_do_not_alter/R_ASV_cleanup_scripts/"
-DEST_CON="Metabarcoding/$PROJECT/scripts/${PROJECT}_R_ASV_cleanup_scripts/"
+if [[ "$DB_MODE" == "custom" ]]; then
+    REF_12S_SRC="/group/ajfingergrp/Metabarcoding/RSD/12S_SFE_250204_RN_common_names.txt"
+    REF_16S_SRC="/group/ajfingergrp/Metabarcoding/RSD/16S_SFE_251118_common_names.txt"
+    USER_INPUT_DIR="$HOME/Metabarcoding/$PROJECT/input"
 
-if [[ -d "$SRC_CON" ]]; then
-    mkdir -p "$DEST_CON"
-    shopt -s nullglob
-    cp -r "$SRC_CON"* "$DEST_CON"/
-    shopt -u nullglob
+    echo
+    echo "Custom reference database selected."
+    echo "Which reference database do you want to use?"
+    echo "  1) 12S MiFish-U"
+    echo "  2) 16S fish-specific"
 
-    shopt -s nullglob
-    for f in "$DEST_CON"/*; do
-        base=$(basename "$f")
-        mv "$f" "$DEST_CON/${PROJECT}_$base"
+    while true; do
+        read -rp "Enter 1 or 2: " CUSTOM_REF_CHOICE
+        case "$CUSTOM_REF_CHOICE" in
+            1) REF_SRC="$REF_12S_SRC"; break ;;
+            2) REF_SRC="$REF_16S_SRC"; break ;;
+            *) echo -e "${RED}Invalid input. Please enter 1 or 2.${RESET}" ;;
+        esac
     done
-    shopt -u nullglob
 
-    echo -e "${GREEN}R cleanup scripts copied and renamed.${RESET}"
-else
-    echo -e "${YELLOW}WARNING: R_ASV_cleanup_scripts folder missing.${RESET}"
+    if [[ ! -f "$REF_SRC" ]]; then
+        echo -e "${RED}ERROR: Reference file not found: $REF_SRC${RESET}"
+        exit 1
+    fi
+
+    mkdir -p "$USER_INPUT_DIR"
+    REF_DEST="$USER_INPUT_DIR/$(basename "$REF_SRC")"
+    cp -f "$REF_SRC" "$REF_DEST"
+    echo -e "${GREEN}Copied reference taxonomy file to: $REF_DEST${RESET}"
+
+    if [[ ! -f "$DEST_JSON" ]]; then
+        echo -e "${RED}ERROR: Params file not found: $DEST_JSON${RESET}"
+        exit 1
+    fi
+
+    # Update custom taxonomy path
+    sed -i -E "s#(\"dada_ref_tax_custom\"[[:space:]]*:[[:space:]]*\")[^\"]*(\"[[:space:]]*,?)#\1${REF_DEST}\2#g" "$DEST_JSON"
+
+    # Enforce primer + trunc settings depending on selected DB
+    case "$CUSTOM_REF_CHOICE" in
+        1)
+            # 12S MiFish-U
+            set_json_int "trunclenf" 120
+            set_json_int "trunclenr" 120
+            set_json_str "FW_primer" "GTCGGTAAAACTCGTGCCAGC"
+            set_json_str "RV_primer" "CATAGTGGGGTATCTAATCCCAGTTTG"
+            echo -e "${GREEN}Set 12S MiFish-U settings in params.${RESET}"
+            ;;
+        2)
+            # 16S fish-specific
+            set_json_int "trunclenf" 70
+            set_json_int "trunclenr" 70
+            set_json_int "min_len" 20
+            set_json_str "FW_primer" "CGAGAAGACCCTWTGGAGCTTNAG"
+            set_json_str "RV_primer" "GGTCGCCCCAACCRAAG"
+            echo -e "${GREEN}Set 16S fish-specific settings in params.${RESET}"
+            ;;
+    esac
+
+    echo -e "${GREEN}Updated ${DEST_JSON}:${RESET}"
+    echo -e "  - dada_ref_tax_custom: ${REF_DEST}"
 fi
+
+# ---------------------------
+#  IF NO CUSTOM DB MODE: ASK WHICH PRIMERS UPDATE PARAMS JSON
+# ---------------------------
+if [[ "$DB_MODE" == "none" ]]; then
+    USER_INPUT_DIR="$HOME/Metabarcoding/$PROJECT/input"
+
+    echo
+    echo "No reference database selected (BLAST all ASVs)."
+    echo "Which primers did you use?"
+    echo "  1) 12S MiFish-U"
+    echo "  2) 16S fish-specific"
+    echo "  3) V12S-U"
+    echo "  4) V16S-U"
+    echo "  5) VCO1-U"
+    echo "  6) COI-fsd"
+    echo "  7) LCO1490/CO1-CFMRa"
+    while true; do
+        read -rp "Enter 1-7: " NO_REF_CHOICE
+        case "$NO_REF_CHOICE" in
+            1|2|3|4|5|6|7) break ;;
+            *) echo -e "${RED}Invalid input. Please enter 1-7.${RESET}" ;;
+        esac
+    done
+
+    if [[ ! -f "$DEST_JSON" ]]; then
+        echo -e "${RED}ERROR: Params file not found: $DEST_JSON${RESET}"
+        exit 1
+    fi
+
+    case "$NO_REF_CHOICE" in
+        1)
+            # ---- 12S MiFish-U ----
+            set_json_int "trunclenf" 120
+            set_json_int "trunclenr" 120
+            set_json_str "FW_primer" "GTCGGTAAAACTCGTGCCAGC"
+            set_json_str "RV_primer" "CATAGTGGGGTATCTAATCCCAGTTTG"
+            echo -e "${GREEN}Set 12S MiFish-U settings in params.${RESET}"
+            ;;
+        2)
+            # ---- 16S fish-specific ----
+            set_json_int "min_len" 20
+            set_json_str "FW_primer" "CGAGAAGACCCTWTGGAGCTTNAG"
+            set_json_str "RV_primer" "GGTCGCCCCAACCRAAG"
+            echo -e "${GREEN}Set 16S fish-specific settings in params.${RESET}"
+            ;;
+        3)
+            # ---- V12S-U ----
+            set_json_str "FW_primer" "GTGCCAGCNRCCGCGGTYANAC"
+            set_json_str "RV_primer" "ATAGTRGGGTATCTAATCCYAGT"
+            echo -e "${GREEN}Set V12S-U primer settings in params.${RESET}"
+            ;;
+        4)
+            # ---- V16S-U ----
+            set_json_str "FW_primer" "ACGAGAAGACCCYRYGRARCTT"
+            set_json_str "RV_primer" "TCTHRRANAGGATTGCGCTGTTA"
+            echo -e "${GREEN}Set V16S-U primer settings in params.${RESET}"
+            ;;
+        5)
+            # ---- VCO1-U ----
+            set_json_str "FW_primer" "CAYGCHTTTGTNATRATYTTYTT"
+            set_json_str "RV_primer" "GGRGGRTADACDGTYCANCCNGT"
+            echo -e "${GREEN}Set VCO1-U primer settings in params.${RESET}"
+            ;;
+        6)
+            # ---- COI-fsd ----
+            set_json_str "FW_primer" "GCATGAGCCGGAATAGTRGG"
+            set_json_str "RV_primer" "TGTGAKAGGGCAGGTGGTTT"
+            echo -e "${GREEN}Set COI-fsd primer settings in params.${RESET}"
+            ;;
+        7)
+            # ---- LCO1490 / CO1-CFMRa ----
+            set_json_str "FW_primer" "GGTCAACAAATCATAAAGATATTGG"
+            set_json_str "RV_primer" "GGWACTAATCAATTTCCAAATCC"
+            echo -e "${GREEN}Set LCO1490/CO1-CFMRa primer settings in params.${RESET}"
+            ;;
+    esac
+
+    echo -e "${GREEN}Updated ${DEST_JSON}${RESET}"
+fi
+
 
 # ---------------------------
 #  SAVE CURRENT PROJECT NAME
