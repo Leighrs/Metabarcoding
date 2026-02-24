@@ -399,19 +399,19 @@ This repository contains scripts and configuration files to:
 >./Metabarcoding/scripts_do_not_alter/setup_metabarcoding_directory.sh
 >```
 >- **When prompted:**
->    - ${\color{green}Enter project name:}$ Enter a unique project name of your choice.
->    - ${\color{green}Reference database choice:}$
->      - 1 : Standardized/curated database: Choose this option if you are using one of nf-core/ampliseq's built-in reference databases. If you choose this option, you will need to specify which reference database you are using in your parameter *.json* file under the `dada_ref_taxonomy` param. Databases used in nf-core/ampliseq found (here)[https://nf-co.re/ampliseq/2.16.1/docs/usage/#taxonomic-classification].
->      - 2 : Custom sequence database: Choose this option if you will be using a custom sequence database.
->      - 3 : Neither (BLAST all ASVs): Choose this option if you do not have any reference databases to use and instead will have all your ASVs BLASTed.
->    - ${\color{green}Cache directory already exists, Choose an option:}$ Each project creates its own cache folder with your project name in the group directory to store intermedite files, logs, and cache from the nf-core/ampliseq pipeline. If someone else used the same project name or you are doing another run using the same name, you will get this error. Only cache folders with unique names can exist. Choose an option to resolve this issue.
+>    - ${\color{green}Enter}$ ${\color{green}project}$ ${\color{green}name:}$ Enter a unique project name of your choice.
+>    - ${\color{green}Reference}$ ${\color{green}database}$ ${\color{green}choice:}$
+>      - 1 : Standardized/curated database -> Choose this option if you are using one of nf-core/ampliseq's built-in reference databases. If you choose this option, you will need to specify which reference database you are using in your parameter *.json* file under the `dada_ref_taxonomy` param. Databases used in nf-core/ampliseq found [here](https://nf-co.re/ampliseq/2.16.1/docs/usage/#taxonomic-classification).
+>      - 2 : Custom sequence database -> Choose this option if you will be using a custom sequence database.
+>      - 3 : Neither (BLAST all ASVs) -> Choose this option if you do not have any reference databases to use and instead will have all your ASVs BLASTed.
+>    - ${\color{green}Cache}$ ${\color{green}directory}$ ${\color{green}already}$ ${\color{green}exists,}$ ${\color{green}Choose}$ ${\color{green}an}$ ${\color{green}option:}$ Each project creates its own cache folder with your project name in the group directory to store intermedite files, logs, and cache from the nf-core/ampliseq pipeline. If someone else used the same project name or you are doing another run using the same name, you will get this error. Only cache folders with unique names can exist. Choose an option to resolve this issue.
 >      - A : Remove existing cache folder
 >      - B : Enter a new project name (new project ID)
 >      - C : Abort
->    - ${\color{green}Where do you want to store FASTQ files?:}$ It is recommended to store on group directory to save space on your home directory.
+>    - ${\color{green}Where}$ ${\color{green}do}$ ${\color{green}you}$ ${\color{green}want}$ ${\color{green}to}$ ${\color{green}store}$ ${\color{green}FASTQ}$ ${\color{green}files?:}$ It is recommended to store on group directory to save space on your home directory.
 >      - 1 : Home directory (PATH for where you will upload your FASTQ files to)
 >      - 2 : Group directory (PATH for where you will upload your FASTQ files to)
->    - ${\color{green}Which reference database do you want to use?:}$ This option will only show for those who selected to use a custom sequence database. It lists custom sequence databases are logged into this pipeline. Choosing one will upload that reference database to your project directory and add the primer sequences and PATH to the RSD to your parameter file. If you would like to log a custom reference database, contact Leigh Sanders (lrsanders@ucdavis.edu). Current databases logged include:
+>    - ${\color{green}Which}$ ${\color{green}reference}$ ${\color{green}database}$ ${\color{green}do}$ ${\color{green}you}$ ${\color{green}want}$ ${\color{green}to}$ ${\color{green}use?:}$ This option will only show for those who selected to use a custom sequence database. It lists custom sequence databases that are logged into this pipeline. Choosing one will upload that reference database to your project directory and add the primer sequences and PATH to the RSD to your parameter file. If you would like to log a custom reference database, contact Leigh Sanders (lrsanders@ucdavis.edu). Current databases logged include:
 >      -  1 : 12S MiFish-U
 >      -  2 : 16S fish-specific
 
@@ -946,6 +946,7 @@ This repository contains scripts and configuration files to:
 > Navigate to the (RTools: Toolchains for building R and R packages from source on Windows)[https://cran.rstudio.com/bin/windows/Rtools/] to download.
 
 </details>
+
 
 
 
