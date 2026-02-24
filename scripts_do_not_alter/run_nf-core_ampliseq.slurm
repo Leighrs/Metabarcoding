@@ -6,8 +6,6 @@
 #SBATCH --cpus-per-task=20
 #SBATCH --mem=120G
 #SBATCH --time=10:00:00
-#SBATCH --output=Metabarcoding/Logs_archive/run_nfcore_ampliseq_%j.out
-#SBATCH --error=Metabarcoding/Logs_archive/run_nfcore_ampliseq_%j.err
 
 
 # ----------------------------
@@ -85,11 +83,13 @@ PROJECT=$(cat "$PROJECT_FILE")
 echo "Running project: $PROJECT"
 
 # ------------------------------------
-# 3. Define paths
+# 3. Define and create paths
 # ------------------------------------
 BASE_OUT="$HOME/Metabarcoding/$PROJECT/output"
 CACHE_DIR="/group/ajfingergrp/Metabarcoding/intermediates_logs_cache/${PROJECT}_cache"
 SINGULARITY_CACHE="${CACHE_DIR}/singularity"
+mkdir -p "$CACHE_DIR"
+mkdir -p "$SINGULARITY_CACHE"
 PARAMS_FILE="$HOME/Metabarcoding/$PROJECT/params/${PROJECT}_nf-params_expanded.json"
 
 
@@ -121,8 +121,7 @@ singularity {
 }
 EOF
 ) \
-    -params-file "$PARAMS_FILE" \
-    -resume
+    -params-file "$PARAMS_FILE"
 
 
 echo "nf-core/ampliseq pipeline completed successfully."
