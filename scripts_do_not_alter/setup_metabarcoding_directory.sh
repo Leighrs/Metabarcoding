@@ -280,8 +280,8 @@ if [[ "$DB_MODE" == "custom" ]]; then
             ;;
         2)
             # 16S fish-specific
-            set_json_int "trunclenf" 70
-            set_json_int "trunclenr" 70
+            set_json_int "trunclenf" null
+            set_json_int "trunclenr" null
             set_json_int "min_len" 20
             set_json_str "FW_primer" "CGAGAAGACCCTWTGGAGCTTNAG"
             set_json_str "RV_primer" "GGTCGCCCCAACCRAAG"
