@@ -177,13 +177,13 @@ if [[ -s "$missing_in_metadata" || -s "$missing_in_samplesheet" ]]; then
   echo
 
   if [[ -s "$missing_in_metadata" ]]; then
-    echo "IDs present in SAMPLESHEET but MISSING from METADATA:"
+    echo "IDs present in SAMPLESHEET but MISSING from METADATA. Fix this error then rerun code:"
     sed 's/^/  - /' "$missing_in_metadata"
     echo
   fi
 
   if [[ -s "$missing_in_samplesheet" ]]; then
-    echo "IDs present in METADATA but MISSING from SAMPLESHEET:"
+    echo "IDs present in METADATA but MISSING from SAMPLESHEET. Fix this error then rerun code:"
     sed 's/^/  - /' "$missing_in_samplesheet"
     echo
   fi
