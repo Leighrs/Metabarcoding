@@ -47,10 +47,12 @@ This repository contains scripts and configuration files to:
 |------|-------------|
 | `nf-params_no_RSD.json` | Contents of this parameter file for the nf-core/ampliseq pipeline will be uploaded to project directory if user specifies no RSD. Customize for your project. |
 | `nf-params_with_custom_RSD.json` | Contents of this parameter file for the nf-core/ampliseq pipeline will be uploaded to project directory if user specifies the use of a custom RSD. Customize for your project. |
+| `check_ids_match.sh` | A shell script that scans your metadata and samplesheet files to make sure sample IDs match. Also adds metadata PATH to your params file. |
 | `nf-params_with_standardized_RSD.json` | Contents of this parameter file for the nf-core/ampliseq pipeline will be uploaded to project directory if user specifies the use of a standardized (included in ampliseq pipeline) RSD. Customize for your project. |
 | `setup_metabarcoding_directory.sh` | Shell script to create your project directory with example samplesheets, metadata, and RSD files. |
 | `update_blast_db.slurm` | SLURM batch script to download/update the NCBI core nucleotide database. |
 | `blast_asv.slurm` | SLURM batch script to BLAST unknown ASVs. |
+| `submit_ampliseq.sh` | A wrapper shell script to specify where to place sbatch log files. Sometimes sbatch struggles with using environmental variables so this gets around that. |
 | `run_nf-core_ampliseq.slurm` | SLURM batch script to execute the nf-core/ampliseq pipeline using UCD HPC FARM resrouces. |
 | `R_ASV_cleanup_scripts/` | Folder containing R scripts for cleaning and formatting ASV tables after nf-core/ampliseq and optional BLAST. |
 | `generate_samplesheet_table.sh` | Shell script to generate a samplesheet for your project that will work with the nf-core/ampliseq pipeline. |
@@ -992,6 +994,7 @@ This repository contains scripts and configuration files to:
 > Navigate to the (RTools: Toolchains for building R and R packages from source on Windows)[https://cran.rstudio.com/bin/windows/Rtools/] to download.
 
 </details>
+
 
 
 
