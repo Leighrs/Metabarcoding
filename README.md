@@ -417,7 +417,7 @@ This repository contains scripts and configuration files to:
 
 **3A. Import fastq files:**
 
-> If storing your fastq files on group storage (recommended), copy fastq files to the subfolder (`${PROJECT_NAME}_fastq_YYYYMMDD`) created for your project:
+> If storing your fastq files on group storage (recommended), copy fastq files to the subfolder (`group/ajfingergrp/Metabarcoding/fastq_storage/${PROJECT_NAME}_fastq_YYYYMMDD${PROJECT_NAME}_fastq_YYYYMMDD`) created for your project:
 >  - If you have MobaXterm, simply drag/drop or copy/paste into `/group/ajfingergrp/Metabarcoding/fastq_storage/${PROJECT_NAME}_fastq_YYYYMMDD`.
 >  - If you are using a Mac, use the  `scp` command to transfer files:
 > ```
@@ -425,7 +425,7 @@ This repository contains scripts and configuration files to:
 >
 ># Example to upload from local directory: scp "C:\Bioinformatics\12S_Fastq_251106\." leighrs@farm.hpc.ucdavis.edu: "/group/ajfingergrp/Metabarcoding/fastq_storage/12S_fastq_20260127/"
 > ```
-> If storing your fastq files on home storage, copy fastq files to the subfolder (`fastq`) created for your project:
+> If storing your fastq files on home storage, copy fastq files to the subfolder (`$HOME/Metabarcoding/${PROJECT_NAME}/input/fastq/`) created for your project:
 >  - If you have MobaXterm, simply drag/drop or copy/paste into `$HOME/Metabarcoding/${PROJECT_NAME}/input/fastq/`.
 >  - If you are using a Mac, use the  `scp` command to transfer files:
 > ```
@@ -436,7 +436,7 @@ This repository contains scripts and configuration files to:
 
 **3B. Import metadata:**
 
-> Copy metadata to the subfolder (`input`) created for your project:
+> Copy metadata to the subfolder (`$HOME/Metabarcoding/${PROJECT_NAME}/input/`) created for your project:
 >  - If you have MobaXterm, simply drag/drop or copy/paste into `$HOME/Metabarcoding/${PROJECT_NAME}/input/`.
 >  - If you are using a Mac, use the  `scp` command to transfer files:
 > ```
@@ -445,40 +445,65 @@ This repository contains scripts and configuration files to:
 ># Example to upload from local directory: scp "C:\Bioinformatics\12S_metadata.txt" leighrs@farm.hpc.ucdavis.edu:/home/leighrs/Metabarcoding/12S/input/
 > ```
 >  - Rules:
->    - Needs to be a tab-deliminated text file or a .tsv file.
->    - First column is labeled "ID" for your sample IDs. **Make sure these IDs match the sample IDs in your samplesheet you just made.**
->    - If you wish to use a decontamination protocol later, add a column called "Control_Assign" to assign which controls are paired with which samples.
+>    - File names needs to have the word `metadata` in it.
+>    - Needs to be a **tab-deliminated**  *.txt* file or a *.tsv* file.
+>    - First column is labeled `sampleID` for your sample IDs. 
+>       - **Make sure these IDs match the sample IDs in your samplesheet you just made.**
+>    - If you sequenced your samples in multiple runs, add a `Run` column to your metadata to assign run IDs. 
+>       - **nf-core/ampliseq prefers the run IDs in A, B, C, ... format.**
+>       - Specifying run IDs is essential for proper sequence error handling.
+>    - If you wish to use a decontamination protocol later, add a column called `Control_Assign` to assign which controls are paired with which samples.
 >      - For example:
 >          
->| sampleID | Control_Assign | Sample_or_Control | Notes |
->|----------|----------------|-------------------|-------|
->| BROA1 | 1,2,4 | Sample | ← Controls 1,2,4 need to be subtracted |
->| FLYA2 | 2,3,4 | Sample | ← Controls 2,3,4 need to be subtracted |
->| BROAB | 1     | Control | ← Control ID = 1 |
->| FLYAB | 3     | Control | ← Control ID = 3 |
->| EXT1  | 2     | Control | ← Control ID = 2 |
->| PCR1  | 4     | Control | ← Control ID = 4 |
+>| sampleID | Control_Assign | Sample_or_Control | Run| Notes *(not in metadata)* |
+>|----------|----------------|-------------------|---|-------|
+>| BROA1 | 1,2,4 | Sample |A| Controls 1,2,4 need to be subtracted |
+>| FLYA2 | 2,3,4 | Sample |B| Controls 2,3,4 need to be subtracted |
+>| BROAB | 1     | Control |A| Control ID = 1 |
+>| FLYAB | 3     | Control |B| Control ID = 3 |
+>| EXT1  | 2     | Control |C| Control ID = 2 |
+>| PCR1  | 4     | Control |C| Control ID = 4 |
 >
 > Add any other columns for metadata you wish to attach to these samples for downstream analyses.
+> To view an example metadata file, run the following code:
+>```
+>cd ~
+>PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+>nano $HOME/Metabarcoding/$PROJECT_NAME/Example_files/Example_metadata.txt
+>```
 
 **3C. Import custom reference sequence database (optional):**
 
-> Copy metadata to the subfolder (`input`) created for your project:
->  - If you have MobaXterm, simply drag/drop or copy/paste into `$HOME/Metabarcoding/${PROJECT_NAME}/input/`.
->  - If you are using a Mac, use the  `scp` command to transfer files:
+> If your custom pipeline has been logged into this pipeline, your custom RSD should already be uploaded and in the subfolder (`$HOME/Metabarcoding/${PROJECT_NAME}/input/`).
+>   - Naviate to this subfolder to confirm it is there. If not:
+>       - Copy custom RSD to the subfolder (`$HOME/Metabarcoding/${PROJECT_NAME}/input/`) created for your project:
+>           - If you have MobaXterm, simply drag/drop or copy/paste into `$HOME/Metabarcoding/${PROJECT_NAME}/input/`.
+>           - If you are using a Mac, use the  `scp` command to transfer files:
 > ```
 >scp local-directory path to RSD [USER]@[CLUSTER].hpc.ucdavis.edu:~/[CLUSTER-DATA] 
 >
 ># Example to upload from local directory: scp "C:\Bioinformatics\12S_RSD.txt" leighrs@farm.hpc.ucdavis.edu:/home/leighrs/Metabarcoding/12S/input/
 > ```
->  - Rules:
->    - There is an example RSD .txt file found in your project input folder.
->    - Needs to be a tab-deliminated text file or a .tsv file.
->  To view the example RSD txt, run the following code:
+>  - **Rules:**
+>    - Needs to be a **tab-deliminated** *.txt* file or a *.tsv* file.
+>    - Each taxa record myst follow this structure:
+>       - Each entry starts with `>`
+>       - Taxonomic levels separated by semicolons `;`
+>       - Always end the header with a trailing semicolon
+>       - ASV sequence following on the next line
+>       - No spaces inside sequences
+>       - *If you would like to create a custom RSD with different taxa levels, email Leigh Sanders (lrsanders@ucdavis.edu). It is possible, but it will require some changes to other scripts so that there are no conflicts.*
+>       - **Example:**
+>```
+>>Kingdom;Phylum;Class;Order;Family;Genus;Species;Common Name;
+>SEQUENCE
+>```
+>  
+> To view the example RSD, run the following code:
 >```
 >cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->nano $HOME/Metabarcoding/$PROJECT_NAME/input/Example_RSD.txt
+>nano $HOME/Metabarcoding/$PROJECT_NAME/Example_files/Example_RSD.txt
 >```
 
 **4. Generate a samplesheet file.**
@@ -488,18 +513,23 @@ This repository contains scripts and configuration files to:
 >
 > *This script will autopopulate the PATHs for each of your fastq files, extrapolate sample names from those files, and prompt you to specify how many metabarcoding runs these samples were sequenced in.*
 >
+> *If you sequenced your samples in multiple runs and specified run IDs in your metadata, this script will also autopopulate your run IDs to your samplesheet.*
+>
 >```
 >cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->"$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_generate_samplesheet_table.sh" 
+>"$HOME/Metabarcoding/scripts_do_not_alter/generate_samplesheet_table.sh" 
 >```
 >
->- **When prompted:**
+>**When prompted:**
 >    - *Did you sequence samples using multiple sequencing runs?:* ${\color{green}yes}$ or ${\color{red}no}$
->      - If you answer ${\color{red}no}$: All samples will be assigned to a single run "A"
->      - If you answer ${\color{green}yes}$: Sequencing run ID will not be assigned on the samplesheet. You must go into the samplesheet and manually assign sequence IDs to the last column for each sample. Each sequencing run needs to be assigned a unique letter (e.g., A, B, C, ...).
+>       - If you answer ${\color{red}no}$: 
+>           - All samples will be assigned to a single run "A"
+>      - If you answer ${\color{green}yes}$: 
+>           - Sequencing run ID will be assigned to your samplesheet if you provided run IDs in your metadata. 
+>           - If not, you must go into the samplesheet and manually assign sequence IDs to the last column for each sample. Each sequencing run needs to be assigned a unique letter (e.g., A, B, C, ...).
+>           - The nf-core/ampliseq pipeline prefers sequence IDs in the A, B, C, ... format.
 >     
->
 ><details>
 >
 ><summary><strong>If you wish to extrapolate a different part of the file name using the awk command, click to expand:</strong></summary>
@@ -520,18 +550,34 @@ This repository contains scripts and configuration files to:
 > 
 > `echo "$base" | awk -F'_' '{print $2_$4}'`: prints text between 1st and 2nd underscore, and between 3rd and 4th underscore. Connect text with an underscore.
 ></details>
+>
 
-**5. Edit Run Parameters.**
+**5. Confirm that sample IDs are valid and match between metadata and samplesheet:** 
 
-> Open the parameter file for the nf-core/ampliseq pipeline:
-> 
-> - The `${PROJECT_NAME}_nf-params.json` file contains all the parameters needed to run the nf-core/ampliseq workflow for your specific project.
-> - Edit this file so that the input paths, primer sequences, and filtering settings match your dataset.
+> Ensure you are in your home directory and run the following shell script.
 >
 >```
 >cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->nano $HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_nf-params.json
+>"$HOME/Metabarcoding/scripts_do_not_alter/check_ids_match.sh"
+>```
+>This script will also locate your metafile and add that path to your params file.
+>
+> **Following on-screen instructions/prompts if you get any errors.**
+
+**6. Edit Run Parameters.**
+
+> Open the parameter file for the nf-core/ampliseq pipeline:
+> 
+> - The `$HOME/Metabarcoding/${PROJECT_NAME}/params/${PROJECT_NAME}_nf-params.json` file contains all the parameters needed to run the nf-core/ampliseq workflow for your specific project.
+> - In ideal cases, you may find your samplesheet is already completely filled out and no space holder PATHs/variables exist. 
+>      - But double check everything is correct and edit as necessary so that your input paths, primer sequences, and filtering settings match your dataset.
+>      - Environmental variables, `$HOME` and `$PROJECT_NAME` should be left as is.
+>
+>```
+>cd ~
+>PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+>nano $HOME/Metabarcoding/$PROJECT_NAME/params/${PROJECT_NAME}_nf-params.json
 >```
 > To exit the nano script, use `Ctrl` + `X`. Then `Y` to save. Press **Enter**.
 > Notes:
@@ -640,21 +686,21 @@ This repository contains scripts and configuration files to:
 >```
 >export PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 >envsubst '$HOME $PROJECT_NAME' \
->  < "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_nf-params.json" \
->  > "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_nf-params_expanded.json"
+>  < "$HOME/Metabarcoding/$PROJECT_NAME/params/${PROJECT_NAME}_nf-params.json" \
+>  > "$HOME/Metabarcoding/$PROJECT_NAME/params/${PROJECT_NAME}_nf-params_expanded.json"
 >```
 
-**6. Run the nf-core/ampliseq Pipeline:** 
+**7. Run the nf-core/ampliseq Pipeline:** 
 
 > Ensure you are in your home directory and run the following shell script.
 >
 >```
 >cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_run_nf-core_ampliseq.slurm"
+>$HOME/Metabarcoding/scripts_do_not_alter/submit_ampliseq.sh
 >```
 
-**7. BLAST Unknown ASVs:**
+**8. BLAST Unknown ASVs:**
 
 >Set your percent identity threshold and the max number of BLAST hits reported:
 >  - *If these environmental variables are not exported, the script will default to 97% identity and 5 hits.*
@@ -663,9 +709,9 @@ This repository contains scripts and configuration files to:
 >export BLAST_PERC_IDENTITY=97
 >export BLAST_MAX_TARGET_SEQS=5
 >```
->To BLAST your entire .fasta file created from the nf-core/ampliseq pipeline, run the following code:
+>To BLAST your **entire** *.fasta* file created from the nf-core/ampliseq pipeline, run the following code:
 >
->-  If you did not include a custom reference sequence database, choose this option.
+>-  If you did **not** include a custom reference sequence database, **choose this option**.
 >
 >```bash
 >cd ~
@@ -673,13 +719,13 @@ This repository contains scripts and configuration files to:
 >sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_blast_asv.slurm"
 >```
 >
->If you included a custom reference sequence database (RSD), you can instead BLAST only the ASVs that did not receive taxonomic assignments or only received an incomplete assignment:
->- Do not use this option if you did not use a custom RSD. This option requires pulling data from a phyloseq object, which is only generated for those you used an RSD.
+>If you **did** include a custom reference sequence database (RSD), you can instead BLAST only the ASVs that did not receive taxonomic assignments or only received an incomplete assignment. **Choose this option**:
+>- Do not use this option if you did not use a custom RSD. This option requires pulling data from a phyloseq object, which is only generated for those you used a RSD.
 >
 >```bash
 >cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->RUN_BLAST=yes sbatch "$HOME/Metabarcoding/$PROJECT_NAME/scripts/${PROJECT_NAME}_retrieve_phyloseq_unassigned_ASVs.slurm"
+>RUN_BLAST=yes sbatch "$HOME/Metabarcoding/scripts_do_not_alter/retrieve_phyloseq_unassigned_ASVs.slurm"
 >```
 >  - If you only wish to retrieve your unassigned (or incomplete assigned) ASVs and not BLAST them, change to `RUN_BLAST=no`.
 >    - Fasta file will be saved at: `$HOME/Metabarcoding/$PROJECT_NAME/output/R/${PROJECT_NAME}_DADA2_unassigned_ASVs.fasta`
@@ -687,7 +733,7 @@ This repository contains scripts and configuration files to:
 >    - `$HOME/Metabarcoding/$PROJECT_NAME/output/R/${PROJECT_NAME}_DADA2_unassigned_ASVs.fasta`
 >    - `$HOME/Metabarcoding/$PROJECT_NAME/output/BLAST/${PROJECT_NAME}_raw_blast_results_from_phyloseq_obj.tsv`
  
-**8. Clean up NCBI Blast Taxonomy:**
+**9. Clean up NCBI Blast Taxonomy:**
    
 > This script will auto process your raw BLAST output to output the single 'best' taxonomic rank for each assigned ASV:
 >
@@ -726,7 +772,7 @@ This repository contains scripts and configuration files to:
 >
 ></details>
 
-**9. Review and approve BLAST taxonomic assignments:**
+**10. Review and approve BLAST taxonomic assignments:**
 
 > This script requires a manual review step to approve/dissaprove and change BLAST taxonomic assignments if needed.
 >
@@ -831,7 +877,7 @@ This repository contains scripts and configuration files to:
 >exit
 >```
 
-**10. Remove contaminant reads from ASVs:**
+**11. Remove contaminant reads from ASVs:**
 
 >
 >Start an interactive shell:
