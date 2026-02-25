@@ -87,7 +87,6 @@ done
 #  CREATE DIRECTORIES
 # ---------------------------
 mkdir -p "Metabarcoding/$PROJECT"
-mkdir -p "Metabarcoding/Logs_archive"
 mkdir -p "Metabarcoding/$PROJECT/params"
 mkdir -p "Metabarcoding/$PROJECT/input"
 mkdir -p "Metabarcoding/$PROJECT/Example_files"

@@ -11,8 +11,8 @@
     
     "min_len": 50,
     
-    "ignore_failed_trimming": true,
-    "ignore_failed_filtering": true,
+    "trunclenf": null,
+    "trunclenr": null,
     
     "exclude_taxa": "none",
     "skip_taxonomy": true,

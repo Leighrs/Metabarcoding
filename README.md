@@ -182,8 +182,15 @@ This repository contains scripts and configuration files to:
 >```
 >cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->sbatch "$HOME/Metabarcoding/scripts_do_not_alter/run_nf-core_ampliseq.slurm"
+>sbatch "$HOME/Metabarcoding/scripts_do_not_alter/submit_ampliseq.sh"
 >```
+> To see your current running slurm job and get your jobID:
+>```
+>cd ~
+>squeue -u $USER
+>```
+> To view your slurm error and output logs, navigate to `/group/ajfingergrp/Metabarcoding/intermediates_logs_cache/slurm_logs/` and locate the files called `ampliseq_<jobID>.err` and `ampliseq_<jobID>.out`. 
+
 
 **8. BLAST Unknown ASVs:**
 
@@ -701,6 +708,12 @@ This repository contains scripts and configuration files to:
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 >$HOME/Metabarcoding/scripts_do_not_alter/submit_ampliseq.sh
 >```
+> To see your current running slurm job and get your jobID:
+>```
+>cd ~
+>squeue -u $USER
+>```
+> To view your slurm error and output logs, navigate to `/group/ajfingergrp/Metabarcoding/intermediates_logs_cache/slurm_logs/` and locate the files called `ampliseq_<jobID>.err` and `ampliseq_<jobID>.out`. 
 
 **8. BLAST Unknown ASVs:**
 

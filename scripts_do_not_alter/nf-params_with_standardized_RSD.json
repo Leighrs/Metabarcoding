@@ -9,8 +9,8 @@
     "seed": 13,
     "min_len": 50,
     
-    "trunclenf": <TRUNC_VALUE_FORWARD>,
-    "trunclenr": <TRUNC_VALUE_REVERSE>,
+    "trunclenf": null,
+    "trunclenr": null,
     
     "exclude_taxa": "none",
     
