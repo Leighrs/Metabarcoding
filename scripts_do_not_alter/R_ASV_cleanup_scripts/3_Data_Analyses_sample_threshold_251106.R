@@ -192,6 +192,12 @@ if (length(removed_per_sample_list) > 0) {                               # If an
 } else {
   removed_per_sample_df <- data.frame(Note = "No ASVs completely removed from any sample by per-sample ASV threshold.") # Placeholder if none
 }
+# Flag ASVs that are removed from the entire study
+if (!("Note" %in% names(removed_df)) && !("Note" %in% names(removed_per_sample_df))) {
+  removed_study_set <- unique(removed_df$ASV_ID)
+  removed_per_sample_df$Removed_From_Study <- removed_per_sample_df$ASV_ID %in% removed_study_set
+}
+
 num_samples_with_removals <- length(removed_per_sample_list)
 message("  -> Number of samples with at least one ASV removed by threshold: ", num_samples_with_removals)
 
@@ -209,8 +215,8 @@ write_xlsx(
     Sample_Reads_After_Threshold  = sample_reads_after_thresh_df,      # Sheet: reads after threshold
     PerSample_ASV_Threshold_Metrics                   = metric_thresh,                       # Sheet: Sample_Threshold_Metrics
     Summary                       = summary_thresh_df,                 # Sheet: summary metrics
-    Removed_ASVs                  = removed_df,                        # Sheet: removed ASVs completely
-    Removed_Per_Sample            = removed_per_sample_df              # Sheet: removed ASVs per sample
+    ASVs_Removed_from_Study                  = removed_df,                        # Sheet: removed ASVs completely
+    ASVs_Removed_Per_Sample            = removed_per_sample_df              # Sheet: removed ASVs per sample
   ),
   path = threshold_excel_path                                           # Write workbook to file
 )

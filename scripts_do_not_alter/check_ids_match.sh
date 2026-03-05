@@ -2,9 +2,9 @@
 set -euo pipefail
 
 # Read project name
-PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+PROJECT_NAME=$(cat "/group/ajfingergrp/Metabarcoding/Project_Runs/Project_IDs/$USER/current_project_name.txt")
 
-INPUT_DIR="$HOME/Metabarcoding/${PROJECT_NAME}/input"
+INPUT_DIR="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/input"
 
 SAMPLESHEET_DEFAULT="$INPUT_DIR/${PROJECT_NAME}_samplesheet.txt"
 SAMPLESHEET="${METABARCODING_SAMPLESHEET:-$SAMPLESHEET_DEFAULT}"
@@ -201,7 +201,7 @@ else
 fi
 
 # ------------------ Autofill metadata path in params JSON ------------------
-PARAMS_JSON="$HOME/Metabarcoding/$PROJECT_NAME/params/${PROJECT_NAME}_nf-params.json"
+PARAMS_JSON="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/params/${PROJECT_NAME}_nf-params.json"
 
 if [[ ! -f "$PARAMS_JSON" ]]; then
   echo "ERROR: Params JSON not found:"

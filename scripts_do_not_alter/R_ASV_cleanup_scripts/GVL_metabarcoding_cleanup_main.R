@@ -32,7 +32,8 @@ stop_if_missing <- function(x, name) {
 PROJECT_NAME <- Sys.getenv("PROJECT_NAME", unset = "") #unset returns an empty string "" if the variable does not exist.
 stop_if_missing(PROJECT_NAME, "PROJECT_NAME")
 
-PROJECT_DIR <- Sys.getenv("PROJECT_DIR", unset = file.path(Sys.getenv("HOME"), "Metabarcoding", PROJECT_NAME))
+PROJECT_DIR <- Sys.getenv("PROJECT_DIR", unset = "")
+stop_if_missing(PROJECT_NAME, "PROJECT_DIR")
 
 PHYLOSEQ_RDS <- Sys.getenv("PHYLOSEQ_RDS_REVIEWED", unset = "")
 stop_if_missing(PHYLOSEQ_RDS, "PHYLOSEQ_RDS_REVIEWED")
@@ -95,7 +96,7 @@ if (!dir.exists(params$output_dir)) dir.create(params$output_dir, recursive = TR
 # Load phyloseq object
 # ===============================
 ps <- readRDS(params$phyloseq_file)
-message("✅ Loaded phyloseq object with ", nsamples(ps), " samples and ", ntaxa(ps), " taxa")
+message("Loaded phyloseq object with ", nsamples(ps), " samples and ", ntaxa(ps), " taxa")
 
 
 # ===============================

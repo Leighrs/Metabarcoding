@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Usage:
+#   archive_metabarcoding_project_worker.sh <PROJECT_NAME> [--resume] [--delete-original]
+
+if [[ $# -lt 1 ]]; then
+  echo "Usage: $(basename "$0") <PROJECT_NAME> [--resume] [--delete-original]" >&2
+  exit 2
+fi
+
+PROJECT_NAME="$1"
+shift
+
+RESUME="no"
+DELETE_ORIGINAL="no"
+
+for arg in "$@"; do
+  case "$arg" in
+    --resume) RESUME="yes" ;;
+    --delete-original) DELETE_ORIGINAL="yes" ;;
+    *) echo "ERROR: Unknown option: $arg" >&2; exit 2 ;;
+  esac
+done
+
+SRC_DIR="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME"
+DEST_BASE="/group/ajfingergrp/Metabarcoding/Past_Runs_Archive/Run_By_${USER}"
+DEST_DIR="$DEST_BASE/$PROJECT_NAME"
+
+echo "User:      $(whoami)"
+echo "Node:      $(hostname)"
+echo "Start:     $(date)"
+echo "Project:   $PROJECT_NAME"
+echo "Source:    $SRC_DIR"
+echo "Dest:      $DEST_DIR"
+echo "Resume:    $RESUME"
+echo "Delete:    $DELETE_ORIGINAL"
+echo ""
+
+command -v rsync >/dev/null 2>&1 || { echo "ERROR: rsync not found" >&2; exit 1; }
+
+if [[ ! -d "$SRC_DIR" ]]; then
+  echo "ERROR: Source project directory not found: $SRC_DIR" >&2
+  exit 1
+fi
+
+mkdir -p "$DEST_BASE"
+
+if [[ -d "$DEST_DIR" && "$RESUME" != "yes" ]]; then
+  echo "ERROR: Destination exists (rerun with --resume): $DEST_DIR" >&2
+  exit 1
+fi
+
+mkdir -p "$DEST_DIR"
+
+echo "Running rsync..."
+rsync -a --partial --info=progress2 --human-readable \
+  "$SRC_DIR/" "$DEST_DIR/"
+
+echo ""
+echo "Rsync complete: $(date)"
+echo "Archived: $DEST_DIR"
+echo ""
+
+# Optional verification (cheap + helpful): compare file counts
+echo "Verifying archive by file count..."
+SRC_COUNT=$(find "$SRC_DIR" -type f | wc -l)
+DEST_COUNT=$(find "$DEST_DIR" -type f | wc -l)
+echo "Source files:  $SRC_COUNT"
+echo "Archive files: $DEST_COUNT"
+
+if [[ "$SRC_COUNT" -ne "$DEST_COUNT" ]]; then
+  echo "WARNING: file counts differ; NOT deleting original."
+  exit 1
+fi
+
+echo "Verification passed."
+
+if [[ "$DELETE_ORIGINAL" == "yes" ]]; then
+  echo "Deleting original project directory: $SRC_DIR"
+  rm -rf "$SRC_DIR"
+  echo "? Original deleted."
+else
+  echo "Original retained."
+fi
+
+echo "Done: $(date)"

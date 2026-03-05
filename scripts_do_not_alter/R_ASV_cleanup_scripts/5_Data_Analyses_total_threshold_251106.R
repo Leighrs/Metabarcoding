@@ -158,6 +158,20 @@ if (length(removed_per_sample_list2) > 0) {
 } else {
   removed_per_sample_df2 <- data.frame(Note = "No ASVs completely removed from an individual sample after minimum sequencing depth threshold.")
 }
+# Flag ASVs that are removed from the entire study (min-depth pipeline)
+if (!("Note" %in% names(removed_asvs_df2)) && !("Note" %in% names(removed_per_sample_df2))) {
+
+  # Build the set of ASV_IDs removed from the study
+  # Depending on your removed_asvs_df2 structure, ASV_ID may be a column or rownames.
+  if ("ASV_ID" %in% names(removed_asvs_df2)) {
+    removed_study_set2 <- unique(removed_asvs_df2$ASV_ID)
+  } else {
+    removed_study_set2 <- unique(rownames(removed_asvs_df2))
+  }
+
+  removed_per_sample_df2$Removed_From_Study <- removed_per_sample_df2$ASV_ID %in% removed_study_set2
+}
+
 num_samples_with_removed_asvs <- length(unique(removed_per_sample_df2$Sample))
 message("  -> Samples with at least one ASV removed: ", num_samples_with_removed_asvs)
 
@@ -206,8 +220,8 @@ write_xlsx(
     Sample_Reads_Before_Threshold = Sample_Reads_Before_Threshold,
     Sample_Reads_After_Threshold          = Sample_Reads_After_Threshold,
     Removed_Samples        = removed_samples_df2,
-    Removed_ASVs           = Removed_ASVs,
-    Removed_Per_Sample     = removed_per_sample_df2,
+    ASVs_Removed_from_Study           = Removed_ASVs,
+    ASVs_Removed_Per_Sample     = removed_per_sample_df2,
     Min_Seq_Depth_Metrics            = metric_total_thresh2
   ),
   path = excel_path2

@@ -64,12 +64,42 @@ conda activate "$ENV_PREFIX"
 # ----------------------------
 # Export env vars
 # ----------------------------
-PROJECT_NAME="$(tr -d '\r\n' < "$HOME/Metabarcoding/current_project_name.txt")"
-export PROJECT_NAME
 
-export PROJECT_DIR="$HOME/Metabarcoding/${PROJECT_NAME}"
+# Export project name:
+PROJECT_NAME_FILE="/group/ajfingergrp/Metabarcoding/Project_Runs/Project_IDs/$USER/current_project_name.txt"
+if [[ ! -f "$PROJECT_NAME_FILE" ]]; then
+  echo "ERROR: Project name file does not exist: $PROJECT_NAME_FILE"
+  exit 1
+fi
+
+PROJECT_NAME="$(cat "$PROJECT_NAME_FILE")"
+if [[ -z "$PROJECT_NAME" ]]; then
+  echo "ERROR: Project name file is empty: $PROJECT_NAME_FILE"
+  exit 1
+fi
+export PROJECT_NAME="$(cat "$PROJECT_NAME_FILE")"
+
+echo "Detected project: $PROJECT_NAME"
+echo ""
+
+# Export metadata (if a phyloseq object needs to be created):
+export METADATA_PATH=$(ls /group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/output/input/*metadata*.{txt,tsv} 2>/dev/null | head -n 1)
+
+# Export asv fasta file and table (if a phyloseq object needs to be created):
+export ASV_FASTA="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/output/dada2/ASV_seqs.fasta"
+export ASV_TABLE_TSV="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/output/dada2/DADA2_table.tsv"
+
+# Export project directory:
+export PROJECT_DIR="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME"
+
+# Export phyloseq object (for those who used a reference database):
 export PHYLOSEQ_RDS="${PROJECT_DIR}/output/phyloseq/dada2_phyloseq.rds"
+
+# Export path to review folder and create folder (this is where review sheet will be placed):
 export REVIEW_OUTDIR="${PROJECT_DIR}/output/BLAST/Review"
+mkdir -p "$REVIEW_OUTDIR"
+
+# Export path to 
 export BLAST_ALL_TSV="$PROJECT_DIR/output/BLAST/${PROJECT_NAME}_raw_blast_results.tsv"
 
 

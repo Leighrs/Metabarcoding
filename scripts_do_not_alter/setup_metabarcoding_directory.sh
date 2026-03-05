@@ -86,56 +86,70 @@ done
 # ---------------------------
 #  CREATE DIRECTORIES
 # ---------------------------
-mkdir -p "Metabarcoding/$PROJECT"
-mkdir -p "Metabarcoding/$PROJECT/params"
-mkdir -p "Metabarcoding/$PROJECT/input"
-mkdir -p "Metabarcoding/$PROJECT/Example_files"
-mkdir -p "Metabarcoding/$PROJECT/output"
+mkdir -p "/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT"
+mkdir -p "/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT/params"
+mkdir -p "/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT/input"
+mkdir -p "/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT/input/fastq"
+mkdir -p "/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT/Example_files"
+mkdir -p "/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT/output"
+mkdir -p "/group/ajfingergrp/Metabarcoding/Project_Runs/Project_IDs/$USER"
 mkdir -p "$PROJECT_CACHE_DIR"
 mkdir -p "${PROJECT_CACHE_DIR}/singularity"
 mkdir -p "/group/ajfingergrp/Metabarcoding/fastq_storage"
 
-echo "$PROJECT_CACHE_DIR" > "Metabarcoding/$PROJECT/input/project_cache_path.txt"
+echo "$PROJECT_CACHE_DIR" > "/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT/input/project_cache_path.txt"
 # ---------------------------
 #  PROMPT: FASTQ STORAGE LOCATION
 # ---------------------------
+# ---------------------------
+#  PROMPT: FASTQ STORAGE LOCATION
+# ---------------------------
+FASTQ_PATH_FILE="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT/input/fastq_storage_path.txt"
+
 while true; do
     echo
     echo "Where do you want to store FASTQ files?"
-    echo "  1) Home directory (Metabarcoding/$PROJECT/input/fastq)"
-    echo "  2) Group directory (/group/ajfingergrp/Metabarcoding/fastq_storage/${USER}_${PROJECT}_fastq_YYYYMMDD)"
+    echo "  1) Group project folder (/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT/input/fastq)"
+    echo "  2) Elsewhere (you will be prompted type a full path)"
     read -rp "Enter 1 or 2 [default 1]: " FASTQ_STORE_CHOICE
     FASTQ_STORE_CHOICE="${FASTQ_STORE_CHOICE:-1}"
 
     case "$FASTQ_STORE_CHOICE" in
         1)
-            FASTQ_DIR="Metabarcoding/$PROJECT/input/fastq"
-            mkdir -p "$FASTQ_DIR"
-            echo -e "${GREEN}FASTQ storage set to HOME: $FASTQ_DIR${RESET}"
+            FASTQ_DIR="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT/input/fastq"
+            mkdir -p "$FASTQ_DIR" || { echo -e "${RED}ERROR: cannot create $FASTQ_DIR${RESET}"; exit 1; }
+            echo "$FASTQ_DIR" > "$FASTQ_PATH_FILE"
+            echo -e "${GREEN}FASTQ storage set to: $FASTQ_DIR${RESET}"
             break
             ;;
+
         2)
-            DATE_TAG="$(date +%Y%m%d)"
-            FASTQ_DIR="/group/ajfingergrp/Metabarcoding/fastq_storage/${USER}_${PROJECT}_fastq_${DATE_TAG}"
-            USE_GROUP_FASTQ=true
+            echo
+            echo "Enter an absolute path where FASTQs should live."
+            echo "Examples:"
+            echo "  /group/ajfingergrp/Metabarcoding/fastq_storage/$PROJECT"
+            echo "  /scratch/$USER/$PROJECT/fastq"
+            read -rp "FASTQ directory path: " FASTQ_DIR
 
-            if [[ ! -d "/group/ajfingergrp" ]]; then
-                echo -e "${RED}ERROR: /group/ajfingergrp does not exist or is not accessible.${RESET}"
-                echo -e "${YELLOW}Falling back to home FASTQ storage.${RESET}"
-                FASTQ_DIR="Metabarcoding/$PROJECT/input/fastq"
-                USE_GROUP_FASTQ=false
+            # Must be absolute to avoid surprises
+            if [[ -z "$FASTQ_DIR" || "$FASTQ_DIR" != /* ]]; then
+                echo -e "${RED}ERROR: Please provide an absolute path starting with /.${RESET}"
+                continue
             fi
 
-            mkdir -p "$FASTQ_DIR"
-            echo "$FASTQ_DIR" > "Metabarcoding/$PROJECT/input/fastq_storage_path.txt"
-
-            if [[ "$USE_GROUP_FASTQ" == true ]]; then
-                echo -e "${GREEN}FASTQ storage set to GROUP: $FASTQ_DIR${RESET}"
-            else
-                echo -e "${GREEN}FASTQ storage set to HOME: $FASTQ_DIR${RESET}"
+            # Create if missing (or validate if exists)
+            mkdir -p "$FASTQ_DIR" 2>/dev/null
+            if [[ ! -d "$FASTQ_DIR" || ! -w "$FASTQ_DIR" ]]; then
+                echo -e "${RED}ERROR: '$FASTQ_DIR' does not exist or is not writable.${RESET}"
+                echo -e "${YELLOW}Tip: choose a /group path you have permissions for, or /scratch/$USER.${RESET}"
+                continue
             fi
+
+            echo "$FASTQ_DIR" > "$FASTQ_PATH_FILE"
+            echo -e "${GREEN}FASTQ storage set to: $FASTQ_DIR${RESET}"
             break
             ;;
+
         *)
             echo -e "${RED}Invalid input. Please enter 1 or 2.${RESET}"
             ;;
@@ -147,7 +161,7 @@ echo -e "${GREEN}Directory structure created.${RESET}"
 # ---------------------------
 #  CREATE EXAMPLE FILES
 # ---------------------------
-cat <<EOT > "Metabarcoding/$PROJECT/Example_files/Example_samplesheet.txt"
+cat <<EOT > "/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT/Example_files/Example_samplesheet.txt"
 sampleID	forwardReads	reverseReads	run
 B12A1	${FASTQ_DIR}/B12A1_02_R1.fastq.gz	${FASTQ_DIR}/B12A1_02_R2.fastq.gz	A
 B12A2	${FASTQ_DIR}/B12A2_02_R1.fastq.gz	${FASTQ_DIR}/B12A2_02_R2.fastq.gz	A
@@ -158,7 +172,7 @@ PCR1	${FASTQ_DIR}/PCR1_02_R1.fastq.gz	${FASTQ_DIR}/PCR1_02_R2.fastq.gz	A
 PCR2	${FASTQ_DIR}/PCR2_02_R1.fastq.gz	${FASTQ_DIR}/PCR2_02_R2.fastq.gz	A
 EOT
 
-cat <<EOT > "Metabarcoding/$PROJECT/Example_files/Example_metadata.txt"
+cat <<EOT > "/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT/Example_files/Example_metadata.txt"
 ID	Replicate	Control_Assign	Sample_or_Control	Site	Month	Year
 B12A1	A1	1,E1,T1	Sample	Browns_Island	February	2023
 B12A2	A2	1,E1,T1	Sample	Browns_Island	February	2023
@@ -170,9 +184,15 @@ PCR2	NA	T2	Control	Control	Control	Control
 EOT
 
 if [[ "$DB_MODE" == "custom" ]]; then
-cat <<EOT > "Metabarcoding/$PROJECT/Example_files/Example_RSD.txt"
->Animalia;Chordata;Actinopterygii;Cypriniformes;Catostomidae;Catostomus;Catostomus occidentalis;
-CACCGCGGTTATACGAGAGGCCCTAGTTGATA...
+cat <<EOT > "/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT/Example_files/Example_RSD.txt"
+>Animalia;Chordata;Actinopterygii;Acipenseriformes;Acipenseridae;Acipenser;Acipenser transmontanus;White sturgeon;
+CACCGCGGTTATACGAGAGGCCCCAACTGATAGTCCACGGCGTAAAGCGTGATTAAAGGATGCCTACTACACTAGAGCCAAAAGCCTCCTAAGCCGTCATACGCACCTGAAGGCCCGAAGCCCAACCACGAAGGTAGCTCTACCTAACAAGGACCCCTTGAACCCACGACAACTGAGACA
+>Animalia;Chordata;Actinopterygii;Acipenseriformes;Acipenseridae;Acipenser;Acipenser transmontanus;White sturgeon;
+CACCGCGGTTATACGAGAGGCCCCAACTGATAATCCACGGCGTAAAGCGTGATTAAAGGATGCCTACTACACTAGAGCCAAAAGCCTCCTAAGCCGTCATACGCACCTGAAGGCCCGAAGCCCAACCACGAAGGTAGCTCTACCTAACAAGGACCCCTTGAACCCACGACAACTGAGACA
+>Animalia;Chordata;Actinopterygii;Anguilliformes;Anguillidae;Anguilla;Anguilla rostrata;American eel;
+CACCGCGGTTATACGAGGGGCTCAAATTGATATTACACGGCGTAAAGCGTGATTAAAAAATAAACAAACTAAAGCCAAACACTTCCCAAGCTGTCATACGCTACCGGACAAAACGAAGCCCTATAACGAAAGTAGCTTTAACACCTTTGAACTCACGACAGTTGAGGAA
+>Animalia;Chordata;Actinopterygii;Atheriniformes;Atherinopsidae;Atherinopsis;Atherinopsis californiensis;Jack silverside;
+CACCGCGGTTATACGAGAGGCCCAAGTTGATAGCCAGCGGCGTAAAGAGTGGTTAAGGGACATCCCCACTAAAGTCGAACGCATTCAGAGCTGTTATACGTTCCCGAAAGCAAGAAGCCCCACTACGAAAGTGACTTTATATTACCTGACTCCACGAAAGCTGTGAAA
 EOT
 
 echo -e "${GREEN}Example RSD file created.${RESET}"
@@ -187,7 +207,7 @@ echo -e "${GREEN}Example input files created.${RESET}"
 SRC_STANDARD="$HOME/Metabarcoding/scripts_do_not_alter/nf-params_with_standardized_RSD.json"
 SRC_CUSTOM="$HOME/Metabarcoding/scripts_do_not_alter/nf-params_with_custom_RSD.json"
 SRC_NONE="$HOME/Metabarcoding/scripts_do_not_alter/nf-params_no_RSD.json"
-DEST_JSON="$HOME/Metabarcoding/$PROJECT/params/${PROJECT}_nf-params.json"
+DEST_JSON="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT/params/${PROJECT}_nf-params.json"
 
 case "$DB_MODE" in
   standard)
@@ -232,7 +252,7 @@ set_json_str () {
 if [[ "$DB_MODE" == "custom" ]]; then
     REF_12S_SRC="/group/ajfingergrp/Metabarcoding/RSD/12S_SFE_250204_RN_common_names.txt"
     REF_16S_SRC="/group/ajfingergrp/Metabarcoding/RSD/16S_SFE_251118_common_names.txt"
-    USER_INPUT_DIR="$HOME/Metabarcoding/$PROJECT/input"
+    USER_INPUT_DIR="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT/input"
 
     echo
     echo "Custom reference database selected."
@@ -271,8 +291,8 @@ if [[ "$DB_MODE" == "custom" ]]; then
     case "$CUSTOM_REF_CHOICE" in
         1)
             # 12S MiFish-U
-            set_json_int "trunclenf" 120
-            set_json_int "trunclenr" 120
+            set_json_int "trunclenf" null
+            set_json_int "trunclenr" null
             set_json_str "FW_primer" "GTCGGTAAAACTCGTGCCAGC"
             set_json_str "RV_primer" "CATAGTGGGGTATCTAATCCCAGTTTG"
             echo -e "${GREEN}Set 12S MiFish-U settings in params.${RESET}"
@@ -376,7 +396,7 @@ fi
 # ---------------------------
 #  SAVE CURRENT PROJECT NAME
 # ---------------------------
-echo "$PROJECT" > "$HOME/Metabarcoding/current_project_name.txt"
+echo "$PROJECT" > "/group/ajfingergrp/Metabarcoding/Project_Runs/Project_IDs/$USER/current_project_name.txt"
 
 # ---------------------------
 #  PRINT COLORIZED DIRECTORY TREE
@@ -387,11 +407,13 @@ echo " METABARCODING PROJECT SETUP COMPLETE "
 echo "======================================"
 echo -e "${RESET}"
 
+PROJECT_RUN_DIR="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT"
+
 if command -v tree >/dev/null 2>&1; then
-  tree -C "Metabarcoding/$PROJECT"
+  tree -C "$PROJECT_RUN_DIR"
 else
   echo -e "${YELLOW}NOTE: 'tree' not found; showing directories via find.${RESET}"
-  find "Metabarcoding/$PROJECT" -maxdepth 4 -type d | sed "s|^Metabarcoding/||"
+  find "$PROJECT_RUN_DIR" -maxdepth 4 -type d
 fi
 
 # ---------------------------

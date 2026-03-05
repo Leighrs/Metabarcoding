@@ -6,9 +6,8 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
 #SBATCH --time=10:00:00
-#SBATCH --output=Metabarcoding/Logs_archive/blast_asv_%j.out
-#SBATCH --error=Metabarcoding/Logs_archive/blast_asv_%j.err
 
+set -euo pipefail
 
 ###############################################
 # DO NOT EDIT ANYTHING ELSE unless you know what you are doing. :)
@@ -16,60 +15,48 @@
 ###############################################
 
 # -----------------------------
-# Make sure the log and container directories exists.
+# Group location for shared containers
 # -----------------------------
-mkdir -p "$HOME/Metabarcoding/Logs_archive"
-mkdir -p "/group/ajfingergrp/Metabarcoding/Containers"
+GROUP_CONTAINER_DIR="/group/ajfingergrp/Metabarcoding/Containers"
+mkdir -p "$GROUP_CONTAINER_DIR"
+
+# -----------------------------
+# Make sure the log directory exists.
+# -----------------------------
+mkdir -p "/group/ajfingergrp/Metabarcoding/intermediates_logs_cache/slurm_logs"
 
 # ------------------------------------------------------------
 # Read project name
 # ------------------------------------------------------------
-PROJECT_FILE="$HOME/Metabarcoding/current_project_name.txt"
+if [[ -n "${PROJECT_NAME:-}" ]]; then
+    echo "Detected project (from exported variable): $PROJECT_NAME"
+else
+    PROJECT_FILE="/group/ajfingergrp/Metabarcoding/Project_Runs/Project_IDs/$USER/current_project_name.txt"
 
-if [[ ! -f "$PROJECT_FILE" ]]; then
-    echo "ERROR: Project name file does not exist: $PROJECT_FILE"
-    exit 1
+    if [[ ! -f "$PROJECT_FILE" ]]; then
+        echo "ERROR: Project name file does not exist: $PROJECT_FILE"
+        exit 1
+    fi
+
+    PROJECT_NAME=$(cat "$PROJECT_FILE")
+
+    if [[ -z "$PROJECT_NAME" ]]; then
+        echo "ERROR: Project name file is empty."
+        exit 1
+    fi
+
+    echo "Detected project (from file): $PROJECT_NAME"
 fi
 
-PROJECT_NAME=$(cat "$PROJECT_FILE")
-
-if [[ -z "$PROJECT_NAME" ]]; then
-    echo "ERROR: Project name file is empty."
-    exit 1
-fi
-
-echo "Detected project: $PROJECT_NAME"
+export PROJECT_NAME
 
 # -----------------------------
 # Create a directory for BLAST output
 # -----------------------------
-mkdir -p "$HOME/Metabarcoding/$PROJECT_NAME/output/BLAST"
-
-
-# -------------------------------
-# 1. Ensure BLAST container exists
-# -------------------------------
-CONTAINER="/group/ajfingergrp/Metabarcoding/Containers/GVL_blast_unassigned_ASVs.sif"
-CONTAINER_URL="oras://community.wave.seqera.io/library/blast_conda_r-base:8a9e1389abdacf11"
-
-echo "Checking for Apptainer container: $CONTAINER"
-
-if [ ! -f "$CONTAINER" ]; then
-    echo "Container not found. Downloading with apptainer pull..."
-    module load apptainer
-    apptainer pull "$CONTAINER" "$CONTAINER_URL"
-
-    if [ $? -ne 0 ]; then
-        echo "ERROR: Failed to pull container from $CONTAINER_URL"
-        exit 1
-    fi
-else
-    echo "Container found: $CONTAINER"
-fi
-
+mkdir -p "/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/output/BLAST"
 
 # -------------------------------
-# 2. Load modules / environment
+# Load modules / environment
 # -------------------------------
 module load apptainer
 
@@ -77,7 +64,34 @@ echo "Job running on node: $(hostname)"
 echo "Starting BLAST directly from /group/ database..."
 
 # -------------------------------
-# 3. Detect latest NCBI DB folder
+# Ensure BLAST container exists
+# -------------------------------
+BLAST_CONTAINER="$GROUP_CONTAINER_DIR/GVL_blast_unassigned_ASVs.sif"
+BLAST_CONTAINER_URL="oras://community.wave.seqera.io/library/blast_conda_r-base:8a9e1389abdacf11"
+
+echo "Checking for Apptainer container: $BLAST_CONTAINER"
+
+LOCKFILE="$BLAST_CONTAINER.lock"
+
+if [ ! -f "$BLAST_CONTAINER" ]; then
+    echo "BLAST_Container not found. Attempting to pull with lock..."
+
+    (
+        flock -n 9 || exit 1
+        if [ ! -f "$BLAST_CONTAINER" ]; then
+            apptainer pull "$BLAST_CONTAINER" "$BLAST_CONTAINER_URL"
+        fi
+    ) 9>"$LOCKFILE" || {
+        echo "Another job is currently pulling this container. Exiting."
+        exit 1
+    }
+
+else
+    echo "Container found: $BLAST_CONTAINER"
+fi
+
+# -------------------------------
+# Detect latest NCBI DB folder
 # -------------------------------
 LATEST_DB_DIR=$(ls -d /group/ajfingergrp/NCBI_core_nt_* 2>/dev/null | sort -V | tail -n 1)
 
@@ -90,37 +104,48 @@ DB="${LATEST_DB_DIR}/core_nt"
 echo "Using database: $DB"
 
 # -------------------------------
-# 4. Set query and outfile paths
+# Set project and output paths
 # -------------------------------
-PROJECT_DIR="$HOME/Metabarcoding/$PROJECT_NAME"
+PROJECT_DIR="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME"
 BLAST_DIR="$PROJECT_DIR/output/BLAST"
 
+# -------------------------------
+# Choose query FASTA based on workflow choice
+# -------------------------------
+CHOICE_VALUE="$(echo "${CHOICE:-}" | tr '[:lower:]' '[:upper:]')"
 
-QUERY="$PROJECT_DIR/output/dada2/ASV_seqs.fasta"
+if [[ "$CHOICE_VALUE" == "2" ]]; then
+  QUERY="$PROJECT_DIR/output/dada2/ASV_seqs.fasta"
+else
+  QUERY="$PROJECT_DIR/output/R/${PROJECT_NAME}_DADA2_unassigned_ASVs.fasta"
+fi
+
 OUTFILE="$BLAST_DIR/${PROJECT_NAME}_raw_blast_results.tsv"
 
+if [[ ! -s "$QUERY" ]]; then
+  echo "ERROR: Query FASTA not found (or empty): $QUERY"
+  echo "Fix: make sure the expected upstream step produced it."
+  exit 1
+fi
+
 # -------------------------------
-# 5. Run BLAST using the group database
+# Run BLAST using the group database
 # -------------------------------
 echo "Using BLAST thresholds:"
 BLAST_PERC_IDENTITY="${BLAST_PERC_IDENTITY:-97}"
 BLAST_MAX_TARGET_SEQS="${BLAST_MAX_TARGET_SEQS:-5}"
 
-apptainer exec --bind /group/ajfingergrp:/group/ajfingergrp "$CONTAINER" \
-    bash -c "export BLASTDB=$LATEST_DB_DIR && \
-             blastn \
-               -query $QUERY \
-               -db $DB \
-               -out $OUTFILE \
-               -outfmt '6 qseqid qcovs sseqid pident length qlen slen mismatch gapopen qstart qend sstart send evalue bitscore stitle sscinames sblastnames scomnames staxids' \
-               -max_target_seqs $BLAST_MAX_TARGET_SEQS \
-               -perc_identity $BLAST_PERC_IDENTITY \
-               -num_threads 8"
+apptainer exec --bind /group/ajfingergrp:/group/ajfingergrp "$BLAST_CONTAINER" \
+  bash -c "export BLASTDB=$LATEST_DB_DIR && \
+           blastn \
+             -query $QUERY \
+             -db $DB \
+             -out $OUTFILE \
+             -outfmt '6 qseqid qcovs sseqid pident length qlen slen mismatch gapopen qstart qend sstart send evalue bitscore stitle sscinames sblastnames scomnames staxids' \
+             -max_target_seqs $BLAST_MAX_TARGET_SEQS \
+             -perc_identity $BLAST_PERC_IDENTITY \
+             -num_threads 8"
 
 echo "BLAST completed."
 echo "Results written to: $OUTFILE"
-
-# -------------------------------
-# 6. Done
-# -------------------------------
-echo "Job finished. SLURM logs are in "$HOME/Metabarcoding/Logs_archive
+echo "Job finished. SLURM logs are in /group/ajfingergrp/Metabarcoding/intermediates_logs_cache/slurm_logs"

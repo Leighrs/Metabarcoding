@@ -69,9 +69,9 @@ conda activate "$ENV_PREFIX_nfcore"
 module load apptainer
 
 # ------------------------------------
-# 1. Get project name created earlier
+# Get project name created earlier
 # ------------------------------------
-PROJECT_FILE="$HOME/Metabarcoding/current_project_name.txt"
+PROJECT_FILE="/group/ajfingergrp/Metabarcoding/Project_Runs/Project_IDs/$USER/current_project_name.txt"
 
 if [ ! -f "$PROJECT_FILE" ]; then
     echo "ERROR: No project defined."
@@ -83,30 +83,41 @@ PROJECT=$(cat "$PROJECT_FILE")
 echo "Running project: $PROJECT"
 
 # ------------------------------------
-# 3. Define and create paths
+# Define and create paths
 # ------------------------------------
-BASE_OUT="$HOME/Metabarcoding/$PROJECT/output"
+BASE_OUT="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT/output"
 CACHE_DIR="/group/ajfingergrp/Metabarcoding/intermediates_logs_cache/${PROJECT}_cache"
 SINGULARITY_CACHE="${CACHE_DIR}/singularity"
 mkdir -p "$CACHE_DIR"
 mkdir -p "$SINGULARITY_CACHE"
-PARAMS_FILE="$HOME/Metabarcoding/$PROJECT/params/${PROJECT}_nf-params_expanded.json"
+PARAMS_FILE="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT/params/${PROJECT}_nf-params_expanded.json"
 
 
 # ------------------------------------
-# 6. Set Nextflow Apptainer cache
+# Set Nextflow Apptainer cache
 # ------------------------------------
 export NXF_APPTAINER_CACHEDIR="$SINGULARITY_CACHE"
 
 # ------------------------------------
-# 7. Run NF-core Ampliseq
+# Run NF-core Ampliseq
 # ------------------------------------
 echo "Starting nf-core/ampliseq pipeline..."
         
-export PROJECT="$(cat $HOME/Metabarcoding/current_project_name.txt)"
-export NXF_HOME="$CACHE_DIR/$PROJECT/.nextflow"
+export PROJECT="$(cat /group/ajfingergrp/Metabarcoding/Project_Runs/Project_IDs/$USER/current_project_name.txt)"
+export NXF_HOME="$CACHE_DIR/.nextflow"
 mkdir -p "$NXF_HOME"
-cd "$HOME/Metabarcoding/$PROJECT"
+cd "/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT"
+
+# ------------------------------------
+# Resume option (passed from wrapper)
+# ------------------------------------
+RESUME_OPT=""
+if [[ "${RESUME_RUN:-0}" == "1" ]]; then
+  echo "Resume requested: adding -resume"
+  RESUME_OPT="-resume"
+else
+  echo "Starting fresh run (no -resume)."
+fi
 
 nextflow run nf-core/ampliseq \
     -r 2.16.1 \
@@ -121,7 +132,8 @@ singularity {
 }
 EOF
 ) \
-    -params-file "$PARAMS_FILE"
+    -params-file "$PARAMS_FILE" \
+    $RESUME_OPT
 
 
 echo "nf-core/ampliseq pipeline completed successfully."

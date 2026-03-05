@@ -60,14 +60,71 @@ conda activate "$ENV_PREFIX_decon"
 # ----------------------------
 # Export env vars
 # ----------------------------
-PROJECT_NAME="$(cat "$HOME/Metabarcoding/current_project_name.txt")"
-export PROJECT_NAME
+PROJECT_FILE="/group/ajfingergrp/Metabarcoding/Project_Runs/Project_IDs/$USER/current_project_name.txt"
 
-export PROJECT_DIR="$HOME/Metabarcoding/$PROJECT_NAME"
+if [ ! -f "$PROJECT_FILE" ]; then
+    echo "ERROR: No project defined."
+    echo "Run setup_metabarcoding_directory.sh first."
+    exit 1
+fi
+
+PROJECT_NAME="$(cat "$PROJECT_FILE")"
+export PROJECT_NAME
+echo "Running project: $PROJECT_NAME"
+
+export PROJECT_DIR="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME"
 export REVIEW_OUTDIR="$PROJECT_DIR/output/BLAST/Review"
 export SCRIPT_DIR="$HOME/Metabarcoding/scripts_do_not_alter/R_ASV_cleanup_scripts"
 export ASV_CLEANUP_DIR="$PROJECT_DIR/output/ASV_cleanup_output"
 export PHYLOSEQ_RDS_REVIEWED="$REVIEW_OUTDIR/phyloseq_${PROJECT_NAME}_UPDATED_reviewed_taxonomy.rds"
+
+# ----------------------------
+# User parameter prompts
+# ----------------------------
+
+echo ""
+echo "Configure ASV cleanup parameters (press Enter to use defaults)"
+echo ""
+
+# metadata column definitions
+read -rp "Metadata column name indicating sample/control type [Default: Sample_or_Control]: " SAMPLE_TYPE_COL
+SAMPLE_TYPE_COL=${SAMPLE_TYPE_COL:-Sample_or_Control}
+
+read -rp "Metadata label type for biological samples [Default: Sample]: " SAMPLE_LABEL
+SAMPLE_LABEL=${SAMPLE_LABEL:-Sample}
+
+read -rp "Metadata label type for controls [Default: Control]: " CONTROL_LABEL
+CONTROL_LABEL=${CONTROL_LABEL:-Control}
+
+read -rp "Metadata column name assigning controls to samples [Default: Control_Assign]: " ASSIGNED_CONTROLS_COL
+ASSIGNED_CONTROLS_COL=${ASSIGNED_CONTROLS_COL:-Control_Assign}
+
+echo ""
+
+# threshold parameters
+read -rp "Sample ASV threshold [Default: 0.0005]: " SAMPLE_THRES
+SAMPLE_THRES=${SAMPLE_THRES:-0.0005}
+
+read -rp "Minimum sequencing depth threshold [Default: 0.0005]: " MIN_DEPTH_THRES
+MIN_DEPTH_THRES=${MIN_DEPTH_THRES:-0.0005}
+
+# export variables for R
+export SAMPLE_TYPE_COL
+export SAMPLE_LABEL
+export CONTROL_LABEL
+export ASSIGNED_CONTROLS_COL
+export SAMPLE_THRES
+export MIN_DEPTH_THRES
+
+echo ""
+echo "Using parameters:"
+echo "  SAMPLE_TYPE_COL=$SAMPLE_TYPE_COL"
+echo "  SAMPLE_LABEL=$SAMPLE_LABEL"
+echo "  CONTROL_LABEL=$CONTROL_LABEL"
+echo "  ASSIGNED_CONTROLS_COL=$ASSIGNED_CONTROLS_COL"
+echo "  SAMPLE_THRES=$SAMPLE_THRES"
+echo "  MIN_DEPTH_THRES=$MIN_DEPTH_THRES"
+echo ""
 
 # ----------------------------
 # Run

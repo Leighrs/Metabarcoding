@@ -2,23 +2,14 @@
 set -euo pipefail
 
 # Read project name
-PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+PROJECT_NAME=$(cat "/group/ajfingergrp/Metabarcoding/Project_Runs/Project_IDs/$USER/current_project_name.txt")
 
-# Default FASTQ directory (home/local)
-DEFAULT_FASTQ_DIR="$HOME/Metabarcoding/$PROJECT_NAME/input/fastq"
+# Default FASTQ directory
+FASTQ_DIR=$(cat "/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/input/fastq_storage_path.txt")
 
-# Pointer file (exists only if user chose group storage in setup)
-FASTQ_PTR_FILE="$HOME/Metabarcoding/$PROJECT_NAME/input/fastq_storage_path.txt"
-
-# Decide FASTQ_DIR
-if [[ -f "$FASTQ_PTR_FILE" ]]; then
-    FASTQ_DIR="$(cat "$FASTQ_PTR_FILE")"
-else
-    FASTQ_DIR="$DEFAULT_FASTQ_DIR"
-fi
 
 # Output file
-OUTPUT_FILE="$HOME/Metabarcoding/$PROJECT_NAME/input/${PROJECT_NAME}_samplesheet.txt"
+OUTPUT_FILE="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/input/${PROJECT_NAME}_samplesheet.txt"
 
 # Basic validation
 if [[ -z "${FASTQ_DIR:-}" ]]; then
@@ -28,9 +19,6 @@ fi
 
 if [[ ! -d "$FASTQ_DIR" ]]; then
     echo "ERROR: FASTQ directory not found: $FASTQ_DIR"
-    echo "Expected either:"
-    echo "  - $DEFAULT_FASTQ_DIR"
-    echo "  - or a valid path in $FASTQ_PTR_FILE"
     exit 1
 fi
 
@@ -54,7 +42,7 @@ elif [[ "$multi_runs" =~ ^([Yy][Ee][Ss]|[Yy])$ ]]; then
     USE_METADATA_RUNS="yes"
     echo "Multiple runs selected."
     echo "The script will attempt to auto-assign runs from a metadata file in:"
-    echo "  $HOME/Metabarcoding/$PROJECT_NAME/input"
+    echo "  /group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/input"
     echo "Looking for a .txt or .tsv file with 'metadata' in the filename."
 else
     echo "Invalid response. Please answer yes or no."
@@ -115,7 +103,7 @@ extract_sample_id() {
 #  METADATA RUN MAPPING (only if multi-runs) #
 ##############################################
 META_RUN_MAP_FILE=""
-META_INPUT_DIR="$HOME/Metabarcoding/$PROJECT_NAME/input"
+META_INPUT_DIR="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/input"
 
 # We'll store a map: sampleID -> letter (A/B/C...) in this temp file:
 RUN_MAP_TMP="$(mktemp)"

@@ -83,8 +83,8 @@ if [ ! -f "$PROJECT_FILE" ]; then
     exit 1
 fi
 
-PROJECT=$(cat "$PROJECT_FILE")
-echo "Running project: $PROJECT"
+PROJECT_NAME=$(cat "$PROJECT_FILE")
+echo "Running project: $PROJECT_NAME"
 
 # ------------------------------------------------------------
 # Create BLAST output directory if missing
@@ -133,7 +133,7 @@ fi
 # ------------------------------------------------------------
 # Run Python inside container
 # ------------------------------------------------------------
-PYTHON_SCRIPT="$HOME/Metabarcoding/scripts_do_not_alter/ncbi_pipeline.py"
+PYTHON_SCRIPT="$HOME/Metabarcoding/scripts_do_not_alter/blast_cleanup.py"
 
 if [[ ! -f "$PYTHON_SCRIPT" ]]; then
     echo "ERROR: Python script not found: $PYTHON_SCRIPT"
