@@ -131,16 +131,38 @@ if [[ ! -f "$FASTA_FILE" ]]; then
 fi
 
 # ------------------------------------------------------------
-# Run Python inside container
+# Run Python script
 # ------------------------------------------------------------
-PYTHON_SCRIPT="$HOME/Metabarcoding/scripts_do_not_alter/blast_cleanup.py"
+PIPELINE_DIR="$HOME/Metabarcoding/scripts_do_not_alter"
+PYTHON_SCRIPT="$PIPELINE_DIR/blast_cleanup.py"
+PYTHON_BIN="$ENV_PREFIX_ncbi/bin/python"
+
+echo "HOME=$HOME"
+echo "PIPELINE_DIR=$PIPELINE_DIR"
+echo "PYTHON_SCRIPT=$PYTHON_SCRIPT"
+echo "PYTHON_BIN=$PYTHON_BIN"
+
+ls -ld "$PIPELINE_DIR" || true
+ls -l "$PIPELINE_DIR" | grep blast || true
+stat "$PYTHON_SCRIPT" || true
+stat "$PYTHON_BIN" || true
+
+if [[ ! -e "$PYTHON_SCRIPT" ]]; then
+    echo "ERROR: Python script path does not exist: $PYTHON_SCRIPT"
+    exit 1
+fi
 
 if [[ ! -f "$PYTHON_SCRIPT" ]]; then
-    echo "ERROR: Python script not found: $PYTHON_SCRIPT"
+    echo "ERROR: Path exists but is not a regular file: $PYTHON_SCRIPT"
+    exit 1
+fi
+
+if [[ ! -x "$PYTHON_BIN" ]]; then
+    echo "ERROR: Python interpreter not executable: $PYTHON_BIN"
     exit 1
 fi
 
 echo "Running Python pipeline..."
-python "$PYTHON_SCRIPT"
+"$PYTHON_BIN" "$PYTHON_SCRIPT"
 
 echo "Done."

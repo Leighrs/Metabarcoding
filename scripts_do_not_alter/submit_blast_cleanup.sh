@@ -1,7 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-SBATCH_SCRIPT="$HOME/Metabarcoding/scripts_do_not_alter/blast_cleanup.slurm"
+PIPELINE_DIR="$HOME/Metabarcoding/scripts_do_not_alter"
+SBATCH_SCRIPT="$PIPELINE_DIR/blast_cleanup.slurm"
 
 LOGDIR="/group/ajfingergrp/Metabarcoding/intermediates_logs_cache/slurm_logs"
 mkdir -p "$LOGDIR"
