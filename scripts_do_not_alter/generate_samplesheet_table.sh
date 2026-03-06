@@ -78,9 +78,19 @@ fi
 
 extract_sample_id() {
     local filename="$1"
+    local base=""
 
-    # Remove read suffix (works for *_R1_001.fastq.gz)
-    local base="${filename%_R1_001.fastq.gz}"
+    # Support both:
+    #   *_R1_001.fastq.gz
+    #   *_R1.fastq.gz
+    if [[ "$filename" == *_R1_001.fastq.gz ]]; then
+        base="${filename%_R1_001.fastq.gz}"
+    elif [[ "$filename" == *_R1.fastq.gz ]]; then
+        base="${filename%_R1.fastq.gz}"
+    else
+        echo "ERROR: Unrecognized forward-read filename format: $filename" >&2
+        return 1
+    fi
 
     case "$PARSE_CHOICE" in
       1)
@@ -231,14 +241,22 @@ fi
 #################################
 shopt -s nullglob
 
-# If we have a run map, load it into awk for fast lookup during writing.
-# (We will still write line-by-line here, but run is computed via a small awk query.)
-for fwd in "$FASTQ_DIR"/*_R1_001.fastq.gz; do
-    fname=$(basename "$fwd")
-    sampleID=$(extract_sample_id "$fname")
+for fwd in "$FASTQ_DIR"/*_R1_001.fastq.gz "$FASTQ_DIR"/*_R1.fastq.gz; do
+    [[ -e "$fwd" ]] || continue
 
-    sample_prefix="${fname%_R1_001.fastq.gz}"
-    rev="$FASTQ_DIR/${sample_prefix}_R2_001.fastq.gz"
+    fname=$(basename "$fwd")
+    sampleID=$(extract_sample_id "$fname") || exit 1
+
+    if [[ "$fname" == *_R1_001.fastq.gz ]]; then
+        sample_prefix="${fname%_R1_001.fastq.gz}"
+        rev="$FASTQ_DIR/${sample_prefix}_R2_001.fastq.gz"
+    elif [[ "$fname" == *_R1.fastq.gz ]]; then
+        sample_prefix="${fname%_R1.fastq.gz}"
+        rev="$FASTQ_DIR/${sample_prefix}_R2.fastq.gz"
+    else
+        echo "WARNING: Skipping unrecognized file: $fname" >&2
+        continue
+    fi
 
     if [[ ! -f "$rev" ]]; then
         rev=""
@@ -246,10 +264,8 @@ for fwd in "$FASTQ_DIR"/*_R1_001.fastq.gz; do
 
     run_out="$RUN_VALUE"
     if [[ "$USE_METADATA_RUNS" == "yes" ]]; then
-      # look up sampleID in RUN_MAP_TMP
       run_out="$(awk -F'\t' -v sid="$sampleID" '$1==sid {print $2; found=1; exit} END{ if(!found) print "" }' "$RUN_MAP_TMP")"
       if [[ -z "$run_out" ]]; then
-        # leave blank but warn once per missing sample
         echo "WARNING: sampleID '$sampleID' not found in metadata run map; leaving run blank for this sample." >&2
       fi
     fi
