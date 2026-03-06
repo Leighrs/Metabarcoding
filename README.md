@@ -766,7 +766,7 @@ This repository contains scripts and configuration files to:
 >*Optionally, if you used a reference database, you can choose to retrieve your unassigned/incomplete assigned ASVs from your phyloseq object and not BLAST them.*
 >   - *This is useful for folks who want their unassigned ASVs but prefer ID them using some other method than BLAST.*
 >```
->"$HOME$/Metabarcoding/scripts_do_not_alter/submit_retrieve_phyloseq_unassigned_asv_and_blast.sh"
+>"$HOME/Metabarcoding/scripts_do_not_alter/submit_retrieve_phyloseq_unassigned_asv_and_blast.sh"
 >```
 > **Script prompts:**
 >   - **What do you want to do?**
@@ -1039,6 +1039,7 @@ This repository contains scripts and configuration files to:
 > Navigate to the (RTools: Toolchains for building R and R packages from source on Windows)[https://cran.rstudio.com/bin/windows/Rtools/] to download.
 
 </details>
+
 
 
 
