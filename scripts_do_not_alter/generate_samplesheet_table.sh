@@ -297,7 +297,7 @@ if [[ -n "$bad_start" ]]; then
   echo "  1) Strip leading non-letters until the ID starts with a letter (e.g. 12ABC -> ABC)"
   echo "  2) Add the prefix 'A_' to any ID that does not start with a letter (e.g. 12ABC -> A_12ABC)"
   echo "  3) Abort and let me fix filenames/parsing"
-  read -rp "Choice [1/2/3] (default 1): " c
+  read -rp "Choice [1/2/3] (default 2): " c
   c="${c:-1}"
   case "$c" in
     1) FIX_INVALID="strip" ;;
