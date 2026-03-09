@@ -255,7 +255,7 @@ if [[ "$DB_MODE" == "custom" ]]; then
     echo "What type of custom database will you use?"
     echo "  1) 12S MiFish-U"
     echo "  2) 16S fish-specific"
-    echo "  3) 16S vernal pools"
+    echo "  3) 16S meta"
     echo "  4) Other"
 
     while true; do
@@ -290,7 +290,7 @@ if [[ "$DB_MODE" == "custom" ]]; then
             echo -e "${GREEN}Set 16S primer settings in params.${RESET}"
             ;;
         3)
-            # 16S vernal pool custom DB
+            # 16S meta vernal pool custom DB
             set_json_int "trunclenf" null
             set_json_int "trunclenr" null
             set_json_str "FW_primer" "AGTTACYYTAGGGATAACAGCG"
@@ -339,11 +339,16 @@ if [[ "$DB_MODE" == "none" ]]; then
     echo "  5) VCO1-U"
     echo "  6) COI-fsd"
     echo "  7) LCO1490/CO1-CFMRa"
+    echo "  8) 18S_1391f_EukBR"
+    echo "  9) 12S_batra"
+    echo "  10) 16S_meta"
+    echo "  11) trnL_gh"
+    echo "  12) ITS2_UniPlant_p4"
     while true; do
-        read -rp "Enter 1-7: " NO_REF_CHOICE
+        read -rp "Enter 1-12: " NO_REF_CHOICE
         case "$NO_REF_CHOICE" in
-            1|2|3|4|5|6|7) break ;;
-            *) echo -e "${RED}Invalid input. Please enter 1-7.${RESET}" ;;
+            1|2|3|4|5|6|7|8|9|10|11|12) break ;;
+            *) echo -e "${RED}Invalid input. Please enter 1-12.${RESET}" ;;
         esac
     done
 
@@ -397,6 +402,36 @@ if [[ "$DB_MODE" == "none" ]]; then
             set_json_str "FW_primer" "GGTCAACAAATCATAAAGATATTGG"
             set_json_str "RV_primer" "GGWACTAATCAATTTCCAAATCC"
             echo -e "${GREEN}Set LCO1490/CO1-CFMRa primer settings in params.${RESET}"
+            ;;
+        8)
+            # ---- 18S_1391f_EukBR ----
+            set_json_str "FW_primer" "GTACACACCGCCCGTC"
+            set_json_str "RV_primer" "TGATCCTTCTGCAGGTTCACCTAC"
+            echo -e "${GREEN}Set 18S_1391f_EukBR primer settings in params.${RESET}"
+            ;;
+        9)
+            # ---- 12S_batra ----
+            set_json_str "FW_primer" "ACACCGCCCGTCACCCT"
+            set_json_str "RV_primer" "GTAYACTTACCATGTTACGACTT"
+            echo -e "${GREEN}Set 12S_batra primer settings in params.${RESET}"
+            ;;
+        10)
+            # ---- 16S_meta ----
+            set_json_str "FW_primer" "AGTTACYYTAGGGATAACAGCG"
+            set_json_str "RV_primer" "CCGGTCTGAACTCAGATCAYGT"
+            echo -e "${GREEN}Set 16S_meta primer settings in params.${RESET}"
+            ;;
+        11)
+            # ---- trnL_gh ----
+            set_json_str "FW_primer" "GGGCAATCCTGAGCCAA"
+            set_json_str "RV_primer" "CCATTGAGTCTCTGCACCTATC"
+            echo -e "${GREEN}Set trnL_gh primer settings in params.${RESET}"
+            ;;
+        12)
+            # ---- ITS2_UniPlant_p4 ----
+            set_json_str "FW_primer" "TGTGAATTGCARRATYCMG"
+            set_json_str "RV_primer" "CCGCTTAKTGATATGCTTAAA"
+            echo -e "${GREEN}Set ITS2_UniPlant_p4 primer settings in params.${RESET}"
             ;;
     esac
 
