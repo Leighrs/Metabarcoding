@@ -434,10 +434,10 @@ This repository contains scripts and configuration files to:
 >  - If you have MobaXterm, simply drag/drop or copy/paste into folder.
 >  - If you are using a Mac, use the  `scp` command to transfer files:
 > ```
->scp -r local-directory [USER]@[CLUSTER].hpc.ucdavis.edu:~/[CLUSTER-DATA] 
+>rsync -aP local-directory [USER]@[CLUSTER].hpc.ucdavis.edu:~/[CLUSTER-DATA] 
 >
 >Example:
->scp -r /Users/leighrs/Documents/UCDavis/GVL/eDNA/16Sv1/. leighrs@farm.hpc.ucdavis.edu:/group/ajfingergrp/Metabarcoding/Project_Runs/16Sv1/input/fastq
+>rsync -aP /Users/leighrs/Documents/UCDavis/GVL/eDNA/16Sv1/. leighrs@farm.hpc.ucdavis.edu:/group/ajfingergrp/Metabarcoding/Project_Runs/16Sv1/input/fastq/
 >```
 
 **3B. Import metadata:**
@@ -452,12 +452,12 @@ This repository contains scripts and configuration files to:
 >  - If you have MobaXterm, simply drag/drop or copy/paste into folder.
 >  - If you are using a Mac, use the  `scp` command to transfer file:
 > ```
->scp local-directory [USER]@[CLUSTER].hpc.ucdavis.edu:~/[CLUSTER-DATA] 
+>rsync -aP local-directory [USER]@[CLUSTER].hpc.ucdavis.edu:~/[CLUSTER-DATA] 
 >
 >Example:
->scp /Users/leighrs/Documents/UCDavis/GVL/eDNA/16Sv1/16Sv1_metadata.txt leighrs@farm.hpc.ucdavis.edu:/group/ajfingergrp/Metabarcoding/Project_Runs/16Sv1/input
+>rsync -aP /Users/leighrs/Documents/UCDavis/GVL/eDNA/16Sv1/16Sv1_metadata.txt leighrs@farm.hpc.ucdavis.edu:/group/ajfingergrp/Metabarcoding/Project_Runs/16Sv1/input/
 >```
-> **Metadata File Rules for nf-core/ampliseq:***
+> **Metadata File Rules for nf-core/ampliseq:**
 >
 >- **File names must contain the word `metadata`.**
 >- File must be either:
@@ -563,10 +563,10 @@ This repository contains scripts and configuration files to:
 >  - If you have MobaXterm, simply drag/drop or copy/paste into folder.
 >  - If you are using a Mac, use the  `scp` command to transfer file:
 > ```
->scp local-directory [USER]@[CLUSTER].hpc.ucdavis.edu:~/[CLUSTER-DATA] 
+>rsync -aP local-directory [USER]@[CLUSTER].hpc.ucdavis.edu:~/[CLUSTER-DATA] 
 >
 >Example:
->scp /Users/leighrs/Documents/UCDavis/GVL/eDNA/16Sv1/16Sv1_RSD.txt leighrs@farm.hpc.ucdavis.edu:/group/ajfingergrp/Metabarcoding/Project_Runs/16Sv1/input
+>rsync -aP /Users/leighrs/Documents/UCDavis/GVL/eDNA/16Sv1/16Sv1_RSD.txt leighrs@farm.hpc.ucdavis.edu:/group/ajfingergrp/Metabarcoding/Project_Runs/16Sv1/input/
 >```
 >  - **Rules:**
 >    - Needs to be a **tab-deliminated** *.txt* file or a *.tsv* file.

@@ -177,9 +177,9 @@ ID	Replicate	Control_Assign	Sample_or_Control	Site	Month	Year
 B12A1	A1	1,E1,T1	Sample	Browns_Island	February	2023
 B12A2	A2	1,E1,T1	Sample	Browns_Island	February	2023
 B12A3	A3	1,E1,T2	Sample	Browns_Island	February	2023
-B12AB	AB	1  Control	Control	Control	Control
-EXT1  NA	E1	Control	Control	Control	Control
-PCR1  NA	T1	Control	Control	Control	Control
+B12AB	AB	1	Control	Control	Control	Control
+EXT1	NA	E1	Control	Control	Control	Control
+PCR1	NA	T1	Control	Control	Control	Control
 PCR2	NA	T2	Control	Control	Control	Control
 EOT
 
@@ -250,66 +250,77 @@ set_json_str () {
 #  IF CUSTOM DB MODE: ASK WHICH REF DB, COPY IT TO INPUT, AND UPDATE PARAMS JSON
 # ---------------------------
 if [[ "$DB_MODE" == "custom" ]]; then
-    REF_12S_SRC="/group/ajfingergrp/Metabarcoding/RSD/12S_SFE_250204_RN_common_names.txt"
-    REF_16S_SRC="/group/ajfingergrp/Metabarcoding/RSD/16S_SFE_251118_common_names.txt"
-    USER_INPUT_DIR="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT/input"
-
     echo
     echo "Custom reference database selected."
-    echo "Which reference database do you want to use?"
+    echo "What type of custom database will you use?"
     echo "  1) 12S MiFish-U"
     echo "  2) 16S fish-specific"
+    echo "  3) 16S vernal pools"
+    echo "  4) Other"
 
     while true; do
-        read -rp "Enter 1 or 2: " CUSTOM_REF_CHOICE
+        read -rp "Enter 1, 2, 3, or 4: " CUSTOM_REF_CHOICE
         case "$CUSTOM_REF_CHOICE" in
-            1) REF_SRC="$REF_12S_SRC"; break ;;
-            2) REF_SRC="$REF_16S_SRC"; break ;;
-            *) echo -e "${RED}Invalid input. Please enter 1 or 2.${RESET}" ;;
+            1|2|3|4) break ;;
+            *) echo -e "${RED}Invalid input. Please enter 1, 2, 3, or 4.${RESET}" ;;
         esac
     done
-
-    if [[ ! -f "$REF_SRC" ]]; then
-        echo -e "${RED}ERROR: Reference file not found: $REF_SRC${RESET}"
-        exit 1
-    fi
-
-    mkdir -p "$USER_INPUT_DIR"
-    REF_DEST="$USER_INPUT_DIR/$(basename "$REF_SRC")"
-    cp -f "$REF_SRC" "$REF_DEST"
-    echo -e "${GREEN}Copied reference taxonomy file to: $REF_DEST${RESET}"
 
     if [[ ! -f "$DEST_JSON" ]]; then
         echo -e "${RED}ERROR: Params file not found: $DEST_JSON${RESET}"
         exit 1
     fi
 
-    # Update custom taxonomy path
-    sed -i -E "s#(\"dada_ref_tax_custom\"[[:space:]]*:[[:space:]]*\")[^\"]*(\"[[:space:]]*,?)#\1${REF_DEST}\2#g" "$DEST_JSON"
-
-    # Enforce primer + trunc settings depending on selected DB
     case "$CUSTOM_REF_CHOICE" in
         1)
-            # 12S MiFish-U
+            # 12S mifish u custom DB
             set_json_int "trunclenf" null
             set_json_int "trunclenr" null
             set_json_str "FW_primer" "GTCGGTAAAACTCGTGCCAGC"
             set_json_str "RV_primer" "CATAGTGGGGTATCTAATCCCAGTTTG"
-            echo -e "${GREEN}Set 12S MiFish-U settings in params.${RESET}"
+            echo -e "${GREEN}Set 12S primer settings in params.${RESET}"
             ;;
         2)
-            # 16S fish-specific
+            # 16S fish specific custom DB
             set_json_int "trunclenf" null
             set_json_int "trunclenr" null
             set_json_int "min_len" 20
             set_json_str "FW_primer" "CGAGAAGACCCTWTGGAGCTTNAG"
             set_json_str "RV_primer" "GGTCGCCCCAACCRAAG"
-            echo -e "${GREEN}Set 16S fish-specific settings in params.${RESET}"
+            echo -e "${GREEN}Set 16S primer settings in params.${RESET}"
+            ;;
+        3)
+            # 16S vernal pool custom DB
+            set_json_int "trunclenf" null
+            set_json_int "trunclenr" null
+            set_json_str "FW_primer" "AGTTACYYTAGGGATAACAGCG"
+            set_json_str "RV_primer" "CCGGTCTGAACTCAGATCAYGT"
+            echo -e "${GREEN}Set 16S primer settings in params.${RESET}"
+            ;;
+        4)
+            # other custom DB
+            echo
+            echo "Other custom database selected."
+            read -rp "Enter forward primer sequence: " FW_CUSTOM
+            read -rp "Enter reverse primer sequence: " RV_CUSTOM
+
+            if [[ -z "$FW_CUSTOM" || -z "$RV_CUSTOM" ]]; then
+                echo -e "${RED}ERROR: Primer sequences cannot be empty.${RESET}"
+                exit 1
+            fi
+
+            set_json_str "FW_primer" "$FW_CUSTOM"
+            set_json_str "RV_primer" "$RV_CUSTOM"
+            echo -e "${GREEN}Set custom primer sequences in params.${RESET}"
             ;;
     esac
 
-    echo -e "${GREEN}Updated ${DEST_JSON}:${RESET}"
-    echo -e "  - dada_ref_tax_custom: ${REF_DEST}"
+    sed -i -E 's#("dada_ref_tax_custom"[[:space:]]*:[[:space:]]*")[^"]*(")#\1<ADD_CUSTOM_DB_PATH>\2#g' "$DEST_JSON"
+
+    echo -e "${YELLOW}Custom database path has not been set yet.${RESET}"
+    echo -e "${YELLOW}Before running the pipeline, update:${RESET}"
+    echo "  $DEST_JSON"
+    echo -e "${YELLOW}and replace dada_ref_tax_custom with the full path to your custom database.${RESET}"
 fi
 
 # ---------------------------
