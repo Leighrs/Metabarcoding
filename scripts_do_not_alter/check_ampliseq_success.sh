@@ -50,7 +50,7 @@ echo "Detected project: $PROJECT_NAME"
 PROJECT_DIR="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME"
 
 PHYLOSEQ_RDS="$PROJECT_DIR/output/phyloseq/dada2_phyloseq.rds"
-ASV_FASTA="$PROJECT_DIR/output/dada/ASV_seqs.fasta"
+ASV_FASTA="$PROJECT_DIR/output/dada2/ASV_seqs.fasta"
 
 SAMPLESHEET="$PROJECT_DIR/input/${PROJECT_NAME}_samplesheet.txt"
 PARAMS_JSON="$PROJECT_DIR/params/${PROJECT_NAME}_nf-params_expanded.json"
@@ -280,7 +280,7 @@ if [[ "$SUCCESS" == "yes" ]]; then
   exit 0
 fi
 
-echo "Run does not appear successful based on the expected output file check."
+echo "Run likely unsuccessful based on the expected output file check."
 
 # -----------------------------
 # 2) Ask for job ID and locate log

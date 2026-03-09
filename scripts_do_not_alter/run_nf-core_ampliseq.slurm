@@ -91,6 +91,7 @@ SINGULARITY_CACHE="${CACHE_DIR}/singularity"
 mkdir -p "$CACHE_DIR"
 mkdir -p "$SINGULARITY_CACHE"
 PARAMS_FILE="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT/params/${PROJECT}_nf-params_expanded.json"
+PIPELINE_DIR="/group/ajfingergrp/Metabarcoding/ampliseq"
 
 
 # ------------------------------------
@@ -99,14 +100,27 @@ PARAMS_FILE="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT/params/${PRO
 export NXF_APPTAINER_CACHEDIR="$SINGULARITY_CACHE"
 
 # ------------------------------------
-# Run NF-core Ampliseq
+# Run patched Ampliseq pipeline
 # ------------------------------------
-echo "Starting nf-core/ampliseq pipeline..."
-        
+echo "Starting patched nf-core/ampliseq pipeline..."
+
 export PROJECT="$(cat /group/ajfingergrp/Metabarcoding/Project_Runs/Project_IDs/$USER/current_project_name.txt)"
 export NXF_HOME="$CACHE_DIR/.nextflow"
 mkdir -p "$NXF_HOME"
 cd "/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT"
+
+if [[ ! -f "$PIPELINE_DIR/main.nf" ]]; then
+  echo "ERROR: Pipeline not found or invalid: $PIPELINE_DIR" >&2
+  exit 1
+fi
+
+if [[ ! -f "$PARAMS_FILE" ]]; then
+  echo "ERROR: Params file not found: $PARAMS_FILE" >&2
+  exit 1
+fi
+
+echo "Using pipeline: $PIPELINE_DIR"
+echo "Using params file: $PARAMS_FILE"
 
 # ------------------------------------
 # Resume option (passed from wrapper)
@@ -119,8 +133,7 @@ else
   echo "Starting fresh run (no -resume)."
 fi
 
-nextflow run nf-core/ampliseq \
-    -r 2.16.1 \
+nextflow run "$PIPELINE_DIR" \
     -profile apptainer \
     -work-dir "$CACHE_DIR" \
     -c <(cat <<'EOF'
@@ -135,5 +148,12 @@ EOF
     -params-file "$PARAMS_FILE" \
     $RESUME_OPT
 
+EXIT_CODE=$?
 
-echo "nf-core/ampliseq pipeline completed successfully."
+if [[ $EXIT_CODE -eq 0 ]]; then
+  echo "Patched nf-core/ampliseq pipeline completed successfully."
+else
+  echo "Patched nf-core/ampliseq pipeline failed with exit code $EXIT_CODE."
+fi
+
+exit $EXIT_CODE
