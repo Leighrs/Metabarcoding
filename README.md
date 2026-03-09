@@ -100,13 +100,17 @@ This repository contains scripts and configuration files to:
 >
 >```
 >cd ~
->PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 >
->cp -r $HOME/Metabarcoding/test_data/test_fastq/. /group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/input/fastq/
+>export PROJECT_NAME=$(cat "/group/ajfingergrp/Metabarcoding/Project_Runs/Project_IDs/$USER/current_project_name.txt")
+>
+>cp -r $HOME/Metabarcoding/test_data/test_fastq/. \
+>  /group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/input/fastq/
+>
 >cp "$HOME/Metabarcoding/test_data/12S_RSD.txt" \
->   /group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/input/${PROJECT_NAME}_12S_RSD.txt"
+>  /group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/input/${PROJECT_NAME}_12S_RSD.txt
+>
 >cp "$HOME/Metabarcoding/test_data/metadata.txt" \
->   /group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/input/${PROJECT_NAME}_metadata.txt"
+>  /group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/input/${PROJECT_NAME}_metadata.txt
 >```
 
 **4. Generate a samplesheet file.**
@@ -140,8 +144,8 @@ This repository contains scripts and configuration files to:
 > - Edit this file so that the input paths, primer sequences, and filtering settings match your dataset.
 >
 >```
->PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->nano $HOME/Metabarcoding/$PROJECT_NAME/params/${PROJECT_NAME}_nf-params.json
+>export PROJECT_NAME=$(cat "/group/ajfingergrp/Metabarcoding/Project_Runs/Project_IDs/$USER/current_project_name.txt")
+>nano /group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/params/${PROJECT_NAME}_nf-params.json
 >```
 > **For the test data, only replace the RSD path using the following information:**
 > 
@@ -163,10 +167,12 @@ This repository contains scripts and configuration files to:
 > 
 >```
 >cd ~
->export PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
+>
+>export PROJECT_NAME=$(cat "/group/ajfingergrp/Metabarcoding/Project_Runs/Project_IDs/$USER/current_project_name.txt")
+>
 >envsubst '$HOME $PROJECT_NAME' \
->  < /group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/params/${PROJECT_NAME}_nf-params.json" \
->  > "/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/params/${PROJECT_NAME}_nf-params_expanded.json"
+> < "/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/params/${PROJECT_NAME}_nf-params.json" \
+> > "/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/params/${PROJECT_NAME}_nf-params_expanded.json"
 >```
 
 **7. Run the nf-core/ampliseq Pipeline:** 
@@ -174,11 +180,13 @@ This repository contains scripts and configuration files to:
 > Ensure you are in your home directory and run the following shell script.
 >
 >```
->sbatch "$HOME/Metabarcoding/scripts_do_not_alter/submit_ampliseq.sh"
+>"$HOME/Metabarcoding/scripts_do_not_alter/submit_ampliseq.sh"
 >```
+>- **When prompted:**
+>    - *Resume an existing Nextflow run? [y/n]:* ${\color{red}n}$
+>
 > To see your current running slurm job and get your jobID:
 >```
->cd ~
 >squeue -u $USER
 >```
 > To view your slurm error and output logs, navigate to `/group/ajfingergrp/Metabarcoding/intermediates_logs_cache/slurm_logs/` and locate the files called `ampliseq_<jobID>.err` and `ampliseq_<jobID>.out`. 

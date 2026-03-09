@@ -249,6 +249,13 @@ set_json_str () {
 # ---------------------------
 #  IF CUSTOM DB MODE: ASK WHICH REF DB, COPY IT TO INPUT, AND UPDATE PARAMS JSON
 # ---------------------------
+SRC_DB_12S="/group/ajfingergrp/Metabarcoding/RSD/12S_SFE_250204_RN_common_names.txt"
+SRC_DB_16S_fish="/group/ajfingergrp/Metabarcoding/RSD/16S_SFE_251118_common_names.txt"
+SRC_DB_16S_meta="/group/ajfingergrp/Metabarcoding/RSD/16s_reference_tate.txt"
+
+REF_DB_DIR="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT/input"
+mkdir -p "$REF_DB_DIR"
+
 if [[ "$DB_MODE" == "custom" ]]; then
     echo
     echo "Custom reference database selected."
@@ -273,32 +280,52 @@ if [[ "$DB_MODE" == "custom" ]]; then
 
     case "$CUSTOM_REF_CHOICE" in
         1)
-            # 12S mifish u custom DB
             set_json_int "trunclenf" null
             set_json_int "trunclenr" null
             set_json_str "FW_primer" "GTCGGTAAAACTCGTGCCAGC"
             set_json_str "RV_primer" "CATAGTGGGGTATCTAATCCCAGTTTG"
-            echo -e "${GREEN}Set 12S primer settings in params.${RESET}"
+
+            DB_NAME=$(basename "$SRC_DB_12S")
+            DEST_DB="$REF_DB_DIR/$DB_NAME"
+
+            cp "$SRC_DB_12S" "$DEST_DB" || { echo -e "${RED}ERROR: failed to copy $SRC_DB_12S${RESET}"; exit 1; }
+
+            sed -i -E "s#(\"dada_ref_tax_custom\"[[:space:]]*:[[:space:]]*\")[^\"]*(\")#\1$DEST_DB\2#g" "$DEST_JSON"
+
+            echo -e "${GREEN}12S reference database copied to:${RESET} $DEST_DB"
             ;;
         2)
-            # 16S fish specific custom DB
             set_json_int "trunclenf" null
             set_json_int "trunclenr" null
             set_json_int "min_len" 20
             set_json_str "FW_primer" "CGAGAAGACCCTWTGGAGCTTNAG"
             set_json_str "RV_primer" "GGTCGCCCCAACCRAAG"
-            echo -e "${GREEN}Set 16S primer settings in params.${RESET}"
+
+            DB_NAME=$(basename "$SRC_DB_16S_fish")
+            DEST_DB="$REF_DB_DIR/$DB_NAME"
+
+            cp "$SRC_DB_16S_fish" "$DEST_DB" || { echo -e "${RED}ERROR: failed to copy $SRC_DB_16S_fish${RESET}"; exit 1; }
+
+            sed -i -E "s#(\"dada_ref_tax_custom\"[[:space:]]*:[[:space:]]*\")[^\"]*(\")#\1$DEST_DB\2#g" "$DEST_JSON"
+
+            echo -e "${GREEN}16S fish-specific reference database copied to:${RESET} $DEST_DB"
             ;;
         3)
-            # 16S meta vernal pool custom DB
             set_json_int "trunclenf" null
             set_json_int "trunclenr" null
             set_json_str "FW_primer" "AGTTACYYTAGGGATAACAGCG"
             set_json_str "RV_primer" "CCGGTCTGAACTCAGATCAYGT"
-            echo -e "${GREEN}Set 16S primer settings in params.${RESET}"
+
+            DB_NAME=$(basename "$SRC_DB_16S_meta")
+            DEST_DB="$REF_DB_DIR/$DB_NAME"
+
+            cp "$SRC_DB_16S_meta" "$DEST_DB" || { echo -e "${RED}ERROR: failed to copy $SRC_DB_16S_meta${RESET}"; exit 1; }
+
+            sed -i -E "s#(\"dada_ref_tax_custom\"[[:space:]]*:[[:space:]]*\")[^\"]*(\")#\1$DEST_DB\2#g" "$DEST_JSON"
+
+            echo -e "${GREEN}16S meta reference database copied to:${RESET} $DEST_DB"
             ;;
         4)
-            # other custom DB
             echo
             echo "Other custom database selected."
             read -rp "Enter forward primer sequence: " FW_CUSTOM
@@ -311,16 +338,18 @@ if [[ "$DB_MODE" == "custom" ]]; then
 
             set_json_str "FW_primer" "$FW_CUSTOM"
             set_json_str "RV_primer" "$RV_CUSTOM"
+
+            sed -i -E 's#("dada_ref_tax_custom"[[:space:]]*:[[:space:]]*")[^"]*(")#\1<ADD_CUSTOM_DB_PATH>\2#g' "$DEST_JSON"
+
             echo -e "${GREEN}Set custom primer sequences in params.${RESET}"
+            echo -e "${YELLOW}Custom database path has not been set yet.${RESET}"
+            echo -e "${YELLOW}Before running the pipeline, update:${RESET}"
+            echo "  $DEST_JSON"
+            echo -e "${YELLOW}and replace dada_ref_tax_custom with the full path to your custom database.${RESET}"
             ;;
     esac
 
-    sed -i -E 's#("dada_ref_tax_custom"[[:space:]]*:[[:space:]]*")[^"]*(")#\1<ADD_CUSTOM_DB_PATH>\2#g' "$DEST_JSON"
-
-    echo -e "${YELLOW}Custom database path has not been set yet.${RESET}"
-    echo -e "${YELLOW}Before running the pipeline, update:${RESET}"
-    echo "  $DEST_JSON"
-    echo -e "${YELLOW}and replace dada_ref_tax_custom with the full path to your custom database.${RESET}"
+    echo -e "${GREEN}Updated ${DEST_JSON}${RESET}"
 fi
 
 # ---------------------------

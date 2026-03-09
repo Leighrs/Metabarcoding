@@ -80,13 +80,14 @@ extract_sample_id() {
     local filename="$1"
     local base=""
 
-    # Support both:
-    #   *_R1_001.fastq.gz
-    #   *_R1.fastq.gz
     if [[ "$filename" == *_R1_001.fastq.gz ]]; then
         base="${filename%_R1_001.fastq.gz}"
     elif [[ "$filename" == *_R1.fastq.gz ]]; then
         base="${filename%_R1.fastq.gz}"
+    elif [[ "$filename" == *_R1_001.fastq ]]; then
+        base="${filename%_R1_001.fastq}"
+    elif [[ "$filename" == *_R1.fastq ]]; then
+        base="${filename%_R1.fastq}"
     else
         echo "ERROR: Unrecognized forward-read filename format: $filename" >&2
         return 1
@@ -241,7 +242,12 @@ fi
 #################################
 shopt -s nullglob
 
-for fwd in "$FASTQ_DIR"/*_R1_001.fastq.gz "$FASTQ_DIR"/*_R1.fastq.gz; do
+for fwd in \
+    "$FASTQ_DIR"/*_R1_001.fastq.gz \
+    "$FASTQ_DIR"/*_R1.fastq.gz \
+    "$FASTQ_DIR"/*_R1_001.fastq \
+    "$FASTQ_DIR"/*_R1.fastq
+do
     [[ -e "$fwd" ]] || continue
 
     fname=$(basename "$fwd")
@@ -253,6 +259,12 @@ for fwd in "$FASTQ_DIR"/*_R1_001.fastq.gz "$FASTQ_DIR"/*_R1.fastq.gz; do
     elif [[ "$fname" == *_R1.fastq.gz ]]; then
         sample_prefix="${fname%_R1.fastq.gz}"
         rev="$FASTQ_DIR/${sample_prefix}_R2.fastq.gz"
+    elif [[ "$fname" == *_R1_001.fastq ]]; then
+        sample_prefix="${fname%_R1_001.fastq}"
+        rev="$FASTQ_DIR/${sample_prefix}_R2_001.fastq"
+    elif [[ "$fname" == *_R1.fastq ]]; then
+        sample_prefix="${fname%_R1.fastq}"
+        rev="$FASTQ_DIR/${sample_prefix}_R2.fastq"
     else
         echo "WARNING: Skipping unrecognized file: $fname" >&2
         continue
