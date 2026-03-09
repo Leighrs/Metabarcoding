@@ -457,33 +457,83 @@ This repository contains scripts and configuration files to:
 >Example:
 >scp /Users/leighrs/Documents/UCDavis/GVL/eDNA/16Sv1/16Sv1_metadata.txt leighrs@farm.hpc.ucdavis.edu:/group/ajfingergrp/Metabarcoding/Project_Runs/16Sv1/input
 >```
->  - Rules:
->    - File names needs to have the word `metadata` in it.
->    - Needs to be a **tab-deliminated**  *.txt* file or a *.tsv* file.
->    - First column is labeled `sampleID` for your sample IDs. 
->       - **Make sure these IDs match the sample IDs in your samplesheet you just made.**
->    - No hypens `-` or spaces.
->    - If you sequenced your samples in multiple runs, add a `Run` column to your metadata to assign run IDs. 
->       - **nf-core/ampliseq prefers the run IDs in A, B, C, ... format.**
->       - Specifying run IDs is essential for proper sequence error handling.
->    - If you wish to use a decontamination protocol later, add a column called `Control_Assign` to assign which controls are paired with which samples.
->      - For example:
->          
->| sampleID | Control_Assign | Sample_or_Control | Run| Notes *(not in metadata)* |
->|----------|----------------|-------------------|---|-------|
->| BROA1 | 1,2,4 | Sample |A| Controls 1,2,4 need to be subtracted |
->| FLYA2 | 2,3,4 | Sample |B| Controls 2,3,4 need to be subtracted |
->| BROAB | 1     | Control |A| Control ID = 1 |
->| FLYAB | 3     | Control |B| Control ID = 3 |
->| EXT1  | 2     | Control |C| Control ID = 2 |
->| PCR1  | 4     | Control |C| Control ID = 4 |
+> **Metadata File Rules for nf-core/ampliseq:***
 >
-> Add any other columns for metadata you wish to attach to these samples for downstream analyses.
-> To view an example metadata file, run the following code:
+>- **File names must contain the word `metadata`.**
+>- File must be either:
+>  - a **tab-delimited `.txt` file**, or
+>  - a **`.tsv` file**.
+>- The **first column must be labeled `ID`** and contain your **sequencing IDs**.
+>  - **These IDs must match the sequencing IDs in your samplesheet.**
+>- **No hyphens `-` or spaces** are allowed in sequencing IDs.
+>- **Sequencing IDs must follow these rules:**
+>   - **No duplicates**
+>   - **Do NOT start with a number**
+>     - ❌ `18S_32`
+>     - ✅ `Meow_18S_32`
+>   - **All sequencing IDs must have the same number of underscore-separated fields**
+>     - ❌ `MEOW_A_1`, `MEOW_A_2`, `MEOW_C`  
+    (two IDs have 3 fields, one has 2)
+>     - ✅ `MEOW_1_A`, `Meow_456_B`, `hiss_45_meow`  
+    (all have three fields)
+>   - **Sample names must be unique without being contained inside another sample name**
+>     - Never use sample IDs where **one name is the prefix of another**
+>     - ❌ `Sample`, `Sample_10`
+>     - ❌ `BROA`, `BROA1`
+>     - ✅ `BROA_1`, `BROB_1`
+>   - These sequencing IDs will ultimately become your **FASTQ file names**, which will be parsed by the **nf-core/ampliseq pipeline** as your sample names.
+>- **Add in a Biological Sample IDs to metadata *(Recommended)***
+>   - If your sequencing IDs are **not the identifiers you want to use for downstream analyses**, it is recommended that you add in this additional metadata column.
+>   - Example:
+>
+>        | ID | sampleID |
+>        |----|----------|
+>        | MEOW_1_A | SoilSample1 |
+>        | MEOW_2_A | SoilSample2 |
+>   - The pipeline will still use the **sequencing IDs**, but having biological IDs recorded here will make **later analysis and interpretation easier**.
+>- **If your samples were sequenced across *multiple runs*, add a `Run` column.**
+>   - **nf-core/ampliseq prefers run IDs in `A`, `B`, `C`, ... format.**
+>   - Specifying run IDs is **essential for proper sequence error handling**.
+>   - Example:
+>
+>        | ID | sampleID | Run |
+>        |----|----------|-----|
+>        | BROA1 | Sample1 | A |
+>        | FLYA2 | Sample2 | B |
+>- **If you plan to use a *decontamination protocol later*, add a column called `Control_Assign`:**
+>   - This assigns which controls are paired with which samples.
+>   - Example:
+>
+>        | ID | Control_Assign | Sample_or_Control | Run | Notes *(not in metadata)* |
+>        |----|----------------|-------------------|-----|---------------------------|
+>        | BROA1 | 1,2,4 | Sample | A | Controls 1,2,4 need to be subtracted |
+>        | FLYA2 | 2,3,4 | Sample | B | Controls 2,3,4 need to be subtracted |
+>        | BROAB | 1 | Control | A | Control ID = 1 |
+>        | FLYAB | 3 | Control | B | Control ID = 3 |
+>        | EXT1 | 2 | Control | C | Control ID = 2 |
+>        | PCR1 | 4 | Control | C | Control ID = 4 |
+>- Add any other columns for metadata you wish to attach to these samples for downstream analyses.
+>- To view an example metadata file, run the following code:
 >```
 >PROJECT_NAME=$(cat "/group/ajfingergrp/Metabarcoding/Project_Runs/Project_IDs/$USER/current_project_name.txt")
 >nano $HOME/Metabarcoding/$PROJECT_NAME/Example_files/Example_metadata.txt
 >```
+>- **Summary Checklist**
+>   - Before running `nf-core/ampliseq`, confirm:
+>       - File name contains **`metadata`**
+>       - File is **tab-delimited `.txt` or `.tsv`**
+>       - First column is **`ID`** and contains sequencing IDs
+>       - Sequencing IDs **match the samplesheet**
+>       - No **hyphens or spaces**
+>       - IDs:
+>           - have **no duplicates**
+>           - **do not start with numbers**
+>           - have the **same number of underscore-separated fields**
+>           - **are not prefixes of other sample names**
+>       - `Run` column included if multiple sequencing runs exist
+>       - Optional `sampleID` column included for biological identifiers
+>       - Optional `Control_Assign` column included if using **decontamination**
+>
 >**After uploading, run this code to confirm your metadata is likely formatted correctly:**
 >```
 >"$HOME/Metabarcoding/scripts_do_not_alter/validate_metadata.sh"
