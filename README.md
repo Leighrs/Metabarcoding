@@ -85,8 +85,7 @@ This repository contains scripts and configuration files to:
 > Ensure you are in your home directory and execute a shell script that will set up a project directory for you.
 >
 >```
->cd ~
->./Metabarcoding/scripts_do_not_alter/setup_metabarcoding_directory.sh
+>$HOME/Metabarcoding/scripts_do_not_alter/setup_metabarcoding_directory.sh
 >```
 >- **When prompted:**
 >    - *Enter project name:* ${\color{green}test}$
@@ -103,11 +102,11 @@ This repository contains scripts and configuration files to:
 >cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 >
->cp -r $HOME/Metabarcoding/test_data/test_fastq/. $HOME/Metabarcoding/$PROJECT_NAME/input/fastq/
+>cp -r $HOME/Metabarcoding/test_data/test_fastq/. /group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/input/fastq/
 >cp "$HOME/Metabarcoding/test_data/12S_RSD.txt" \
->   "$HOME/Metabarcoding/$PROJECT_NAME/input/${PROJECT_NAME}_12S_RSD.txt"
+>   /group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/input/${PROJECT_NAME}_12S_RSD.txt"
 >cp "$HOME/Metabarcoding/test_data/metadata.txt" \
->   "$HOME/Metabarcoding/$PROJECT_NAME/input/${PROJECT_NAME}_metadata.txt"
+>   /group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/input/${PROJECT_NAME}_metadata.txt"
 >```
 
 **4. Generate a samplesheet file.**
@@ -117,11 +116,9 @@ This repository contains scripts and configuration files to:
 > *This script will autopopulate the PATHs for each of your fastq files, extrapolate sample names from those files, and prompt you to specify how many metabarcoding runs these samples were sequenced in.*
 >
 >```
->cd ~
->PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 >"$HOME/Metabarcoding/scripts_do_not_alter/generate_samplesheet_table.sh" 
 >```
-
+>
 >- **When prompted:**
 >    - *Did you sequence samples using multiple sequencing runs?:* ${\color{red}no}$
 >    - *How should sampleID be extracted from FASTQ filenames?:* ${\color{green}2}$
@@ -131,8 +128,6 @@ This repository contains scripts and configuration files to:
 > Ensure you are in your home directory and run the following shell script.
 >
 >```
->cd ~
->PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 >"$HOME/Metabarcoding/scripts_do_not_alter/check_ids_match.sh"
 >```
 >This script will also locate your metafile and add that path to your params file.
@@ -160,7 +155,7 @@ This repository contains scripts and configuration files to:
 >
 >```
 >{
->    "dada_ref_tax_custom": "$HOME/Metabarcoding/$PROJECT_NAME/input/${PROJECT_NAME}_12S_RSD.txt",
+>    "dada_ref_tax_custom": "/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/input/${PROJECT_NAME}_12S_RSD.txt",
 >}
 >```
 >
@@ -170,8 +165,8 @@ This repository contains scripts and configuration files to:
 >cd ~
 >export PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 >envsubst '$HOME $PROJECT_NAME' \
->  < "$HOME/Metabarcoding/$PROJECT_NAME/params/${PROJECT_NAME}_nf-params.json" \
->  > "$HOME/Metabarcoding/$PROJECT_NAME/params/${PROJECT_NAME}_nf-params_expanded.json"
+>  < /group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/params/${PROJECT_NAME}_nf-params.json" \
+>  > "/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/params/${PROJECT_NAME}_nf-params_expanded.json"
 >```
 
 **7. Run the nf-core/ampliseq Pipeline:** 
@@ -179,8 +174,6 @@ This repository contains scripts and configuration files to:
 > Ensure you are in your home directory and run the following shell script.
 >
 >```
->cd ~
->PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 >sbatch "$HOME/Metabarcoding/scripts_do_not_alter/submit_ampliseq.sh"
 >```
 > To see your current running slurm job and get your jobID:
@@ -195,14 +188,14 @@ This repository contains scripts and configuration files to:
 
 > To BLAST your ASVs that did not assign during the nf-core/ampliseq pipeline, run the following code:
 >
->```bash
->cd ~
->PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->RUN_BLAST=yes sbatch "$HOME/Metabarcoding/scripts_do_not_alter/retrieve_phyloseq_unassigned_ASVs.slurm"
 >```
->  - `RUN_BLAST=no` will extract your unassigned ASVs into a fasta file for you to see, but will not BLAST them.
->  - *NOTE: When working with your real data, this code chunk will only work if you used a custom reference sequence database (RSD). If you did not use a custom RSD, a separate code chunk will be provided.*
- 
+>"$HOME/Metabarcoding/scripts_do_not_alter/submit_retrieve_phyloseq_unassigned_asv_and_blast.sh"
+>```
+>- **When prompted:**
+>    - *What do you want to do?:* ${\color{green}1A}$
+>    - *Enter BLAST percent identity threshold?:* ${\color{green}97}$
+>    - *Enter BLAST max target sequences?:* ${\color{green}5}$
+
 **9. Clean up NCBI Blast Taxonomy:**
    
 > This script will auto process your raw BLAST output to output the single 'best' taxonomic rank for each assigned ASV:
@@ -212,13 +205,9 @@ This repository contains scripts and configuration files to:
 >- Explanations for the final taxonomic assignment will be provided for each ASV.
 >- Hopefully this will make parsing through and proofreading BLAST assignments much easier.
 >
->```bash
->cd ~
->PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->sbatch "$HOME/Metabarcoding/scripts_do_not_alter/ncbi_taxonomy.slurm" option2
 >```
->
->- `option2`: If you used a custom RSD, which we did for this test data.
+>"$HOME/Metabarcoding/scripts_do_not_alter/submit_blast_cleanup.sh"
+>```
 >
 ><details>
 ><summary><strong>Expected output files (click to expand).</strong></summary>
@@ -242,11 +231,9 @@ This repository contains scripts and configuration files to:
 >
 >First, run a shell script to review BLAST assignments and update phylseq object:
 >```
->cd ~
->PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->"$HOME/Metabarcoding/scripts_do_not_alter/run_review_and_update_phyloseq.sh" 
+>"$HOME/Metabarcoding/scripts_do_not_alter/run_review_and_update_phyloseq.sh"
 >```
-
+>
 >**A. When prompted, open the `${PROJECT_NAME}_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx` spreadsheet.** 
 > - If you have MobaXterm, simply right click the file and open with Excel. 
 > - If you are using a MacOS, open your computer terminal in a separate window and use the `scp` command. This should be run on your computer, not on the cluster. After uploading the file, navigate to local directory and open the spreadsheet.
@@ -256,7 +243,7 @@ This repository contains scripts and configuration files to:
 > # Example to upload to current local directory: scp leighrs@farm.hpc.ucdavis.edu:/home/leighrs/Metabarcoding/test/output/BLAST/Review/test_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx .
 > # Example to upload to a specific local directory: scp leighrs@farm.hpc.ucdavis.edu:/home/leighrs/Metabarcoding/test/output/BLAST/Review/test_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx C:\Users\Leighrs13\Metabarcoding
 > ```
-
+>
 >**B. Manually review BLAST taxonomic assignments:**
 >
 ><details>
@@ -292,79 +279,38 @@ This repository contains scripts and configuration files to:
 >        - Column AA: Cyprinodontiformes
 >        - Column AB: Fundulidae
 >        - Column AE: Killifish spp
-
+>
 >**C. Save edited spreadsheet (same file name) and upload to FARM:**
 > - If you have MobaXterm, simply save and close the file.
 > - If you are using a MacOS, open your computer terminal in a separate window and use the `scp` command. This should be run on your computer, not on the cluster.
 > ```
->scp -r local-directory [USER]@[CLUSTER].hpc.ucdavis.edu:~/[CLUSTER-DATA] 
+>rsync -aP local-directory [USER]@[CLUSTER].hpc.ucdavis.edu:~/[CLUSTER-DATA]  
 >
-># Example to upload from local directory: scp test_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx leighrs@farm.hpc.ucdavis.edu:/home/leighrs/Metabarcoding/test/output/BLAST/Review/ 
-># Example to upload from a specific local directory: scp C:\Users\Leighrs13\Metabarcoding\test_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx leighrs@farm.hpc.ucdavis.edu:/home/leighrs/Metabarcoding/test/output/BLAST/Review/ 
+># Example to upload from a specific local directory: rsync -aP C:\Users\Leighrs13\Metabarcoding\test_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx leighrs@farm.hpc.ucdavis.edu:/group/ajfingergrp/Metabarcoding/Project_Runs/16Sv1/output/BLAST/Review/
 > ```
-
+>
 > **D. After uploading edited spreadsheet into FARM, navigate back to terminal with FARM and re-run the following code:**
 > 
 > ```
-> cd ~
->PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->"$HOME/Metabarcoding/scripts_do_not_alter/run_review_and_update_phyloseq.sh" 
+> "$HOME/Metabarcoding/scripts_do_not_alter/run_review_and_update_phyloseq.sh" 
 > ```
 > - Your phyloseq object will now be updated with these taxonomic assignments.
 > - You can ignore the intermediate `test_reviewed_assignments.tsv` file created in the BLAST folder.
 
 **11. Remove contaminant reads from ASVs:**
 
->Define label parameters:
+>Run this shell script to start decontamination process and follow on-screen prompts:
 >```
->cd ~
->export SAMPLE_TYPE_COL="Sample_or_Control"
->export SAMPLE_LABEL="Sample"
->export CONTROL_LABEL="Control"
->export ASSIGNED_CONTROLS_COL="Control_Assign"
+>"$HOME/Metabarcoding/scripts_do_not_alter/run_GVL_metabarcoding_cleanup_main.sh" 
 >```
-> - `SAMPLE_TYPE_COL`: Column name in metadata for assigning which are controls or samples.
-> - `SAMPLE_LABEL`: Label for sample rows.
-> - `CONTROL_LABEL`: Label for control rows.
-> - `ASSIGNED_CONTROLS_COL`: Column name in metadata for assigning which controls go to which samples.
->   -  For this column, controls are assigned a single unique ID. Samples should contain a comma-delimited list for which controls are assigned to them.
->     -  For example:
+>- **When prompted:**
+>    - *Metadata column name indicating sample/control type [Default: Sample_or_Control]:* ${\color{green}hit}$ ${\color{green}enter}$
+>    - *Metadata label type for biological samples [Default: Sample]* ${\color{green}hit}$ ${\color{green}enter}$
+>    - *Metadata label type for controls [Default: Control]:* ${\color{green}hit}$ ${\color{green}enter}$
+>    - *Metadata column name assigning controls to samples [Default: Control_Assign]:* ${\color{green}hit}$ ${\color{green}enter}$
+>    - *Sample ASV threshold [Default: 0.0005]:* ${\color{green}hit}$ ${\color{green}enter}$
+>    - *Minimum sequencing depth threshold [Default: 0.0005]:* ${\color{green}hit}$ ${\color{green}enter}$
 >
-> | sampleID | Control_Assign | Sample_or_Control | Explanation |
-> |------|-------------|-------------|-------------|
-> |BROA1|1,2,4|Sample|Controls 1,2,4 need to be subtracted from this sample|
-> |FLYA2|2,3,4|Sample|Controls 2,3,4 need to be subtracted from this sample|
-> |BROAB|1|Control|The ID of this control is 1|
-> |FLYAB|3|Control|The ID of this control is 2|
-> |EXT1|2|Control|The ID of this control is 3|
-> |PCR1|4|Control|The ID of this control is 4|
->
->Define threshold parameters:
->```
->cd ~
->export SAMPLE_THRES=0.0005
->export MIN_DEPTH_THRES=0.0005
->```
-> - `SAMPLE_THRES`: Defines per-sample ASV threshold to be applied. You can define as a proportion (e.g., 0.01) or an absolute read count (e.g., 10).
->   - Removes ASVs that do not reach a minimum read count.
->     - Example 1: Sample threshold = 0.0005 = 0.05% of reads per sample = 
->       - Sample A has 100,000 reads -> This threshold will remove 50 reads from each ASV (i.e., minimum 50 reads per ASV to keep that ASV).
->       - Sample B has 10,000 reads -> This threshold will remove 5 reads from each ASV (i.e., minimum 5 reads per ASV to keep that ASV).
->     - Example 2: Sample threshold = 10
->       - Sample A (sample's total reads don't matter)  <- this threshold would remove 10 reads from each ASV (i.e., minimum 10 reads per ASV to keep that ASV).
-> - `MIN_DEPTH_THRES`: Defines minimum sequencing depth for each sample. You can define as a proportion (e.g., 0.01) or an absolute read count (e.g., 10).
->   - Removes samples that do not reach a minimum read count.
->     - Example 1: Min seq depth threshold  = 0.0001 = 0.01% of total reads
->       - Total reads in dataset = 10,000,000 -> This threshold would remove any sample with fewer than 1,000 reads.
->     - Example 2: Min seq depth threshold = 10 
->       -Total reads in dataset = Doesn't matter -> This threshold would remove any sample with fewer than 10 reads.
->
->Then, run shell script to start decontamination script:
->```
->cd ~
->PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
->"$HOME/Metabarcoding/scripts_do_not_alter/run_GVL_metabarcoding_cleanup_main.sh"
->```
 >You will now have a cleaned ready-to-go phyloseq object to start your data analyses!
 >   - Originally developed for microbial communites, a `phyloseq.rds` object operates as a single container designed to simplify data management and ensure that all data compenents are tracked and manipulated together. The main classes of data that a `phyloseq.rds` object hold:
 >     - `otu_table`: A matrix containing abundance data for OTU/ASV across all samples.
@@ -372,7 +318,7 @@ This repository contains scripts and configuration files to:
 >     - `tax_table`: A matrix containing taxa assignments for each ASV/OTU.
 >     -  It can also hold an optional `refseq` class to contain representative DNA sequences for each OTU/ASV. This allows the sequences to be renamed to something simpler in the other classes.
 >     -  A `phylo` class can also be created to show evolutionary relationshiops among OTUs/ASVs.
->  - There are lots of analyses and data visualizations you can do with your phyloseq object. But to get started, try installing phyloseq in RStudio and importing in your final, cleaned phyloseq object from: `$HOME/Metabarcoding/$PROJECT_NAME/output/ASV_cleanup_output/dada2_phyloseq_cleaned.rds`
+>  - There are lots of analyses and data visualizations you can do with your phyloseq object. But to get started, try installing phyloseq in RStudio and importing in your final, cleaned phyloseq object from: `/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/output/ASV_cleanup_output/dada2_phyloseq_cleaned.rds`
 >  - In R:
 >```
 >View(dada2_phyloseq_cleaned@sam_data) # Shows you your metadata
