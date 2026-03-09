@@ -145,7 +145,6 @@ This repository contains scripts and configuration files to:
 > - Edit this file so that the input paths, primer sequences, and filtering settings match your dataset.
 >
 >```
->cd ~
 >PROJECT_NAME=$(cat "$HOME/Metabarcoding/current_project_name.txt")
 >nano $HOME/Metabarcoding/$PROJECT_NAME/params/${PROJECT_NAME}_nf-params.json
 >```
@@ -425,33 +424,39 @@ This repository contains scripts and configuration files to:
 
 **3A. Import fastq files:**
 
-> If storing your fastq files on group project storage, copy fastq files to the subfolder (`/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/input/fastq`) created for your project:
+> If storing your fastq files on FARM already, copy fastq files to the subfolder (`/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/input/fastq`) created for your project:
+>
+>```
+>#Example
+>cp -r $HOME/Metabarcoding/16Sv1/fastq/. /group/ajfingergrp/Metabarcoding/Project_Runs/16Sv1/input/fastq
+>```
+> If you need to transfer fastq files from your local directory:
 >  - If you have MobaXterm, simply drag/drop or copy/paste into folder.
 >  - If you are using a Mac, use the  `scp` command to transfer files:
 > ```
 >scp -r local-directory [USER]@[CLUSTER].hpc.ucdavis.edu:~/[CLUSTER-DATA] 
 >
-># Example to upload from local directory: scp "C:\Bioinformatics\12S_Fastq_251106\." leighrs@farm.hpc.ucdavis.edu: "/group/ajfingergrp/Metabarcoding/Project_Runs/16Sv1/input/fastq"
-> ```
-> If storing your fastq files elsewhere, copy fastq files to the folder you indicated when creating your project directory:
->  - If you have MobaXterm, simply drag/drop or copy/paste into your folder.
->  - If you are using a Mac, use the  `scp` command to transfer files:
-> ```
->scp -r local-directory [USER]@[CLUSTER].hpc.ucdavis.edu:~/[CLUSTER-DATA] 
->
-># Example to upload from local directory: scp "C:\Bioinformatics\12S_Fastq_251106\." leighrs@farm.hpc.ucdavis.edu: "/group/ajfingergrp/leighrs/fastq/16Sv1"
-> ```
+>Example:
+>scp -r /Users/leighrs/Documents/UCDavis/GVL/eDNA/16Sv1/. leighrs@farm.hpc.ucdavis.edu:/group/ajfingergrp/Metabarcoding/Project_Runs/16Sv1/input/fastq
+>```
 
 **3B. Import metadata:**
 
-> Copy metadata to the subfolder (`/group/ajfingergrp/Metabarcoding/Project_Runs/${PROJECT_NAME}/input/`) created for your project:
->  - If you have MobaXterm, simply drag/drop or copy/paste into folder.
->  - If you are using a Mac, use the  `scp` command to transfer files:
-> ```
->scp local-directory path to metadata [USER]@[CLUSTER].hpc.ucdavis.edu:~/[CLUSTER-DATA] 
+>If storing your metadata on FARM already, copy metadata file to the subfolder (`/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/input`) created for your project:
 >
-># Example to upload from local directory: scp "C:\Bioinformatics\12S_metadata.txt" leighrs@farm.hpc.ucdavis.edu:/group/ajfingergrp/Metabarcoding/Project_Runs/16Sv1/input/
+>```
+>#Example
+>cp $HOME/Metabarcoding/16Sv1/16Sv1_metadata.txt /group/ajfingergrp/Metabarcoding/Project_Runs/16Sv1/input/
+>```
+> If you need to transfer your metadata file from your local directory:
+>  - If you have MobaXterm, simply drag/drop or copy/paste into folder.
+>  - If you are using a Mac, use the  `scp` command to transfer file:
 > ```
+>scp local-directory [USER]@[CLUSTER].hpc.ucdavis.edu:~/[CLUSTER-DATA] 
+>
+>Example:
+>scp /Users/leighrs/Documents/UCDavis/GVL/eDNA/16Sv1/16Sv1_metadata.txt leighrs@farm.hpc.ucdavis.edu:/group/ajfingergrp/Metabarcoding/Project_Runs/16Sv1/input
+>```
 >  - Rules:
 >    - File names needs to have the word `metadata` in it.
 >    - Needs to be a **tab-deliminated**  *.txt* file or a *.tsv* file.
@@ -476,7 +481,6 @@ This repository contains scripts and configuration files to:
 > Add any other columns for metadata you wish to attach to these samples for downstream analyses.
 > To view an example metadata file, run the following code:
 >```
->cd ~
 >PROJECT_NAME=$(cat "/group/ajfingergrp/Metabarcoding/Project_Runs/Project_IDs/$USER/current_project_name.txt")
 >nano $HOME/Metabarcoding/$PROJECT_NAME/Example_files/Example_metadata.txt
 >```
@@ -497,15 +501,23 @@ This repository contains scripts and configuration files to:
 **3C. Import custom reference sequence database (optional):**
 
 > If your custom pipeline has been logged into this pipeline, your custom RSD should already be uploaded and in the subfolder (`$HOME/Metabarcoding/${PROJECT_NAME}/input/`).
->   - Naviate to this subfolder to confirm it is there. If not:
->       - Copy custom RSD to the subfolder (`$HOME/Metabarcoding/${PROJECT_NAME}/input/`) created for your project:
->           - If you have MobaXterm, simply drag/drop or copy/paste into `$HOME/Metabarcoding/${PROJECT_NAME}/input/`.
->           - If you are using a Mac, use the  `scp` command to transfer files:
-> ```
->scp local-directory path to RSD [USER]@[CLUSTER].hpc.ucdavis.edu:~/[CLUSTER-DATA] 
+>   - Naviate to this subfolder to confirm it is there. If not follow these directions to transfer RSD into your project folder:
 >
-># Example to upload from local directory: scp "C:\Bioinformatics\12S_RSD.txt" leighrs@farm.hpc.ucdavis.edu:/home/leighrs/Metabarcoding/12S/input/
+>If storing your RSD on FARM already copy file to the subfolder (`/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/input`) created for your project:
+>
+>```
+>#Example
+>cp $HOME/Metabarcoding/16Sv1/16Sv1_RSD.txt /group/ajfingergrp/Metabarcoding/Project_Runs/16Sv1/input/
+>```
+> If you need to transfer your RSD file from your local directory:
+>  - If you have MobaXterm, simply drag/drop or copy/paste into folder.
+>  - If you are using a Mac, use the  `scp` command to transfer file:
 > ```
+>scp local-directory [USER]@[CLUSTER].hpc.ucdavis.edu:~/[CLUSTER-DATA] 
+>
+>Example:
+>scp /Users/leighrs/Documents/UCDavis/GVL/eDNA/16Sv1/16Sv1_RSD.txt leighrs@farm.hpc.ucdavis.edu:/group/ajfingergrp/Metabarcoding/Project_Runs/16Sv1/input
+>```
 >  - **Rules:**
 >    - Needs to be a **tab-deliminated** *.txt* file or a *.tsv* file.
 >    - Each taxa record myst follow this structure:
