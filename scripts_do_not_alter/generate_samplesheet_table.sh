@@ -1,12 +1,19 @@
 #!/bin/bash
 set -euo pipefail
 
+RUN_MAP_TMP=""
+tmpfile=""
+
+cleanup() {
+  rm -f "${RUN_MAP_TMP:-}" "${tmpfile:-}"
+}
+trap cleanup EXIT
+
 # Read project name
 PROJECT_NAME=$(cat "/group/ajfingergrp/Metabarcoding/Project_Runs/Project_IDs/$USER/current_project_name.txt")
 
 # Default FASTQ directory
 FASTQ_DIR=$(cat "/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/input/fastq_storage_path.txt")
-
 
 # Output file
 OUTPUT_FILE="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/input/${PROJECT_NAME}_samplesheet.txt"
@@ -23,6 +30,17 @@ if [[ ! -d "$FASTQ_DIR" ]]; then
 fi
 
 echo "Using FASTQ directory: $FASTQ_DIR"
+
+# Require gzipped FASTQ files only
+if compgen -G "$FASTQ_DIR/*_R1.fastq" > /dev/null || \
+   compgen -G "$FASTQ_DIR/*_R2.fastq" > /dev/null || \
+   compgen -G "$FASTQ_DIR/*_R1_001.fastq" > /dev/null || \
+   compgen -G "$FASTQ_DIR/*_R2_001.fastq" > /dev/null; then
+    echo "ERROR: Uncompressed .fastq files were found in $FASTQ_DIR."
+    echo "This pipeline requires gzipped FASTQ files ending in .fastq.gz"
+    echo "Please gzip the FASTQ files and re-run."
+    exit 1
+fi
 
 #################################
 #  ASK USER ABOUT MULTIPLE RUNS
@@ -84,12 +102,9 @@ extract_sample_id() {
         base="${filename%_R1_001.fastq.gz}"
     elif [[ "$filename" == *_R1.fastq.gz ]]; then
         base="${filename%_R1.fastq.gz}"
-    elif [[ "$filename" == *_R1_001.fastq ]]; then
-        base="${filename%_R1_001.fastq}"
-    elif [[ "$filename" == *_R1.fastq ]]; then
-        base="${filename%_R1.fastq}"
     else
         echo "ERROR: Unrecognized forward-read filename format: $filename" >&2
+        echo "Expected *_R1.fastq.gz or *_R1_001.fastq.gz" >&2
         return 1
     fi
 
@@ -116,15 +131,12 @@ extract_sample_id() {
 META_RUN_MAP_FILE=""
 META_INPUT_DIR="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/input"
 
-# We'll store a map: sampleID -> letter (A/B/C...) in this temp file:
+# Store a map: sampleID -> letter (A/B/C...) in this temp file
 RUN_MAP_TMP="$(mktemp)"
-trap 'rm -f "$RUN_MAP_TMP"' EXIT
 
 build_run_map_from_metadata() {
   local metadir="$1"
 
-  # Find metadata file (case-insensitive match on "metadata" and extension .txt/.tsv)
-  # Prefer newest if multiple exist.
   local meta_candidates=()
   while IFS= read -r -d '' f; do
     meta_candidates+=("$f")
@@ -136,7 +148,6 @@ build_run_map_from_metadata() {
     return 1
   fi
 
-  # Choose most recently modified
   local newest=""
   newest="$(ls -t "${meta_candidates[@]}" 2>/dev/null | head -n 1 || true)"
   if [[ -z "$newest" ]]; then
@@ -147,64 +158,50 @@ build_run_map_from_metadata() {
   META_RUN_MAP_FILE="$newest"
   echo "Using metadata file for run assignment: $META_RUN_MAP_FILE"
 
-  # Detect delimiter: prefer tab; if no tabs in header, assume whitespace (we'll still treat as tab with awk -F'\t' if it is tsv)
-  # (Users said .txt/.tsv; most will be tab-delimited. We'll assume tab-delimited.)
-  # Build mapping:
-  #  - Find Run column index (header name exactly "Run" or "run")
-  #  - Find sample id column index (sampleID/SampleID/sample_id/sample etc; else 1st col)
-  #
-  # Then:
-  #  - Collect unique Run values in order of first appearance
-  #  - Map them to A,B,C...
-  #  - Emit: sampleID<TAB>Letter into RUN_MAP_TMP
-  #
-  # If duplicate sampleIDs appear, last one wins.
+  awk -F'\t' -v OFS='\t' '
+    function trim(s){ gsub(/^[ \r]+|[ \r]+$/, "", s); return s }
+    BEGIN { letters="ABCDEFGHIJKLMNOPQRSTUVWXYZ" }
 
-awk -F'\t' -v OFS='\t' '
-  function trim(s){ gsub(/^[ \r]+|[ \r]+$/, "", s); return s }
-  BEGIN { letters="ABCDEFGHIJKLMNOPQRSTUVWXYZ" }
+    NR==1 {
+      for (i=1; i<=NF; i++) {
+        h  = trim($i)
+        hl = tolower(h)
 
-  NR==1 {
-    for (i=1; i<=NF; i++) {
-      h  = trim($i)
-      hl = tolower(h)
+        if (hl == "run") run_col=i
 
-      if (hl == "run") run_col=i
-
-      if (hl == "sampleid" || hl == "sample_id" || hl == "sample" || hl == "id" || hl == "sample name" || hl == "samplename") {
-        if (!sid_col) sid_col=i
+        if (hl == "sampleid" || hl == "sample_id" || hl == "sample" || hl == "id" || hl == "sample name" || hl == "samplename") {
+          if (!sid_col) sid_col=i
+        }
       }
+
+      if (!run_col) { print "MISSING_RUN_COL" > "/dev/stderr"; exit 10 }
+      if (!sid_col) sid_col=1
+      next
     }
 
-    if (!run_col) { print "MISSING_RUN_COL" > "/dev/stderr"; exit 10 }
-    if (!sid_col) sid_col=1
-    next
-  }
+    NR>1 {
+      sid = trim($(sid_col))
+      r   = trim($(run_col))
 
-  NR>1 {
-    sid = trim($(sid_col))
-    r   = trim($(run_col))
+      if (sid=="") next
 
-    if (sid=="") next
+      if (r=="") {
+        print "EMPTY_RUN_VALUE at sample: " sid > "/dev/stderr"
+        exit 12
+      }
 
-    if (r=="") {
-      print "EMPTY_RUN_VALUE at sample: " sid > "/dev/stderr"
-      exit 12
+      if (!(r in run_to_letter)) {
+        idx = ++run_count
+        if (idx > length(letters)) { print "TOO_MANY_RUNS" > "/dev/stderr"; exit 11 }
+        run_to_letter[r] = substr(letters, idx, 1)
+      }
+
+      print sid, run_to_letter[r]
     }
-
-    if (!(r in run_to_letter)) {
-      idx = ++run_count
-      if (idx > length(letters)) { print "TOO_MANY_RUNS" > "/dev/stderr"; exit 11 }
-      run_to_letter[r] = substr(letters, idx, 1)
-    }
-
-    print sid, run_to_letter[r]
-  }
-' "$META_RUN_MAP_FILE" > "$RUN_MAP_TMP"
+  ' "$META_RUN_MAP_FILE" > "$RUN_MAP_TMP"
 
   local rc=$?
   if [[ $rc -ne 0 ]]; then
-    # Above is a no-op; actual stderr already printed.
     if [[ $rc -eq 10 ]]; then
       echo "WARNING: Metadata file does not contain a 'Run' column. Cannot auto-assign runs."
     elif [[ $rc -eq 11 ]]; then
@@ -242,13 +239,14 @@ fi
 #################################
 shopt -s nullglob
 
+found_fastq="no"
+
 for fwd in \
     "$FASTQ_DIR"/*_R1_001.fastq.gz \
-    "$FASTQ_DIR"/*_R1.fastq.gz \
-    "$FASTQ_DIR"/*_R1_001.fastq \
-    "$FASTQ_DIR"/*_R1.fastq
+    "$FASTQ_DIR"/*_R1.fastq.gz
 do
     [[ -e "$fwd" ]] || continue
+    found_fastq="yes"
 
     fname=$(basename "$fwd")
     sampleID=$(extract_sample_id "$fname") || exit 1
@@ -259,19 +257,15 @@ do
     elif [[ "$fname" == *_R1.fastq.gz ]]; then
         sample_prefix="${fname%_R1.fastq.gz}"
         rev="$FASTQ_DIR/${sample_prefix}_R2.fastq.gz"
-    elif [[ "$fname" == *_R1_001.fastq ]]; then
-        sample_prefix="${fname%_R1_001.fastq}"
-        rev="$FASTQ_DIR/${sample_prefix}_R2_001.fastq"
-    elif [[ "$fname" == *_R1.fastq ]]; then
-        sample_prefix="${fname%_R1.fastq}"
-        rev="$FASTQ_DIR/${sample_prefix}_R2.fastq"
     else
         echo "WARNING: Skipping unrecognized file: $fname" >&2
         continue
     fi
 
     if [[ ! -f "$rev" ]]; then
-        rev=""
+        echo "ERROR: Missing reverse read for forward file: $fwd" >&2
+        echo "Expected reverse file: $rev" >&2
+        exit 1
     fi
 
     run_out="$RUN_VALUE"
@@ -287,18 +281,23 @@ done
 
 shopt -u nullglob
 
+if [[ "$found_fastq" != "yes" ]]; then
+    echo "ERROR: No gzipped forward FASTQ files were found in $FASTQ_DIR"
+    echo "Expected files matching *_R1.fastq.gz or *_R1_001.fastq.gz"
+    exit 1
+fi
+
 #################################
 #  VALIDATE + OPTIONAL AUTO-FIX SAMPLE IDs
 #################################
 tmpfile="$(mktemp)"
-trap 'rm -f "$tmpfile" "$RUN_MAP_TMP"' EXIT
 
 # Collect issues
 bad_start=$(awk -F'\t' 'NR>1 && $1 !~ /^[A-Za-z]/ {print $1}' "$OUTPUT_FILE" | sort -u)
 dups=$(awk -F'\t' 'NR>1 {print $1}' "$OUTPUT_FILE" | sort | uniq -d)
 
-FIX_INVALID="none"   # strip | prefix | none
-FIX_DUPS="no"        # yes | no
+FIX_INVALID="none"
+FIX_DUPS="no"
 
 if [[ -n "$bad_start" ]]; then
   echo
@@ -310,7 +309,7 @@ if [[ -n "$bad_start" ]]; then
   echo "  2) Add the prefix 'A_' to any ID that does not start with a letter (e.g. 12ABC -> A_12ABC)"
   echo "  3) Abort and let me fix filenames/parsing"
   read -rp "Choice [1/2/3] (default 2): " c
-  c="${c:-1}"
+  c="${c:-2}"
   case "$c" in
     1) FIX_INVALID="strip" ;;
     2) FIX_INVALID="prefix" ;;
@@ -342,10 +341,7 @@ if [[ -n "$dups" ]]; then
   esac
 fi
 
-# If nothing to fix, skip
-if [[ "$FIX_INVALID" == "none" && "$FIX_DUPS" == "no" ]]; then
-  : # no-op
-else
+if [[ "$FIX_INVALID" != "none" || "$FIX_DUPS" != "no" ]]; then
   echo
   echo "Applying fixes to sampleIDs..."
 
@@ -358,7 +354,6 @@ else
   {
     id = $1
 
-    # ---- Fix IDs that do not start with a letter ----
     if (fix_invalid == "strip") {
       sub(/^[^A-Za-z]+/, "", id)
       if (id == "" || id !~ /^[A-Za-z]/) id = "A_" id
@@ -368,7 +363,6 @@ else
 
     if (id !~ /^[A-Za-z]/) bad[id] = 1
 
-    # ---- Ensure uniqueness if requested ----
     if (fix_dups == "yes") {
       base = id
       new  = id
@@ -404,9 +398,10 @@ else
   fi
 
   mv "$tmpfile" "$OUTPUT_FILE"
+  tmpfile=""
 fi
 
-# Final re-check (must be letter-start + unique)
+# Final re-check
 bad_start2=$(awk -F'\t' 'NR>1 && $1 !~ /^[A-Za-z]/ {print $1}' "$OUTPUT_FILE" | sort -u)
 dups2=$(awk -F'\t' 'NR>1 {print $1}' "$OUTPUT_FILE" | sort | uniq -d)
 

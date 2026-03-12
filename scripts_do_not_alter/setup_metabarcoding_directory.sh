@@ -373,11 +373,13 @@ if [[ "$DB_MODE" == "none" ]]; then
     echo "  10) 16S_meta"
     echo "  11) trnL_gh"
     echo "  12) ITS2_UniPlant_p4"
+    echo "  13) 12S_teleo"
+    echo "  14) MOL16S"
     while true; do
-        read -rp "Enter 1-12: " NO_REF_CHOICE
+        read -rp "Enter 1-14: " NO_REF_CHOICE
         case "$NO_REF_CHOICE" in
-            1|2|3|4|5|6|7|8|9|10|11|12) break ;;
-            *) echo -e "${RED}Invalid input. Please enter 1-12.${RESET}" ;;
+            1|2|3|4|5|6|7|8|9|10|11|12|13|14) break ;;
+            *) echo -e "${RED}Invalid input. Please enter 1-14.${RESET}" ;;
         esac
     done
 
@@ -461,6 +463,18 @@ if [[ "$DB_MODE" == "none" ]]; then
             set_json_str "FW_primer" "TGTGAATTGCARRATYCMG"
             set_json_str "RV_primer" "CCGCTTAKTGATATGCTTAAA"
             echo -e "${GREEN}Set ITS2_UniPlant_p4 primer settings in params.${RESET}"
+            ;;
+        13)
+            # ---- 12S_teleo ----
+            set_json_str "FW_primer" "ACACCGCCCGTCACTCT"
+            set_json_str "RV_primer" "CTTCCGGTACACTTACCATG"
+            echo -e "${GREEN}Set 12S_teleo primer settings in params.${RESET}"
+            ;;
+        14)
+            # ---- MOL16S ----
+            set_json_str "FW_primer" "RRWRGACRAGAAGACCCT"
+            set_json_str "RV_primer" "ARTCCAACATCGAGGT"
+            echo -e "${GREEN}Set MOL16S primer settings in params.${RESET}"
             ;;
     esac
 
