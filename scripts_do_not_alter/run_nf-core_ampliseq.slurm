@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=ampliseq
 #SBATCH --account=millermrgrp
-#SBATCH --partition=bmh
+#SBATCH --partition=bml
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=40
 #SBATCH --mem=120G
@@ -53,7 +53,7 @@ if [[ ! -d "$ENV_PREFIX_nfcore/conda-meta" ]]; then
   echo "Creating conda env at: $ENV_PREFIX_nfcore"
   mamba create -y -p "$ENV_PREFIX_nfcore" \
     -c conda-forge -c bioconda \
-    nextflow=23.10.1 \
+    nextflow=25.10.4 \
     openjdk=17 \
     git \
     jq
@@ -88,16 +88,48 @@ echo "Running project: $PROJECT"
 BASE_OUT="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT/output"
 CACHE_DIR="/group/ajfingergrp/Metabarcoding/intermediates_logs_cache/${PROJECT}_cache"
 SINGULARITY_CACHE="${CACHE_DIR}/singularity"
-mkdir -p "$CACHE_DIR"
-mkdir -p "$SINGULARITY_CACHE"
+mkdir -p "$CACHE_DIR" "$SINGULARITY_CACHE"
+
 PARAMS_FILE="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT/params/${PROJECT}_nf-params_expanded.json"
 PIPELINE_DIR="/group/ajfingergrp/Metabarcoding/ampliseq"
 
+# ------------------------------------
+# Set Nextflow cache/plugin locations
+# ------------------------------------
+export NXF_HOME="$CACHE_DIR/.nextflow"
+export NXF_PLUGINS_DIR="/group/ajfingergrp/Metabarcoding/nextflow_plugins"
+export NXF_APPTAINER_CACHEDIR="$SINGULARITY_CACHE"
+export NXF_PLUGINS_REGISTRY_URL="https://raw.githubusercontent.com/nextflow-io/plugins/main/plugins.json"
+mkdir -p "$NXF_HOME" "$NXF_PLUGINS_DIR"
 
 # ------------------------------------
-# Set Nextflow Apptainer cache
+# Debug
 # ------------------------------------
-export NXF_APPTAINER_CACHEDIR="$SINGULARITY_CACHE"
+
+echo "Nextflow executable: $(which nextflow)"
+nextflow -version
+echo "NXF_HOME=$NXF_HOME"
+echo "NXF_PLUGINS_DIR=$NXF_PLUGINS_DIR"
+echo "NXF_PLUGINS_REGISTRY_URL=$NXF_PLUGINS_REGISTRY_URL"
+ls -ld "$NXF_HOME" "$NXF_PLUGINS_DIR"
+
+# ------------------------------------
+# Ensure nf-schema plugin is available
+# ------------------------------------
+PLUGIN_NAME="nf-schema"
+PLUGIN_VERSION="2.5.1"
+LOCKFILE="${NXF_PLUGINS_DIR}/.${PLUGIN_NAME}.lock"
+
+exec 8>"$LOCKFILE"
+flock 8
+
+echo "Ensuring Nextflow plugin ${PLUGIN_NAME}@${PLUGIN_VERSION} is available in $NXF_PLUGINS_DIR"
+if nextflow plugin install "${PLUGIN_NAME}@${PLUGIN_VERSION}"; then
+    echo "Plugin ${PLUGIN_NAME}@${PLUGIN_VERSION} is ready."
+else
+    echo "ERROR: Failed to install Nextflow plugin ${PLUGIN_NAME}@${PLUGIN_VERSION}." >&2
+    exit 1
+fi
 
 # ------------------------------------
 # Run patched Ampliseq pipeline
@@ -105,8 +137,6 @@ export NXF_APPTAINER_CACHEDIR="$SINGULARITY_CACHE"
 echo "Starting patched nf-core/ampliseq pipeline..."
 
 export PROJECT="$(cat /group/ajfingergrp/Metabarcoding/Project_Runs/Project_IDs/$USER/current_project_name.txt)"
-export NXF_HOME="$CACHE_DIR/.nextflow"
-mkdir -p "$NXF_HOME"
 cd "/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT"
 
 if [[ ! -f "$PIPELINE_DIR/main.nf" ]]; then

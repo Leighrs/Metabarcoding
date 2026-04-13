@@ -82,11 +82,19 @@ export PROJECT_NAME="$(cat "$PROJECT_NAME_FILE")"
 echo "Detected project: $PROJECT_NAME"
 echo ""
 
-# Export metadata (if a phyloseq object needs to be created):
-export METADATA_PATH=$(ls /group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/output/input/*metadata*.{txt,tsv} 2>/dev/null | head -n 1)
-
-# Export asv fasta file and table (if a phyloseq object needs to be created):
+# Export asvs and metadata (if a phyloseq object needs to be created):
 export ASV_FASTA="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/output/dada2/ASV_seqs.fasta"
+export METADATA_TSV=$(ls \
+  "/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/output/input/"*metadata*.txt \
+  "/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/output/input/"*metadata*.tsv \
+  2>/dev/null | head -n 1)
+
+if [[ -z "${METADATA_TSV:-}" ]]; then
+  echo "ERROR: No metadata file found matching *metadata*.txt or *metadata*.tsv" >&2
+  exit 1
+fi
+
+# Export DADA2 table (if a phyloseq object needs to be created):
 export ASV_TABLE_TSV="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/output/dada2/DADA2_table.tsv"
 
 # Export project directory:
@@ -136,4 +144,78 @@ if [[ ! -f "$SCRIPT_PATH" ]]; then
 fi
 
 echo "Running review/update script for project: ${PROJECT_NAME}"
+
+# ----------------------------
+# Choose run mode
+# ----------------------------
+echo "Select run mode for review/update:"
+echo "  1) first      - create review workbook for the first time."
+echo "  2) second     - read edited workbook and update taxonomic assignments."
+echo "  3) reprocess  - create review workbook from scratch and overwrite existing file."
+read -rp "Enter choice [1/2/3]: " RUN_CHOICE
+
+case "$RUN_CHOICE" in
+  1|first|FIRST)
+    export REVIEW_RUN_MODE="first"
+    ;;
+  2|second|SECOND)
+    export REVIEW_RUN_MODE="second"
+    ;;
+  3|reprocess|REPROCESS|rebuild|overwrite)
+    export REVIEW_RUN_MODE="reprocess"
+    ;;
+  *)
+    echo "ERROR: Invalid choice. Use 1, 2, or 3." >&2
+    exit 1
+    ;;
+esac
+
+echo "Selected mode: $REVIEW_RUN_MODE"
+echo
+
+# ----------------------------
+# Optional auto-treatment settings
+# ----------------------------
+
+# Default values (used for second mode)
+export TREAT_BACTERIA="FALSE"
+export TREAT_FUNGI="FALSE"
+export TREAT_PLANTS="FALSE"
+
+if [[ "$REVIEW_RUN_MODE" == "first" || "$REVIEW_RUN_MODE" == "reprocess" ]]; then
+  echo "Enable automatic treatment for specific groups?"
+  echo "  (y = yes, n = no)"
+  echo
+
+  read -rp "Treat bacterial-like assignments automatically? (y/n): " BACT_CHOICE
+  read -rp "Treat fungal-like assignments automatically? (y/n): " FUNG_CHOICE
+  read -rp "Treat plant-like assignments automatically? (y/n): " PLANT_CHOICE
+
+  case "${BACT_CHOICE,,}" in
+    y|yes) export TREAT_BACTERIA="TRUE" ;;
+    n|no|"") export TREAT_BACTERIA="FALSE" ;;
+    *) echo "ERROR: invalid bacteria choice. Use y or n." >&2; exit 1 ;;
+  esac
+
+  case "${FUNG_CHOICE,,}" in
+    y|yes) export TREAT_FUNGI="TRUE" ;;
+    n|no|"") export TREAT_FUNGI="FALSE" ;;
+    *) echo "ERROR: invalid fungi choice. Use y or n." >&2; exit 1 ;;
+  esac
+
+  case "${PLANT_CHOICE,,}" in
+    y|yes) export TREAT_PLANTS="TRUE" ;;
+    n|no|"") export TREAT_PLANTS="FALSE" ;;
+    *) echo "ERROR: invalid plant choice. Use y or n." >&2; exit 1 ;;
+  esac
+
+  echo
+  echo "Auto-treatment settings:"
+  echo "  Bacteria: $TREAT_BACTERIA"
+  echo "  Fungi:    $TREAT_FUNGI"
+  echo "  Plants:   $TREAT_PLANTS"
+  echo
+
+fi
+
 Rscript "$SCRIPT_PATH"

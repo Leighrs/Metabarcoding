@@ -13,6 +13,112 @@ suppressPackageStartupMessages({
 # ----------------------------
 # Helper functions
 # ----------------------------
+
+is_plant_like <- function(x) {
+  x <- tolower(trimws(as.character(x)))
+  if (is.na(x) || !nzchar(x)) return(FALSE)
+
+  plant_patterns <- c(
+    # broad plant terms
+    "viridiplantae", "plantae", "embryophyta", "streptophyta",
+    "tracheophyta", "spermatophyta",
+
+    # major clades (VERY important in your data)
+    "angiosperm", "mesangiospermae", "pentapetalae",
+    "asterid", "rosid", "fabid", "lamiid", "irl clade",
+
+    # classes
+    "liliopsida", "magnoliopsida",
+
+    # common plant families in your data
+    "poaceae", "brassicaceae", "rosaceae", "fabaceae",
+    "asteraceae", "cactaceae", "cupressaceae",
+    "convolvulaceae", "salicaceae", "lactucinae",
+
+    # very common plant genera in your dataset
+    "geranium", "medicago", "trifolium", "lathyrus",
+    "prunus", "solanum", "citrus", "olea",
+    "hibiscus", "vaccinium", "vicia", "lonicera",
+    "ipomoea", "convolvulus", "brassica", "arabidopsis",
+    "populus", "salix", "juniperus", "cupressus",
+    "magnolia", "daucus", "lactuca", "centaurea",
+
+    # crops / grasses
+    "oryza", "hordeum", "aegilops", "triticum",
+    "saccharum", "poa", "festuca",
+
+    # generic signals
+    "plant", "chloroplast",
+    
+    # species
+    "Silene wilfordii", "Psittacanthus sonorae", " Psittacanthus palmeri",
+    "Sassafras randaiense", "Persea americana", "Actinodaphne obovata",
+    "Machilus bonii", "Phoebe hungmoensis", "Machilus thunbergii",
+    "Licaria capitata"
+  )
+
+  grepl(paste(plant_patterns, collapse = "|"), x, ignore.case = TRUE)
+}
+
+is_fungal_like <- function(x) {
+  x <- tolower(trimws(as.character(x)))
+  if (is.na(x) || !nzchar(x)) return(FALSE)
+
+  fungal_patterns <- c(
+    "fungi", "fungal", "ascomyc", "basidiomyc",
+    "dothideomyc", "dothideomycetidae", "dothideomyceta",
+    "chaetothyr", "chaetothyriomycetidae",
+    "eurotiales", "eurotiomycetes", "hypocreales", "helotiales",
+    "leotiomyc", "sordariomyc", "nectriaceae", "sclerotiniaceae",
+    "orbiliaceae", "entomophthoraceae", "arthoniaceae",
+    "aspergill", "aspergillaceae", "penicill", "fusarium", "trichoderma",
+    "cladospor", "ramularia", "epichloe", "emericellopsis",
+    "capronia", "micarea", "lecanora", "lecania",
+    "lecanoraceae", "lecanorineae", "xanthoria",
+    "candelariella", "bacidia", "bacidina", "arthonia",
+    "verrucaria", "verrucariaceae", "lichenostigma",
+    "buell", "teloschistaceae", "phaeococcomycetaceae",
+    "trichomerium", "scolecobasidium", "podosphaera",
+    "myriangium", "cyphellophora", "coccomyces",
+    "dactylellina", "diplotomma", "corticifraga",
+    "scorias", "knufia", "abrothallus", "antarctolichenia",
+    "chrysothrix", "cistella", "dichoporis", "dioszegia",
+    "lichenicolous",
+    "sterigmatomyces", "naetrocymbe", "psoroglaena", "recurvomyces",
+    "resinoscypha", "sarocladium", "sclerococcum",
+    "scopulariopsis", "stictis", "vandijckella",
+    "pilidium", "mollisia", "meristemomyces",
+    "microascus", "microcera", "neopestalotiopsis",
+    "phaeococcomyces", "botryosphaeria", "botryosphaeriaceae",
+    "leuconeurospora", "lichenostigmatales", "thelebolus",
+    "exobasidium", "albugo", "pleospor", "rhytismat", "xylari", "cephalotrichum",
+    "physcia", "ploettnerulaceae", "oculimacula yallundae", "rhynchosporium graminicola",
+    "cladonia", "ramalinaceae", "apiospora arundinis", "biatora vacciniicola", "leptogium palmatum",   
+    "bryochiton monascus", "amandinea punctata", "cudoniella clavus", "herpotrichiellaceae",
+    "acremonium", "lecanoropsis saligna", "letharia columbiana", "constantinomyces virgultus"
+  )
+
+  grepl(paste(fungal_patterns, collapse = "|"), x, ignore.case = TRUE)
+}
+
+is_too_broad_assignment <- function(x) {
+  x <- tolower(trimws(as.character(x)))
+  if (is.na(x) || !nzchar(x)) return(FALSE)
+
+  patterns <- c(
+    "tied hits agree on species uncultured organism",
+    "tied hits agree on species unidentified",
+    "tied hits agree on species uncultured microorganism",
+    "tied hits agree on species uncultured eukaryote",
+    "tied hits agree on species uncultured diatom",
+    "tied hits agree on species uncultured archaeon",
+    "Lowest shared taxon: environmental samples",
+    "tied hits agree on species uncultured phototrophic eukaryote"
+  )
+
+  grepl(paste(patterns, collapse = "|"), x, ignore.case = TRUE)
+}
+
 norm_decision <- function(x) {
   x0 <- trimws(as.character(x))
   if (is.na(x0) || x0 == "") return("approved")
@@ -26,7 +132,7 @@ norm_remove <- function(x) {
   x0 <- trimws(as.character(x))
   if (is.na(x0) || x0 == "") return("keep")
   x <- tolower(x0)
-  if (x %in% c("y","yes","remove","removed","true","t","1")) return("remove")
+  if (x %in% c("y","yes","remove","removed","true","t","1","ues","tes","ye","yse","yas","yws","yez","yex","ys","yess","yds","yss","tes","y3s")) return("remove")
   "keep"
 }
 
@@ -72,6 +178,301 @@ get_rank_order <- function(tax_cols_rank) {
   }
   if (length(out) == 0) return(tax_cols_rank)
   out
+}
+
+is_bacterial_like <- function(x) {
+  x <- tolower(trimws(as.character(x)))
+  if (is.na(x) || !nzchar(x)) return(FALSE)
+
+  strong_bacterial_patterns <- c(
+    "uncultured bacterium",
+    "bacterium",
+    "bacteria",
+    "uncultured prokaryote",
+    "prokaryote",
+    "prokaryotic",
+    "cyanobacter",
+    "actinomyc",
+    "actinomy",
+    "actinoplan",
+    "actinacidiphila",
+    "acidiphilium",
+    "acetatifactor",
+    "adlercreutzia",
+    "aerococc",
+    "aeromicrobium",
+    "aeromonad",
+    "agrococcus",
+    "agromyces",
+    "akkermansia",
+    "algoriphagus",
+    "aurantimonas",
+    "alcaligen",
+    "alicycliphilus",
+    "alistipes",
+    "alkaligen",
+    "acetivibrio",
+    "acholeplasma",
+    "acidisoma",
+    "acidisphaera",
+    "acidothermus",
+    "aequorivita",
+    "alkanindiges",
+    "alloactinosynnema",
+    "alysiella",
+    "amycolatopsis",
+    "anaerospora",
+    "anaerovorax",
+    "arthrocatena",
+    "aureimonas",
+    "bacill",
+    "barnesiella",
+    "bartonella",
+    "bdellovibr",
+    "blautia",
+    "blastopirellula",
+    "bythopirellula",
+    "bosea",
+    "boudabousia",
+    "bradyrhizob",
+    "brevundimonas",
+    "brucell",
+    "buchnera",
+    "burkholder",
+    "butyricicoccus",
+    "butyrivibrio",
+    "caldimonas",
+    "cellulomon",
+    "cellulosimicrobium",
+    "cellulosilytic",
+    "cellvibrio",
+    "chlamyd",
+    "chloroflex",
+    "chroococc",
+    "chthoniobacter",
+    "chthonomonas",
+    "clostrid",
+    "corallococcus",
+    "croceicoccus",
+    "candidatus hepatincola",
+    "kosakonia arachidis",
+    "candidatus xiphinematobacter",
+    "cytophag",
+    "delftia",
+    "desulfovibr",
+    "devosia",
+    "dyella",
+    "dielma",
+    "enterococcus",
+    "enterorhabdus",
+    "erwinia",
+    "facklamia",
+    "fischerella",
+    "francisell",
+    "frondihabitans",
+    "galbitalea",
+    "gemmata",
+    "gemmatimon",
+    "georgenia",
+    "glycomycet",
+    "haliangium",
+    "halomon",
+    "hyphomicrob",
+    "iamia",
+    "ignatzschineria",
+    "isoptericola",
+    "jatrophihabitans",
+    "kingella",
+    "kineococcus",
+    "kineospori",
+    "kocuria",
+    "lachnospir",
+    "lactiplantibacillus",
+    "lactobacill",
+    "legionell",
+    "leifsonia",
+    "leptolyngbya",
+    "leuconostoc",
+    "lewinell",
+    "limibaculum",
+    "luteimonas",
+    "mammaliicoccus",
+    "marinomonas",
+    "martelella",
+    "marininema",
+    "marinococcus",
+    "marmoricola",
+    "mesomycoplasma",
+    "micrococc",
+    "micromonospora",
+    "microvirga",
+    "minicystis",
+    "mordavella",
+    "moraxella",
+    "morganell",
+    "muricoccus",
+    "mycoplas",
+    "myroides",
+    "myxococc",
+    "nakamurella",
+    "nannocystis",
+    "neisseri",
+    "nitrosomonas",
+    "nocardia",
+    "nocardio",
+    "nocardiopsis",
+    "nostoc",
+    "nostocales",
+    "novosphingob",
+    "mucilaginibacter",
+    "oceanisphaera",
+    "parabacteroides",
+    "ohtaekwangia",
+    "phragmitibacter",
+    "psychrobacter",
+    "sanguibacter",
+    "sedimentibacter",
+    "streptococcus",
+    "streptomyces",
+    "caedibacter",
+    "acinetobacter",
+    "adhaeribacter",
+    "angustibacter",
+    "bacteroides",
+    "bryobacter",
+    "candidatus Solibacter",
+    "caulobacter",
+    "conexibacter",
+    "edaphobacter",
+    "citrobacter",
+    "konicacronema",
+    "coleofasciculus",
+    "leptospira",
+    "flavisolibacter",
+    "helicobacter",
+    "hymenobacter",
+    "granulicella",
+    "actinotalea",
+    "anabaena",
+    "lysobacter",
+    "oscillibacter",
+    "parabacteroides",
+    "patulibacter",
+    "actinobaculum",
+    "bacteroides",
+    "conexibacter",
+    "adhaeribacter",
+    "rodentibacter",
+    "sanguibacter",
+    "streptomyces",
+    "hydrotalea",
+    "pedobacter",
+    "peredibacter",
+    "peredibacter",
+    "ramlibacter",
+    "prosthecobacter",
+    "pseudoramibacter",
+    "rubrobacter",
+    "segetibacter",
+    "solirubrobacter",
+    "streptococcus parauberis",
+    "campylobacter",
+    "pseudaminobacter",
+    "verminephrobacter",
+    "hungatella hathewayi",
+    "gordonibacter faecis",
+    "candidatus korobacter",
+    "brenneria goodwinii",
+    "endosaccharibacter",
+    "dyadobacter",
+    "arcticibacter",
+    "bisgaard taxon 44",
+    "ammoniphilus",
+    "candidatus soleaferrea",
+    "candidatus onthousia faecigallinarum",
+    "luteolibacter",
+    "leucobacter",
+    "bacteriovorax",
+    "helcococcus",
+    "ilyomonas",
+    "candidatus aschnera chinzeii",
+    "candidatus hepatoplasma vulgare",
+    "pontibacter",
+    "opitutus",
+    "oscillospira",
+    "paenalcaligenes",
+    "paraburkholder",
+    "paracoccus",
+    "pasteurell",
+    "pasteuria",
+    "pediococcus",
+    "pelistega",
+    "peptostrept",
+    "phocaeicola",
+    "phycisphaera",
+    "planctomyc",
+    "planococcus",
+    "porphyromonas",
+    "prevotella",
+    "prokary",
+    "proteus",
+    "providencia",
+    "pseudanabaenaceae",
+    "pseudescherichia",
+    "pseudokineococcus",
+    "pseudomon",
+    "pusillimonas",
+    "qipengyuania",
+    "raoultella",
+    "ralstonia",
+    "rhizob",
+    "rhodococcus",
+    "rhodospirill",
+    "riemerella",
+    "roseburia",
+    "roseomonas",
+    "roseovarius",
+    "rothia",
+    "rubellimicrobium",
+    "rubripirellula",
+    "ruminococcus",
+    "salinibacterium",
+    "serratia",
+    "shewanella",
+    "shigella",
+    "singulisphaera",
+    "skermanella",
+    "soehngenia",
+    "sphingobacter",
+    "sphingomon",
+    "sphingopyx",
+    "spiroplasma",
+    "spirosoma",
+    "sporosarcina",
+    "staphyl",
+    "teichococcus",
+    "terriglobus",
+    "tetragenococcus",
+    "tissierella",
+    "tomitella",
+    "ureaplasma",
+    "vagococcus",
+    "variovorax",
+    "veillonella",
+    "velocimicrobium",
+    "verrucomicrobi",
+    "vitreoscilla",
+    "weissella",
+    "williamsia",
+    "wolbach",
+    "xanthomon",
+    "xenorhabdus",
+    "yaniella",
+    "yersinia",
+    "zavarzinella"
+  )
+
+  grepl(paste(strong_bacterial_patterns, collapse = "|"), x, ignore.case = TRUE)
 }
 # If phyloseq object is missing:
 
@@ -217,6 +618,10 @@ stop_if_missing(PROJECT_NAME, "PROJECT_NAME")
 
 PROJECT_DIR <- Sys.getenv("PROJECT_DIR", unset = file.path(Sys.getenv("HOME"), "Metabarcoding", PROJECT_NAME))
 
+TREAT_BACTERIA <- tolower(Sys.getenv("TREAT_BACTERIA", "FALSE")) == "true"
+TREAT_FUNGI    <- tolower(Sys.getenv("TREAT_FUNGI", "FALSE")) == "true"
+TREAT_PLANTS   <- tolower(Sys.getenv("TREAT_PLANTS", "FALSE")) == "true"
+
 BLAST_FILE <- Sys.getenv(
   "LCTR_TSV",
   unset = file.path(PROJECT_DIR, "output", "BLAST", paste0(PROJECT_NAME, "_final_LCTR_taxonomy_with_ranks.tsv"))
@@ -238,7 +643,25 @@ UNASSIGNED_FASTA <- Sys.getenv(
   unset = file.path(PROJECT_DIR, "output", "R", paste0(PROJECT_NAME, "_DADA2_unassigned_ASVs.fasta"))
 )
 
-is_resume <- file.exists(review_xlsx)
+ASV_FASTA <- Sys.getenv(
+  "ASV_FASTA",
+  unset = file.path(PROJECT_DIR, "output", "dada2", "ASV_seqs.fasta")
+)
+
+ASV_TABLE_TSV <- Sys.getenv(
+  "ASV_TABLE_TSV",
+  unset = file.path(PROJECT_DIR, "output", "dada2", "DADA2_table.tsv")
+)
+
+RUN_MODE <- tolower(trimws(Sys.getenv("REVIEW_RUN_MODE", unset = "")))
+if (!RUN_MODE %in% c("first", "second", "reprocess")) {
+  stop(
+    "Invalid or missing REVIEW_RUN_MODE. Expected one of: first, second, reprocess",
+    call. = FALSE
+  )
+}
+
+xlsx_exists <- file.exists(review_xlsx)
 
 user <- Sys.getenv("USER", unset = "")
 stop_if_missing(user, "USER")
@@ -252,11 +675,10 @@ if (!file.exists(BLAST_FILE)) stop("Cannot find BLAST taxonomy file: ", BLAST_FI
 # ----------------------------
 
 if (!file.exists(PHYLOSEQ_RDS)) {
-  ASV_TABLE_TSV <- Sys.getenv("ASV_TABLE_TSV", unset = "")
-  METADATA_TSV  <- Sys.getenv("METADATA_TSV", unset = "")
+  METADATA_TSV <- Sys.getenv("METADATA_TSV", unset = "")
 
   stop_if_missing(ASV_TABLE_TSV, "ASV_TABLE_TSV")
-  stop_if_missing(METADATA_TSV,  "METADATA_TSV")
+  stop_if_missing(METADATA_TSV, "METADATA_TSV")
 
   message("PHYLOSEQ_RDS not found. Creating phyloseq from DADA2 table + metadata...")
   ps <- make_phyloseq_from_dada2_table(ASV_TABLE_TSV, METADATA_TSV)
@@ -266,7 +688,6 @@ if (!file.exists(PHYLOSEQ_RDS)) {
   saveRDS(ps, PHYLOSEQ_RDS)
   message("Saved new phyloseq object to: ", PHYLOSEQ_RDS)
 
-  message("Saved new phyloseq object to: ", PHYLOSEQ_RDS)
 } else {
   ps <- readRDS(PHYLOSEQ_RDS)
   if (!inherits(ps, "phyloseq")) {
@@ -386,31 +807,322 @@ wanted_front <- intersect(wanted_front, names(df))
 rest <- setdiff(names(df), wanted_front)
 df <- df[, c(wanted_front, rest), drop = FALSE]
 
-# Build excluded_by_blast_df for the workbook (used in both runs later)
-excluded_by_blast_df <- data.frame(ASV = character(0), Sequence = character(0), Length = integer(0), stringsAsFactors = FALSE)
+# Detect fungal-like entries only if enabled
+fungal_rows <- rep(FALSE, nrow(df))
+if (TREAT_FUNGI) {
+  if ("Explanation" %in% names(df)) {
+    fungal_rows <- fungal_rows | vapply(df[["Explanation"]], is_fungal_like, logical(1))
+  }
+  if ("Final_Taxon" %in% names(df)) {
+    fungal_rows <- fungal_rows | vapply(df[["Final_Taxon"]], is_fungal_like, logical(1))
+  }
+}
 
-if (file.exists(UNASSIGNED_FASTA)) {
-  unassigned_seqs <- tryCatch(readDNAStringSet(UNASSIGNED_FASTA, format = "fasta"), error = function(e) NULL)
-  if (!is.null(unassigned_seqs) && length(unassigned_seqs) > 0) {
-    unassigned_ids <- names(unassigned_seqs)
-    unassigned_ids <- unassigned_ids[nzchar(unassigned_ids)]
+# Detect bacterial-like entries only if enabled
+bacterial_rows <- rep(FALSE, nrow(df))
+if (TREAT_BACTERIA) {
+  if ("Explanation" %in% names(df)) {
+    bacterial_rows <- bacterial_rows | vapply(df[["Explanation"]], is_bacterial_like, logical(1))
+  }
+  if ("Final_Taxon" %in% names(df)) {
+    bacterial_rows <- bacterial_rows | vapply(df[["Final_Taxon"]], is_bacterial_like, logical(1))
+  }
+}
 
-    review_ids <- if ("ASV" %in% names(df)) as.character(df$ASV) else character(0)
-    excluded_ids <- setdiff(unassigned_ids, review_ids)
+# Detect plant-like entries only if enabled
+plant_rows <- rep(FALSE, nrow(df))
+if (TREAT_PLANTS) {
+  if ("Explanation" %in% names(df)) {
+    plant_rows <- plant_rows | vapply(df[["Explanation"]], is_plant_like, logical(1))
+  }
+  if ("Final_Taxon" %in% names(df)) {
+    plant_rows <- plant_rows | vapply(df[["Final_Taxon"]], is_plant_like, logical(1))
+  }
+}
 
-    if (length(excluded_ids) > 0) {
-      excluded_seqs <- unassigned_seqs[excluded_ids]
-      excluded_by_blast_df <- data.frame(
-        ASV = excluded_ids,
-        Sequence = as.character(excluded_seqs),
-        Length = nchar(as.character(excluded_seqs)),
-        stringsAsFactors = FALSE
-      )
+# If both fungal and bacterial signatures occur, remove the ASV
+mixed_microbe_rows <- rep(FALSE, nrow(df))
+if (TREAT_BACTERIA && TREAT_FUNGI) {
+  mixed_microbe_rows <- fungal_rows & bacterial_rows
+}
+
+if (any(mixed_microbe_rows)) {
+  if ("Remove_ASV" %in% names(df)) {
+    cur_remove <- ifelse(is.na(df[["Remove_ASV"]]), "", as.character(df[["Remove_ASV"]]))
+    df[["Remove_ASV"]][mixed_microbe_rows & !nzchar(trimws(cur_remove))] <- "yes"
+  }
+
+  if ("Disapprove_Reason" %in% names(df)) {
+    cur_reason <- ifelse(is.na(df[["Disapprove_Reason"]]), "", as.character(df[["Disapprove_Reason"]]))
+    df[["Disapprove_Reason"]][mixed_microbe_rows & !nzchar(trimws(cur_reason))] <- "Conflicting fungal and bacterial taxa assignment."
+  }
+
+  if ("Approve" %in% names(df)) {
+    cur_approve <- ifelse(is.na(df[["Approve"]]), "", as.character(df[["Approve"]]))
+    df[["Approve"]][mixed_microbe_rows & !nzchar(trimws(cur_approve))] <- "no"
+  }
+
+  for (oc in override_cols) {
+    if (oc %in% names(df)) {
+      df[[oc]][mixed_microbe_rows] <- "NA"
     }
   }
 }
 
-if (!is_resume) {
+# If plant and fungal/bacterial signatures both occur, remove the ASV
+mixed_plant_microbe_rows <- rep(FALSE, nrow(df))
+if (TREAT_PLANTS && (TREAT_BACTERIA || TREAT_FUNGI)) {
+  mixed_plant_microbe_rows <- plant_rows & (bacterial_rows | fungal_rows)
+}
+
+if (any(mixed_plant_microbe_rows)) {
+  if ("Remove_ASV" %in% names(df)) {
+    cur_remove <- ifelse(is.na(df[["Remove_ASV"]]), "", as.character(df[["Remove_ASV"]]))
+    df[["Remove_ASV"]][mixed_plant_microbe_rows & !nzchar(trimws(cur_remove))] <- "yes"
+  }
+
+  if ("Disapprove_Reason" %in% names(df)) {
+    cur_reason <- ifelse(is.na(df[["Disapprove_Reason"]]), "", as.character(df[["Disapprove_Reason"]]))
+    df[["Disapprove_Reason"]][mixed_plant_microbe_rows & !nzchar(trimws(cur_reason))] <- "Conflicting plant and microbial taxa assignment."
+  }
+
+  if ("Approve" %in% names(df)) {
+    cur_approve <- ifelse(is.na(df[["Approve"]]), "", as.character(df[["Approve"]]))
+    df[["Approve"]][mixed_plant_microbe_rows & !nzchar(trimws(cur_approve))] <- "no"
+  }
+
+  for (oc in override_cols) {
+    if (oc %in% names(df)) {
+      df[[oc]][mixed_plant_microbe_rows] <- "NA"
+    }
+  }
+}
+
+# Remove mixed rows from autofill
+fungal_rows <- fungal_rows & !mixed_microbe_rows & !mixed_plant_microbe_rows
+bacterial_rows <- bacterial_rows & !mixed_microbe_rows & !mixed_plant_microbe_rows
+plant_rows <- plant_rows & !mixed_plant_microbe_rows
+
+# Autofill plant rows
+plant_only <- plant_rows & !bacterial_rows & !fungal_rows
+
+if (TREAT_PLANTS && any(plant_only)) {
+  if ("Override_Kingdom" %in% names(df)) {
+    cur <- ifelse(is.na(df[["Override_Kingdom"]]), "", as.character(df[["Override_Kingdom"]]))
+    df[["Override_Kingdom"]][plant_only & !nzchar(trimws(cur))] <- "Plantae"
+  }
+
+  for (oc in c("Override_Phylum", "Override_Class", "Override_Order",
+               "Override_Family", "Override_Genus", "Override_Species",
+               "Override_Common")) {
+    if (oc %in% names(df)) {
+      cur <- ifelse(is.na(df[[oc]]), "", as.character(df[[oc]]))
+      df[[oc]][plant_only & !nzchar(trimws(cur))] <- "Plant spp"
+    }
+  }
+}
+
+# Autofill fungal rows
+if (TREAT_FUNGI && any(fungal_rows)) {
+  if ("Override_Kingdom" %in% names(df)) {
+    cur <- ifelse(is.na(df[["Override_Kingdom"]]), "", as.character(df[["Override_Kingdom"]]))
+    df[["Override_Kingdom"]][fungal_rows & !nzchar(trimws(cur))] <- "Fungi"
+  }
+
+  for (oc in c("Override_Phylum", "Override_Class", "Override_Order",
+               "Override_Family", "Override_Genus", "Override_Species",
+               "Override_Common")) {
+    if (oc %in% names(df)) {
+      cur <- ifelse(is.na(df[[oc]]), "", as.character(df[[oc]]))
+      df[[oc]][fungal_rows & !nzchar(trimws(cur))] <- "Fungi spp"
+    }
+  }
+}
+
+# Autofill bacterial rows
+if (TREAT_BACTERIA && any(bacterial_rows)) {
+  if ("Override_Kingdom" %in% names(df)) {
+    cur <- ifelse(is.na(df[["Override_Kingdom"]]), "", as.character(df[["Override_Kingdom"]]))
+    df[["Override_Kingdom"]][bacterial_rows & !nzchar(trimws(cur))] <- "Bacteria"
+  }
+
+  for (oc in c("Override_Phylum", "Override_Class", "Override_Order",
+               "Override_Family", "Override_Genus", "Override_Species",
+               "Override_Common")) {
+    if (oc %in% names(df)) {
+      cur <- ifelse(is.na(df[[oc]]), "", as.character(df[[oc]]))
+      df[[oc]][bacterial_rows & !nzchar(trimws(cur))] <- "Bacteria spp"
+    }
+  }
+}
+
+
+# Mark vague/too-broad explanation rows for removal
+if ("Explanation" %in% names(df)) {
+  broad_rows <- vapply(df[["Explanation"]], is_too_broad_assignment, logical(1))
+
+  if (any(broad_rows)) {
+
+    # --- Remove_ASV ---
+    if ("Remove_ASV" %in% names(df)) {
+      cur_remove <- ifelse(is.na(df[["Remove_ASV"]]), "", as.character(df[["Remove_ASV"]]))
+      df[["Remove_ASV"]][broad_rows & !nzchar(trimws(cur_remove))] <- "yes"
+    }
+
+    # --- Disapprove reason ---
+    if ("Disapprove_Reason" %in% names(df)) {
+      cur_reason <- ifelse(is.na(df[["Disapprove_Reason"]]), "", as.character(df[["Disapprove_Reason"]]))
+      df[["Disapprove_Reason"]][broad_rows & !nzchar(trimws(cur_reason))] <- "Taxa assignment unclear/too broad"
+    }
+
+    # --- Force disapproval ---
+    if ("Approve" %in% names(df)) {
+      cur_approve <- ifelse(is.na(df[["Approve"]]), "", as.character(df[["Approve"]]))
+      df[["Approve"]][broad_rows & !nzchar(trimws(cur_approve))] <- "no"
+    }
+
+    # --- NEW: Set all override columns to NA ---
+    for (oc in override_cols) {
+      if (oc %in% names(df)) {
+        df[[oc]][broad_rows] <- "NA"
+      }
+    }
+  }
+}
+
+# Build excluded_by_blast_df for the workbook:
+# all ASVs in ASV_FASTA that are not present in the review table,
+# with total read abundance from DADA2_table.tsv
+
+# Build abundance table from DADA2_table.tsv (keep per-sample counts)
+asv_abundance <- numeric(0)
+asv_counts_df <- NULL
+
+if (file.exists(ASV_TABLE_TSV)) {
+  dada_tab <- read.delim(
+    ASV_TABLE_TSV,
+    sep = "\t",
+    header = TRUE,
+    check.names = FALSE,
+    stringsAsFactors = FALSE
+  )
+
+  if (!("ASV_ID" %in% names(dada_tab))) {
+    stop("DADA2_table.tsv must contain an 'ASV_ID' column.", call. = FALSE)
+  }
+
+  non_count_cols <- intersect(c("ASV_ID", "sequence"), names(dada_tab))
+  count_cols <- setdiff(names(dada_tab), non_count_cols)
+
+  if (length(count_cols) > 0) {
+    count_mat <- as.data.frame(dada_tab[, count_cols, drop = FALSE], stringsAsFactors = FALSE)
+    count_mat[] <- lapply(count_mat, function(x) suppressWarnings(as.numeric(x)))
+    count_mat[is.na(count_mat)] <- 0
+
+    # store full table (per-sample)
+    asv_counts_df <- count_mat
+    rownames(asv_counts_df) <- as.character(dada_tab$ASV_ID)
+
+    # keep total abundance with names
+    asv_abundance <- rowSums(as.matrix(count_mat))
+    names(asv_abundance) <- as.character(dada_tab$ASV_ID)
+  }
+}
+
+if (file.exists(ASV_FASTA)) {
+  all_asv_seqs <- tryCatch(readDNAStringSet(ASV_FASTA, format = "fasta"), error = function(e) NULL)
+
+  if (!is.null(all_asv_seqs) && length(all_asv_seqs) > 0) {
+    all_asv_ids <- names(all_asv_seqs)
+    all_asv_ids <- all_asv_ids[nzchar(all_asv_ids)]
+
+    review_ids <- if ("ASV" %in% names(df)) as.character(df$ASV) else character(0)
+    review_ids <- review_ids[nzchar(review_ids)]
+
+    excluded_ids <- setdiff(all_asv_ids, review_ids)
+
+    if (length(excluded_ids) > 0) {
+      excluded_seqs <- all_asv_seqs[excluded_ids]
+
+      abund_vals <- asv_abundance[excluded_ids]
+      abund_vals[is.na(abund_vals)] <- 0
+
+excluded_by_blast_df <- data.frame(
+  ASV = excluded_ids,
+  `Include?` = "",
+
+  Override_Kingdom = "",
+  Override_Phylum = "",
+  Override_Class = "",
+  Override_Order = "",
+  Override_Family = "",
+  Override_Genus = "",
+  Override_Species = "",
+  Override_Common = "",
+
+  Query_Cover = "",
+  E_value = "",
+  Per_Identity = "",
+  NCBI_Accession = "",
+
+  Read_Abundance = as.numeric(abund_vals),
+  Sequence = as.character(excluded_seqs),
+  Length = nchar(as.character(excluded_seqs)),
+
+  stringsAsFactors = FALSE
+)
+
+# --- NEW: add per-sample abundances ---
+if (!is.null(asv_counts_df)) {
+  sample_counts <- asv_counts_df[excluded_ids, , drop = FALSE]
+  sample_counts[is.na(sample_counts)] <- 0
+
+  excluded_by_blast_df <- cbind(
+    excluded_by_blast_df,
+    sample_counts
+  )
+}
+
+      excluded_by_blast_df <- excluded_by_blast_df[order(-excluded_by_blast_df$Read_Abundance), , drop = FALSE]
+    }
+  }
+}
+
+override_and_review_cols <- c(
+  "Include?",
+  "Override_Kingdom",
+  "Override_Phylum",
+  "Override_Class",
+  "Override_Order",
+  "Override_Family",
+  "Override_Genus",
+  "Override_Species",
+  "Override_Common",
+  "Query_Cover",
+  "E_value",
+  "Per_Identity",
+  "NCBI_Accession"
+)
+
+for (cc in intersect(override_and_review_cols, names(excluded_by_blast_df))) {
+  excluded_by_blast_df[[cc]][trimws(as.character(excluded_by_blast_df[[cc]])) == ""] <- "NA"
+}
+
+if (RUN_MODE == "first") {
+  if (xlsx_exists) {
+    stop(
+      "Review workbook already exists:\n  ", review_xlsx, "\n",
+      "Use REVIEW_RUN_MODE=reprocess to overwrite it, or REVIEW_RUN_MODE=second to continue.",
+      call. = FALSE
+    )
+  }
+}
+
+if (RUN_MODE == "reprocess") {
+  message("Reprocessing first run: rebuilding review workbook and overwriting existing file if present.")
+}
+
+if (RUN_MODE %in% c("first", "reprocess")) {
   wb <- createWorkbook()
 
   addWorksheet(wb, "README")
@@ -430,78 +1142,45 @@ if (!is_resume) {
   writeData(wb, "For_Review", df, withFilter = TRUE)
   freezePane(wb, "For_Review", firstRow = TRUE)
   setColWidths(wb, "For_Review", cols = 1:ncol(df), widths = "auto")
-  addStyle(wb, "For_Review", style = createStyle(textDecoration = "bold"), rows = 1, cols = 1:ncol(df), gridExpand = TRUE)
+  addStyle(wb, "For_Review", style = createStyle(textDecoration = "bold"),
+           rows = 1, cols = 1:ncol(df), gridExpand = TRUE)
 
-  approve_col <- match("Approve", names(df))
-  reason_col  <- match("Disapprove_Reason", names(df))
-  remove_col  <- match("Remove_ASV", names(df))
-
-  approve_letter <- if (!is.na(approve_col)) int2col(approve_col) else NA_character_
-  reason_letter  <- if (!is.na(reason_col))  int2col(reason_col)  else NA_character_
-  remove_letter  <- if (!is.na(remove_col))  int2col(remove_col)  else NA_character_
-
-  if (!is.na(approve_col)) {
-    dataValidation(wb, "For_Review", cols = approve_col, rows = 2:(nrow(df)+1),
-                   type = "list", value = '"no"', allowBlank = TRUE, showInputMsg = TRUE)
-  }
-  if (!is.na(remove_col)) {
-    dataValidation(wb, "For_Review", cols = remove_col, rows = 2:(nrow(df)+1),
-                   type = "list", value = '"yes"', allowBlank = TRUE, showInputMsg = TRUE)
-  }
-
-  redRowStyle     <- createStyle(fgFill = "#F8D7DA")
-  yellowCellStyle <- createStyle(fgFill = "#FFF3CD")
-  orangeCellStyle <- createStyle(fgFill = "#FFE5B4")
-  grayRowStyle    <- createStyle(fgFill = "#E2E3E5")
-
-  row_cols <- 1:ncol(df)
-  row_rows <- 2:(nrow(df) + 1)
-
-  if (!is.na(approve_letter)) {
-    conditionalFormatting(wb, "For_Review", cols = row_cols, rows = row_rows,
-                          type = "expression", rule = paste0("=$", approve_letter, "2=\"no\""), style = redRowStyle)
-  }
-  if (!is.na(remove_letter)) {
-    conditionalFormatting(wb, "For_Review", cols = row_cols, rows = row_rows,
-                          type = "expression", rule = paste0("=$", remove_letter, "2=\"yes\""), style = grayRowStyle)
-  }
-  if (!is.na(approve_letter) && !is.na(reason_col) && !is.na(reason_letter)) {
-    conditionalFormatting(wb, "For_Review", cols = reason_col, rows = row_rows,
-                          type = "expression",
-                          rule = paste0("=AND($", approve_letter, "2=\"no\",LEN(TRIM($", reason_letter, "2))=0)"),
-                          style = yellowCellStyle)
-  }
-
-  override_col_indices <- match(override_cols, names(df))
-  override_col_indices <- override_col_indices[!is.na(override_col_indices)]
-  override_letters <- vapply(override_col_indices, int2col, character(1))
-
-  if (!is.na(approve_letter) && length(override_col_indices) > 0) {
-    for (i in seq_along(override_col_indices)) {
-      col_idx <- override_col_indices[i]
-      col_letter <- override_letters[i]
-      conditionalFormatting(wb, "For_Review", cols = col_idx, rows = row_rows,
-                            type = "expression",
-                            rule = paste0("=AND($", approve_letter, "2=\"no\",LEN(TRIM($", col_letter, "2))=0)"),
-                            style = orangeCellStyle)
-    }
-  }
-
-  # Excluded_by_BLAST tab
   addWorksheet(wb, "Excluded_by_BLAST")
-  writeData(wb, "Excluded_by_BLAST", excluded_by_blast_df, withFilter = TRUE)
-  freezePane(wb, "Excluded_by_BLAST", firstRow = TRUE)
-  setColWidths(wb, "Excluded_by_BLAST", cols = 1:ncol(excluded_by_blast_df), widths = "auto")
-  if (ncol(excluded_by_blast_df) > 0) {
-    addStyle(wb, "Excluded_by_BLAST", style = createStyle(textDecoration = "bold"),
-             rows = 1, cols = 1:ncol(excluded_by_blast_df), gridExpand = TRUE)
-  }
-  if ("Sequence" %in% names(excluded_by_blast_df) && nrow(excluded_by_blast_df) > 0) {
-    wrapStyle <- createStyle(wrapText = TRUE, valign = "top")
-    seq_col_idx <- match("Sequence", names(excluded_by_blast_df))
-    addStyle(wb, "Excluded_by_BLAST", wrapStyle,
-             rows = 2:(nrow(excluded_by_blast_df) + 1),
-             cols = seq_col_idx, gridExpand = TRUE, stack = TRUE)
+
+  if (nrow(excluded_by_blast_df) == 0) {
+    writeData(
+      wb, "Excluded_by_BLAST",
+      x = data.frame(
+  Message = "ALL ASVs met BLAST thresholds. None were removed at this stage.",
+  stringsAsFactors = FALSE
+),
+      colNames = FALSE
+    )
+    setColWidths(wb, "Excluded_by_BLAST", cols = 1, widths = 80)
+    addStyle(
+      wb, "Excluded_by_BLAST",
+      style = createStyle(textDecoration = "bold", wrapText = TRUE, valign = "top"),
+      rows = 1, cols = 1, gridExpand = TRUE
+    )
+  } else {
+    writeData(wb, "Excluded_by_BLAST", excluded_by_blast_df, withFilter = TRUE)
+    freezePane(wb, "Excluded_by_BLAST", firstRow = TRUE)
+    setColWidths(wb, "Excluded_by_BLAST", cols = 1:ncol(excluded_by_blast_df), widths = "auto")
+    addStyle(
+      wb, "Excluded_by_BLAST",
+      style = createStyle(textDecoration = "bold"),
+      rows = 1, cols = 1:ncol(excluded_by_blast_df), gridExpand = TRUE
+    )
+
+    if ("Sequence" %in% names(excluded_by_blast_df) && nrow(excluded_by_blast_df) > 0) {
+      wrapStyle <- createStyle(wrapText = TRUE, valign = "top")
+      seq_col_idx <- match("Sequence", names(excluded_by_blast_df))
+      addStyle(
+        wb, "Excluded_by_BLAST", wrapStyle,
+        rows = 2:(nrow(excluded_by_blast_df) + 1),
+        cols = seq_col_idx, gridExpand = TRUE, stack = TRUE
+      )
+    }
   }
 
   saveWorkbook(wb, review_xlsx, overwrite = TRUE)
@@ -510,12 +1189,21 @@ if (!is_resume) {
   message("Review file created at:\n  ", review_xlsx)
   message("\nDownload locally:\n  scp ", user, "@", host, ":", review_xlsx, " .")
   message("\nEdit in Excel, then upload back:\n  scp ", basename(review_xlsx), " ", user, "@", host, ":", dirname(review_xlsx), "/")
-  message("\nAfter re-uploading edited spreadsheet, run THIS SAME COMMAND to continue.\n")
+  message("\nAfter re-uploading edited spreadsheet, run again in SECOND mode to continue.\n")
+
   quit(save = "no", status = 0)
 }
 
-message("Detected existing review spreadsheet; resuming (second run).")
-
+if (RUN_MODE == "second") {
+  if (!xlsx_exists) {
+    stop(
+      "Second-run mode selected but review workbook does not exist:\n  ",
+      review_xlsx,
+      call. = FALSE
+    )
+  }
+  message("Running second-stage review processing.")
+}
 # ----------------------------
 # Step 2: Read review Excel
 # ----------------------------
@@ -612,6 +1300,61 @@ for (asv in in_both) {
 tax_table(ps) <- tax_table(tax_mat)
 
 # ----------------------------
+# Apply overrides from Excluded_by_BLAST for rescued ASVs
+# ----------------------------
+tmp_blast <- NULL
+rescued_asvs <- character(0)
+
+wb_loaded_for_rescue <- tryCatch(loadWorkbook(review_xlsx), error = function(e) NULL)
+if (!is.null(wb_loaded_for_rescue) && "Excluded_by_BLAST" %in% names(wb_loaded_for_rescue)) {
+  tmp_blast <- tryCatch(
+    read.xlsx(review_xlsx, sheet = "Excluded_by_BLAST", detectDates = FALSE),
+    error = function(e) NULL
+  )
+}
+
+if (!is.null(tmp_blast) && "ASV" %in% names(tmp_blast) && "Include?" %in% names(tmp_blast)) {
+  include_flag <- tolower(trimws(as.character(tmp_blast[["Include?"]])))
+  rescued_asvs <- as.character(tmp_blast$ASV[include_flag %in% c("yes", "y", "true", "1")])
+  rescued_asvs <- rescued_asvs[nzchar(rescued_asvs)]
+
+  rescued_in_ps <- intersect(rescued_asvs, rownames(tax_mat))
+
+  if (length(rescued_in_ps) > 0) {
+    for (asv in rescued_in_ps) {
+      row <- tmp_blast[tmp_blast$ASV == asv, , drop = FALSE]
+      if (nrow(row) < 1) next
+      row <- row[1, , drop = FALSE]
+
+      # apply rank overrides
+      for (lvl in tax_cols_rank) {
+        oc <- paste0("Override_", lvl)
+        if (!oc %in% names(row)) next
+        val <- str_trim(ifelse(is.na(row[[oc]][[1]]), "", as.character(row[[oc]][[1]])))
+        if (nzchar(val)) {
+          tax_mat[asv, lvl] <- val
+        }
+      }
+
+      # apply common-name override if present in tax table
+      if ("Common" %in% colnames(tax_mat) && "Override_Common" %in% names(row)) {
+        common_val <- str_trim(ifelse(is.na(row[["Override_Common"]][[1]]), "", as.character(row[["Override_Common"]][[1]])))
+        if (nzchar(common_val)) {
+          tax_mat[asv, "Common"] <- common_val
+        }
+      }
+
+      # mark confidence as overridden if that column exists
+      if (!is.na(CONF_COL) && CONF_COL %in% colnames(tax_mat)) {
+        tax_mat[asv, CONF_COL] <- "overridden"
+      }
+    }
+  }
+}
+
+tax_table(ps) <- tax_table(tax_mat)
+
+# ----------------------------
 # Identify removals AFTER REVIEW ONLY:
 #  - reviewer requested removal
 #  - incomplete taxonomy after review
@@ -639,6 +1382,13 @@ if (!is.null(wb_loaded) && "Excluded_by_BLAST" %in% names(wb_loaded)) {
   }
 }
 
+rescued_asvs <- character(0)
+if (exists("tmp_blast") && !is.null(tmp_blast) && "Include?" %in% names(tmp_blast)) {
+  include_flag <- tolower(trimws(as.character(tmp_blast[["Include?"]])))
+  rescued_asvs <- as.character(tmp_blast$ASV[include_flag %in% c("yes", "y", "true", "1")])
+  rescued_asvs <- rescued_asvs[nzchar(rescued_asvs)]
+}
+
 # --- Keep "no overlap between tabs" logic for the Excluded_by_Reviewer SHEET ---
 removed_by_reviewer_sheet   <- setdiff(removed_by_reviewer, blast_excluded_asvs)
 removed_by_incomplete_sheet <- setdiff(removed_by_incomplete, blast_excluded_asvs)
@@ -654,6 +1404,9 @@ blast_excluded_in_ps <- intersect(blast_excluded_asvs, taxa_names(ps))
 review_excluded_in_ps <- intersect(review_excluded_asvs, taxa_names(ps))
 
 # Final prune set = union
+# Remove rescued ASVs from BLAST exclusion
+blast_excluded_in_ps <- setdiff(blast_excluded_in_ps, rescued_asvs)
+
 prune_asvs <- sort(unique(c(blast_excluded_in_ps, review_excluded_in_ps)))
 
 

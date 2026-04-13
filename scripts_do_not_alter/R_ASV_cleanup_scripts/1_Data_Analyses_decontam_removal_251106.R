@@ -77,10 +77,10 @@ for (i in seq_along(sample_names_vec)) {           # Iterate over each sample
   }
   
   # Find actual control samples matching these IDs
-  assigned_control_samples <- rownames(metadata_matrix)[
-    metadata_matrix[["Control_Assign"]] %in% assigned_ids &  # Filter rows where Control_Assign matches
-      metadata_matrix[["Sample_or_Control"]] == "Control"    # Only keep controls
-  ]
+assigned_control_samples <- rownames(metadata_matrix)[
+  metadata_matrix[[assigned_controls]] %in% assigned_ids &
+    metadata_matrix[[sample_type_col]] == control_label
+]
   
   metric$NumAssignedControls[i] <- length(assigned_control_samples) # Record number of matched controls
   
@@ -174,10 +174,10 @@ assigned_controls_df <- data.frame(
   Assigned_Control_Samples = sapply(sample_names_vec, function(s) { # Get matching control samples
     ids <- split_ids(control_assign[s])                     # Split IDs
     if (length(ids) == 0) return(NA)                        # Return NA if none
-    matched_controls <- rownames(metadata_matrix)[
-      metadata_matrix[["Control_Assign"]] %in% ids &
-        metadata_matrix[["Sample_or_Control"]] == "Control"
-    ]
+matched_controls <- rownames(metadata_matrix)[
+  metadata_matrix[[assigned_controls]] %in% ids &
+    metadata_matrix[[sample_type_col]] == control_label
+]
     if (length(matched_controls) == 0) return(NA)           # Return NA if no match
     paste(matched_controls, collapse = ", ")               # Combine into string
   }),
@@ -245,9 +245,9 @@ for (s in sample_names_vec) {                            # Loop through each sam
   }
 }
 
-removed_per_sample_df <- do.call(rbind, removed_list) # Combine list into a single data frame
+removed_per_sample_df <- do.call(rbind, removed_list)
 
-if (nrow(removed_per_sample_df) == 0) {               # If no rows, create placeholder
+if (is.null(removed_per_sample_df) || nrow(removed_per_sample_df) == 0) {
   removed_per_sample_df <- data.frame(
     Note = "No taxa completely removed in any sample"
   )

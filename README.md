@@ -241,6 +241,8 @@ This repository contains scripts and configuration files to:
 >```
 >"$HOME/Metabarcoding/scripts_do_not_alter/run_review_and_update_phyloseq.sh"
 >```
+>- **When prompted:**
+>    - *Select run mode for review/update* ${\color{green}1}$
 >
 >**A. When prompted, open the `${PROJECT_NAME}_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx` spreadsheet.** 
 > - If you have MobaXterm, simply right click the file and open with Excel. 
@@ -302,6 +304,8 @@ This repository contains scripts and configuration files to:
 > ```
 > "$HOME/Metabarcoding/scripts_do_not_alter/run_review_and_update_phyloseq.sh" 
 > ```
+>- **When prompted:**
+>    - *Select run mode for review/update* ${\color{green}2}$
 > - Your phyloseq object will now be updated with these taxonomic assignments.
 > - You can ignore the intermediate `test_reviewed_assignments.tsv` file created in the BLAST folder.
 
@@ -879,7 +883,16 @@ This repository contains scripts and configuration files to:
 >```
 >"$HOME/Metabarcoding/scripts_do_not_alter/run_review_and_update_phyloseq.sh" 
 >```
-
+> **Script prompts:**
+>   - **Select run mode for review/update: Enter choice [1,2,3]**
+>       - **1** : first - create review workbook for the first time.
+>           - Choose this option if you are creating a review workbook for the first time.
+>       - **2** : second - read edited workbook and update taxonomic assignments.
+>           - Choose this option if you have edited your review workbook, uploaded it, and are ready to implement your taxa assignment updates.
+>       - **3** : reprocess - create review workbook from scratch and overwrite existing file.
+>           - Choose this option if you need to rerun the `run_review_and_update_phyloseq.sh` script for any reason, and want the script to create a new workbook from scratch. 
+>           - *CAUTION:* This will overwrite the workbook file you have saved on FARM.
+>
 >**A. When prompted, open the `"/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/output/BLAST/Review/${PROJECT_NAME}_final_LCTR_taxonomy_with_ranks.REVIEW.xlsx"` spreadsheet.** 
 > - If you have MobaXterm, simply right click the file and open with Excel. 
 > - If you are using a MacOS, open your computer terminal in a separate window and use the `scp` command. This should be run on your computer, not on the cluster. After uploading the file, navigate to local directory and open the spreadsheet.
