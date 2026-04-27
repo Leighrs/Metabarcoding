@@ -674,7 +674,9 @@ if (!file.exists(BLAST_FILE)) stop("Cannot find BLAST taxonomy file: ", BLAST_FI
 # Load or create phyloseq
 # ----------------------------
 
-if (!file.exists(PHYLOSEQ_RDS)) {
+phyloseq_source <- if (file.exists(PHYLOSEQ_RDS)) "existing" else "created_from_dada2"
+
+if (phyloseq_source == "created_from_dada2") {
   METADATA_TSV <- Sys.getenv("METADATA_TSV", unset = "")
 
   stop_if_missing(ASV_TABLE_TSV, "ASV_TABLE_TSV")
@@ -683,15 +685,12 @@ if (!file.exists(PHYLOSEQ_RDS)) {
   message("PHYLOSEQ_RDS not found. Creating phyloseq from DADA2 table + metadata...")
   ps <- make_phyloseq_from_dada2_table(ASV_TABLE_TSV, METADATA_TSV)
 
-  dir.create(dirname(PHYLOSEQ_RDS), recursive = TRUE, showWarnings = FALSE)
-
-  saveRDS(ps, PHYLOSEQ_RDS)
-  message("Saved new phyloseq object to: ", PHYLOSEQ_RDS)
-
 } else {
+  message("Loading existing phyloseq object without modifying original: ", PHYLOSEQ_RDS)
   ps <- readRDS(PHYLOSEQ_RDS)
+
   if (!inherits(ps, "phyloseq")) {
-    stop("Loaded object is not a phyloseq object: ", PHYLOSEQ_RDS, call.=FALSE)
+    stop("Loaded object is not a phyloseq object: ", PHYLOSEQ_RDS, call. = FALSE)
   }
 }
 
@@ -994,6 +993,18 @@ if ("Explanation" %in% names(df)) {
 # all ASVs in ASV_FASTA that are not present in the review table,
 # with total read abundance from DADA2_table.tsv
 
+# Decide which FASTA defines the review universe
+phyloseq_existed_at_start <- file.exists(PHYLOSEQ_RDS)
+
+review_universe_fasta <- if (
+  phyloseq_existed_at_start &&
+  file.exists(UNASSIGNED_FASTA)
+) {
+  UNASSIGNED_FASTA
+} else {
+  ASV_FASTA
+}
+
 # Build abundance table from DADA2_table.tsv (keep per-sample counts)
 asv_abundance <- numeric(0)
 asv_counts_df <- NULL
@@ -1029,8 +1040,11 @@ if (file.exists(ASV_TABLE_TSV)) {
   }
 }
 
-if (file.exists(ASV_FASTA)) {
-  all_asv_seqs <- tryCatch(readDNAStringSet(ASV_FASTA, format = "fasta"), error = function(e) NULL)
+if (file.exists(review_universe_fasta)) {
+  all_asv_seqs <- tryCatch(
+    readDNAStringSet(review_universe_fasta, format = "fasta"),
+    error = function(e) NULL
+  )
 
   if (!is.null(all_asv_seqs) && length(all_asv_seqs) > 0) {
     all_asv_ids <- names(all_asv_seqs)
