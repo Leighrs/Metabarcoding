@@ -82,7 +82,7 @@ This repository contains scripts and configuration files to:
 > Ensure you are in your home directory and execute a shell script that will set up a project directory for you.
 >
 >```
->$HOME/Metabarcoding/scripts_do_not_alter/setup_metabarcoding_directory.sh
+>/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/setup_metabarcoding_directory.sh
 >```
 >- **When prompted:**
 >    - *Enter project name:* ${\color{green}test}$
@@ -100,13 +100,13 @@ This repository contains scripts and configuration files to:
 >
 >export PROJECT_NAME=$(cat "/group/ajfingergrp/Metabarcoding/Project_Runs/Project_IDs/$USER/current_project_name.txt")
 >
->cp -r $HOME/Metabarcoding/test_data/test_fastq/. \
+>cp -r /group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/test_data/test_fastq/. \
 >  /group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/input/fastq/
 >
->cp "$HOME/Metabarcoding/test_data/12S_RSD.txt" \
+>cp "/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/test_data/12S_RSD.txt" \
 >  /group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/input/${PROJECT_NAME}_12S_RSD.txt
 >
->cp "$HOME/Metabarcoding/test_data/metadata.txt" \
+>cp "/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/test_data/metadata.txt" \
 >  /group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/input/${PROJECT_NAME}_metadata.txt
 >```
 
@@ -117,7 +117,7 @@ This repository contains scripts and configuration files to:
 > *This script will autopopulate the PATHs for each of your fastq files, extrapolate sample names from those files, and prompt you to specify how many metabarcoding runs these samples were sequenced in.*
 >
 >```
->"$HOME/Metabarcoding/scripts_do_not_alter/generate_samplesheet_table.sh" 
+>"/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/generate_samplesheet_table.sh" 
 >```
 >
 >- **When prompted:**
@@ -129,7 +129,7 @@ This repository contains scripts and configuration files to:
 > Ensure you are in your home directory and run the following shell script.
 >
 >```
->"$HOME/Metabarcoding/scripts_do_not_alter/check_ids_match.sh"
+>"/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/check_ids_match.sh"
 >```
 >This script will also locate your metafile and add that path to your params file.
 
@@ -160,14 +160,14 @@ This repository contains scripts and configuration files to:
 >}
 >```
 >
-> JSON files can't expand environment variables, like `$HOME` or `$PROJECT_NAME`. Create a file with an expanded variable unique to your system.
+> JSON files can't expand environment variables, such as `$PROJECT_NAME`. Create a file with an expanded variable unique to your system.
 > 
 >```
 >cd ~
 >
 >export PROJECT_NAME=$(cat "/group/ajfingergrp/Metabarcoding/Project_Runs/Project_IDs/$USER/current_project_name.txt")
 >
->envsubst '$HOME $PROJECT_NAME' \
+>envsubst '$PROJECT_NAME' \
 > < "/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/params/${PROJECT_NAME}_nf-params.json" \
 > > "/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/params/${PROJECT_NAME}_nf-params_expanded.json"
 >```
@@ -177,7 +177,7 @@ This repository contains scripts and configuration files to:
 > Ensure you are in your home directory and run the following shell script.
 >
 >```
->"$HOME/Metabarcoding/scripts_do_not_alter/submit_ampliseq.sh"
+>"/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/submit_ampliseq.sh"
 >```
 >- **When prompted:**
 >    - *Resume an existing Nextflow run? [y/n]:* ${\color{red}n}$
@@ -236,7 +236,7 @@ This repository contains scripts and configuration files to:
 >
 >First, run a shell script to review BLAST assignments and update phylseq object:
 >```
->"$HOME/Metabarcoding/scripts_do_not_alter/run_review_and_update_phyloseq.sh"
+>"/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/run_review_and_update_phyloseq.sh"
 >```
 >- **When prompted:**
 >    - *Select run mode for review/update* ${\color{green}1}$
@@ -299,7 +299,7 @@ This repository contains scripts and configuration files to:
 > **D. After uploading edited spreadsheet into FARM, navigate back to terminal with FARM and re-run the following code:**
 > 
 > ```
-> "$HOME/Metabarcoding/scripts_do_not_alter/run_review_and_update_phyloseq.sh" 
+> "/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/run_review_and_update_phyloseq.sh" 
 > ```
 >- **When prompted:**
 >    - *Select run mode for review/update* ${\color{green}2}$
@@ -310,7 +310,7 @@ This repository contains scripts and configuration files to:
 
 >Run this shell script to start decontamination process and follow on-screen prompts:
 >```
->"$HOME/Metabarcoding/scripts_do_not_alter/run_GVL_metabarcoding_cleanup_main.sh" 
+>"/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/run_GVL_metabarcoding_cleanup_main.sh" 
 >```
 >- **When prompted:**
 >    - *Metadata column name indicating sample/control type [Default: Sample_or_Control]:* ${\color{green}hit}$ ${\color{green}enter}$
@@ -712,10 +712,10 @@ This repository contains scripts and configuration files to:
 >        - `skip_report`: Skip MultiQC report.
 ></details>
 >
-> JSON files can't expand environment variables, like `$HOME` or `$PROJECT_NAME`. To make sure all your paths are absolute paths, create a file with an expanded variable unique to your system.
+> JSON files can't expand environment variables, such as `$PROJECT_NAME`. To make sure all your paths are absolute paths, create a file with an expanded variable unique to your system.
 >```
 >export PROJECT_NAME=$(cat "/group/ajfingergrp/Metabarcoding/Project_Runs/Project_IDs/$USER/current_project_name.txt")
->envsubst '$HOME $PROJECT_NAME' \
+>envsubst '$PROJECT_NAME' \
 >  < "/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/params/${PROJECT_NAME}_nf-params.json" \
 >  > "/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/params/${PROJECT_NAME}_nf-params_expanded.json"
 >```
