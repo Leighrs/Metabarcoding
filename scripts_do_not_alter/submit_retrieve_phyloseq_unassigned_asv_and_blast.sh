@@ -1,8 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-PHYLOSEQ_SBATCH="$HOME/Metabarcoding/scripts_do_not_alter/retrieve_phyloseq_unassigned_ASVs_and_blast.slurm"
-BLAST_ASV_SBATCH="$HOME/Metabarcoding/scripts_do_not_alter/blast_asv.slurm"
+PHYLOSEQ_SBATCH="/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/retrieve_phyloseq_unassigned_ASVs_and_blast.slurm"
+BLAST_ASV_SBATCH="/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/blast_asv.slurm"
 
 LOGDIR="/group/ajfingergrp/Metabarcoding/intermediates_logs_cache/slurm_logs"
 mkdir -p "$LOGDIR"
@@ -125,7 +125,6 @@ echo "  BLAST_MAX_TARGET     = $BLAST_MAX_TARGET_SEQS"
 echo ""
 
 sbatch \
-  --chdir="$HOME" \
   --output="$LOGDIR/%x_%j.out" \
   --error="$LOGDIR/%x_%j.err" \
   --export=ALL,PROJECT_NAME="$PROJECT_NAME",CHOICE="$CHOICE",RUN_BLAST="$RUN_BLAST",BLAST_PERC_IDENTITY="$BLAST_PERC_IDENTITY",BLAST_MAX_TARGET_SEQS="$BLAST_MAX_TARGET_SEQS" \

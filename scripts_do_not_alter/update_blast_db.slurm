@@ -29,7 +29,7 @@ fi
 # -----------------------------
 # Make sure the log directory exists.
 # -----------------------------
-LOGDIR="$HOME/Metabarcoding/Logs_archive"
+LOGDIR="/group/ajfingergrp/Metabarcoding/intermediates_logs_cache/slurm_logs"
 mkdir -p "$LOGDIR"
 
 # -------------------------------

@@ -74,7 +74,7 @@ echo "Running project: $PROJECT_NAME"
 
 export PROJECT_DIR="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME"
 export REVIEW_OUTDIR="$PROJECT_DIR/output/BLAST/Review"
-export SCRIPT_DIR="$HOME/Metabarcoding/scripts_do_not_alter/R_ASV_cleanup_scripts"
+export SCRIPT_DIR="/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/R_ASV_cleanup_scripts"
 export ASV_CLEANUP_DIR="$PROJECT_DIR/output/ASV_cleanup_output"
 export PHYLOSEQ_RDS_REVIEWED="$REVIEW_OUTDIR/phyloseq_${PROJECT_NAME}_UPDATED_reviewed_taxonomy.rds"
 

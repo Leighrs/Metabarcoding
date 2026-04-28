@@ -133,11 +133,10 @@ fi
 # ------------------------------------------------------------
 # Run Python script
 # ------------------------------------------------------------
-PIPELINE_DIR="$HOME/Metabarcoding/scripts_do_not_alter"
+PIPELINE_DIR="/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter"
 PYTHON_SCRIPT="$PIPELINE_DIR/blast_cleanup.py"
 PYTHON_BIN="$ENV_PREFIX_ncbi/bin/python"
 
-echo "HOME=$HOME"
 echo "PIPELINE_DIR=$PIPELINE_DIR"
 echo "PYTHON_SCRIPT=$PYTHON_SCRIPT"
 echo "PYTHON_BIN=$PYTHON_BIN"

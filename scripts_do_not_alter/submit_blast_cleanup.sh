@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-PIPELINE_DIR="$HOME/Metabarcoding/scripts_do_not_alter"
+PIPELINE_DIR="/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter"
 SBATCH_SCRIPT="$PIPELINE_DIR/blast_cleanup.slurm"
 
 LOGDIR="/group/ajfingergrp/Metabarcoding/intermediates_logs_cache/slurm_logs"
@@ -12,7 +12,6 @@ echo "Submitting NCBI taxonomy job to organize raw BLAST results."
 echo ""
 
 sbatch \
-  --chdir="$HOME" \
   --output="$LOGDIR/%x_%j.out" \
   --error="$LOGDIR/%x_%j.err" \
   "$SBATCH_SCRIPT"

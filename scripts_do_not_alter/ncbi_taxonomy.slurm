@@ -133,7 +133,7 @@ fi
 # ------------------------------------------------------------
 # Run Python inside container
 # ------------------------------------------------------------
-PYTHON_SCRIPT="$HOME/Metabarcoding/scripts_do_not_alter/ncbi_pipeline.py"
+PYTHON_SCRIPT="/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/ncbi_pipeline.py"
 
 if [[ ! -f "$PYTHON_SCRIPT" ]]; then
     echo "ERROR: Python script not found: $PYTHON_SCRIPT"

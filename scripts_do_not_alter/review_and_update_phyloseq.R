@@ -14,6 +14,55 @@ suppressPackageStartupMessages({
 # Helper functions
 # ----------------------------
 
+normalize_tax_table_schema <- function(ps) {
+  tax_mat <- as(tax_table(ps), "matrix")
+  tax_mat <- as.matrix(tax_mat)
+
+  # keep ASV/taxa IDs intact
+  rn <- rownames(tax_mat)
+  if (is.null(rn) || length(rn) != ntaxa(ps)) {
+    stop("tax_table rownames are missing or wrong length.", call. = FALSE)
+  }
+
+  rename_map <- c(
+    Domain = "Kingdom",
+    Superkingdom = "Kingdom",
+    Division = "Phylum"
+  )
+
+  for (from in names(rename_map)) {
+    to <- rename_map[[from]]
+    if (from %in% colnames(tax_mat) && !(to %in% colnames(tax_mat))) {
+      colnames(tax_mat)[colnames(tax_mat) == from] <- to
+    }
+  }
+
+  if ("sequence" %in% colnames(tax_mat) && !("ASV_sequence" %in% colnames(tax_mat))) {
+    colnames(tax_mat)[colnames(tax_mat) == "sequence"] <- "ASV_sequence"
+  }
+
+  required <- c("Kingdom","Phylum","Class","Order","Family","Genus","Species","Common")
+  missing <- setdiff(required, colnames(tax_mat))
+
+  if (length(missing) > 0) {
+    add_mat <- matrix(
+      "",
+      nrow = nrow(tax_mat),
+      ncol = length(missing),
+      dimnames = list(rn, missing)
+    )
+    tax_mat <- cbind(tax_mat, add_mat)
+  }
+
+  rownames(tax_mat) <- rn
+
+  # force exact same taxa order as the phyloseq object
+  tax_mat <- tax_mat[taxa_names(ps), , drop = FALSE]
+
+  tax_table(ps) <- phyloseq::tax_table(tax_mat)
+  ps
+}
+
 is_plant_like <- function(x) {
   x <- tolower(trimws(as.character(x)))
   if (is.na(x) || !nzchar(x)) return(FALSE)
@@ -581,33 +630,57 @@ readme_lines <- c(
   "",
   "Tabs:",
   "  - For_Review: ASVs that met BLAST thresholds and require manual review.",
-  "  - Excluded_by_BLAST: ASVs that were BLASTed but did not meet thresholds (i.e., % identity, e-value, query cov) and while be removed from your phyloseq object.",
-  "  - Excluded_by_Reviewer (available after review process): ASVs removed after review (Remove_ASV == yes OR incomplete taxonomy levels after review).",
+  "  - Excluded_by_BLAST: ASVs that were BLASTed but did not meet thresholds and will be removed unless manually rescued.",
+  "  - Excluded_by_Reviewer: ASVs removed after review (Remove_ASV == yes OR incomplete taxonomy after review).",
   "",
   "For_Review Tab Contents:",
-  "  - Columns E-L: Current taxonomic assignments produced by the nf-core/ampliseq pipeline, using your custom RSD.",
-  "    - If you did get nf-core/ampliseq to assign taxonomy, these will be blank.",
-  "  - Columns M-T: Proposed taxonomic assignments generated from BLAST.",
-  "  - Column U: Approval of BLAST assignmment.",
-  "    - Do you agree with the BLAST taxonomic assignments (columns M-T)?",
-  "      - Yes (leave blank): Use this if you agree with the assignment, even if some taxonomic levels are missing.",
-  "      - No (enter 'no'): Ise this if you disagree with the assignment. For example:",
-  "        - BLAST assigned the ASV as Species A, but you know it should be Species B (which may not exist in NCBI).",
-  "        - BLAST assigned the ASV at the species level, but your barcode cannot reliably distinguish species and should only be assigned to genus.",
-  "  - Column V: If you disapprove, provide a brief explanation here.",  
-  "  - Column W: Do you want to remove this ASV from your phyloseq object?.", 
-  "      - No (leave blank).",
-  "      - Yes (enter 'yes').",
-  "  - Columns X-AE: Manual overrides:",
-  "    - You may manually override taxonomic assignments in these columns, regardless of whether you approved or disapproved of the BLAST assignment.",
-  "      - Use these to fill missing taxonomic levels, add common names, or correct specific ranks.",
-  "      - If any taxonomic ranks remain empty, that ASV will be removed from your phyloseq object.",
-  "      - If you approved of BLAST results that are above the species level, then lower ranks will auto-fill as <Final_Taxon> spp unless you override them.",
-  "        - For example, you approved of an ASV that BLAST assigned as Cottidae (family level), then the remaining genus and species level will autofill to `Cottidae spp` unless you override it.", 
-  "  - Notes:",
-  "    - If you dissapprove in Column U, but do not override ANY taxa levels in columns X-AE, then all rank columns will be set to 'unknown'.",
-  "    - If you dissapprove in Column U, and make overrides, the condifence level for that ASV assignment will be set to 'overridden'."
-  
+  "  - Current_* columns:",
+  "      - Existing taxonomic assignments from your phyloseq object or nf-core/ampliseq output.",
+  "      - These reflect the taxonomy prior to BLAST review.",
+  "",
+  "  - Proposed_* columns:",
+  "      - Taxonomic assignments derived from BLAST results.",
+  "      - These serve as a suggested starting point for review.",
+  "",
+  "  - Approve:",
+  "      - Do you agree with the BLAST assignment?",
+  "      - Leave blank or enter 'yes' to approve.",
+  "      - Enter 'no' to disapprove.",
+  "",
+  "  - Disapprove_Reason:",
+  "      - Recommended if Approve = no. Good for record keeping.",
+  "      - Briefly explain why the BLAST assignment is incorrect or too specific.",
+  "",
+  "  - Remove_ASV:",
+  "      - Enter 'yes' to remove this ASV from the final phyloseq object.",
+  "      - Leave blank to keep the ASV.",
+  "",
+  "  - Override_* columns:",
+  "      - Manual taxonomy assignments.",
+  "      - These columns correspond to ALL available taxonomic ranks.",
+  "      - You MUST fill every Override_* column for ASVs you intend to keep.",
+  "          - Use a valid taxon name OR 'NA'.",
+  "          - For easier viewing, the Override cells that MUST be filled in if you want to KEEP that ASV are highlighted RED",
+  "      - If any Override_* column is left blank (and Remove_ASV is not 'yes'), the script will STOP and require completion.",
+  "",
+  "      - Behavior:",
+  "          - If Approve = yes or blank:",
+  "              - BLAST assignment is used as the base.",
+  "              - Override_* values replace any ranks you specify.",
+  "          - If Approve = no:",
+  "              - If NO overrides are provided ? all ranks will be set to 'unknown'.",
+  "              - If SOME overrides are provided ? ALL Override_* columns must be filled.",
+  "",
+  "      - Autofill behavior:",
+  "          - If BLAST assigns at a higher rank (e.g., Family), lower ranks are auto-filled as '<Final_Taxon> spp'.",
+  "          - You can override these values if needed.",
+  "",
+  "Additional Notes:",
+  "  - Taxonomic ranks are dynamic and depend on your reference database (e.g., Supergroup, Subdivision, etc.).",
+  "  - All ranks present in your phyloseq object will be included.",
+  "  - ASVs with incomplete taxonomy after review will be removed automatically.",
+  "  - ASVs in Excluded_by_BLAST can be manually rescued using that tab.",
+  "  - Confidence values are set to 'overridden' if manual edits are applied after disapproval."
 )
 
 # ----------------------------
@@ -616,7 +689,19 @@ readme_lines <- c(
 PROJECT_NAME <- Sys.getenv("PROJECT_NAME", unset = "")
 stop_if_missing(PROJECT_NAME, "PROJECT_NAME")
 
-PROJECT_DIR <- Sys.getenv("PROJECT_DIR", unset = file.path(Sys.getenv("HOME"), "Metabarcoding", PROJECT_NAME))
+BASE_DIR <- Sys.getenv(
+  "BASE_DIR",
+  unset = "/group/ajfingergrp/Metabarcoding/Project_Runs"
+)
+
+PROJECT_DIR <- Sys.getenv(
+  "PROJECT_DIR",
+  unset = file.path(BASE_DIR, PROJECT_NAME)
+)
+
+if (!dir.exists(PROJECT_DIR)) {
+  stop("PROJECT_DIR does not exist: ", PROJECT_DIR, call. = FALSE)
+}
 
 TREAT_BACTERIA <- tolower(Sys.getenv("TREAT_BACTERIA", "FALSE")) == "true"
 TREAT_FUNGI    <- tolower(Sys.getenv("TREAT_FUNGI", "FALSE")) == "true"
@@ -693,15 +778,45 @@ if (phyloseq_source == "created_from_dada2") {
     stop("Loaded object is not a phyloseq object: ", PHYLOSEQ_RDS, call. = FALSE)
   }
 }
-
+ps <- normalize_tax_table_schema(ps)
 
 tax <- tax_table(ps)
 tax_mat <- as(tax, "matrix")
 tax_cols_all <- colnames(tax_mat)
 
-tax_cols_taxrank <- intersect(tax_cols_all, c("Kingdom","Phylum","Class","Order","Family","Genus","Species"))
-editable_cols <- unique(c(tax_cols_taxrank, "Common"))
-editable_cols <- intersect(editable_cols, tax_cols_all)
+extra_tax_ranks <- strsplit(Sys.getenv("EXTRA_TAX_RANKS", unset = ""), ",")[[1]]
+extra_tax_ranks <- trimws(extra_tax_ranks)
+extra_tax_ranks <- extra_tax_ranks[nzchar(extra_tax_ranks)]
+
+for (cc in extra_tax_ranks) {
+  if (!(cc %in% colnames(tax_mat))) {
+    tax_mat <- cbind(
+      tax_mat,
+      matrix("", nrow = nrow(tax_mat), ncol = 1,
+             dimnames = list(rownames(tax_mat), cc))
+    )
+  }
+}
+
+tax_table(ps) <- phyloseq::tax_table(tax_mat)
+tax <- tax_table(ps)
+tax_mat <- as(tax, "matrix")
+tax_cols_all <- colnames(tax_mat)
+
+non_editable_tax_cols <- c("confidence", "Confidence", "CONFIDENCE",
+                           "sequence", "Sequence",
+                           "ASV_sequence", "asv_sequence")
+
+standard_rank_order <- c("Kingdom","Supergroup","Phylum","Subdivision",
+                         "Class","Order","Family","Genus","Species",
+                         "Common")
+
+editable_cols <- intersect(
+  unique(c(standard_rank_order, extra_tax_ranks, tax_cols_all)),
+  tax_cols_all
+)
+
+editable_cols <- setdiff(editable_cols, non_editable_tax_cols)
 
 SPECIES_COL <- pick_first_col(tax_cols_all, c("Species", "species", "SPECIES"))
 if (is.na(SPECIES_COL)) {
@@ -715,7 +830,7 @@ SEQ_COL  <- pick_first_col(tax_cols_all, c("ASV_sequence", "asv_sequence", "Sequ
 
 tax_cols_rank <- editable_cols
 override_cols <- paste0("Override_", editable_cols)
-rank_order <- get_rank_order(tax_cols_taxrank)
+rank_order <- get_rank_order(tax_cols_rank)
 
 # ----------------------------
 # Step 1: Build the REVIEW workbook (first run only)
@@ -730,7 +845,15 @@ df <- read.delim(
 
 taxm0 <- as(tax_table(ps), "matrix")
 
-current_cols <- intersect(c("Kingdom","Phylum","Class","Order","Family","Genus","Species","Common"), colnames(taxm0))
+standard_review_cols <- c("Kingdom","Phylum","Class","Order","Family","Genus","Species","Common")
+
+current_cols <- intersect(
+  unique(c(colnames(taxm0), standard_review_cols, extra_tax_ranks)),
+  colnames(taxm0)
+)
+
+current_cols <- setdiff(current_cols, c("confidence", "ASV_sequence", "sequence"))
+
 for (cc in current_cols) {
   newcol <- paste0("Current_", cc)
   if (!newcol %in% names(df)) df[[newcol]] <- ""
@@ -747,7 +870,7 @@ current_front <- paste0("Current_", current_cols)
 
 # Proposed preview
 if ("Final_Taxon" %in% names(df)) {
-  proposed_cols <- intersect(c("Kingdom","Phylum","Class","Order","Family","Genus","Species","Common"), colnames(taxm0))
+  proposed_cols <- editable_cols
   for (pc in proposed_cols) {
     newcol <- paste0("Proposed_", pc)
     if (!newcol %in% names(df)) df[[newcol]] <- ""
@@ -1159,6 +1282,34 @@ if (RUN_MODE %in% c("first", "reprocess")) {
   addStyle(wb, "For_Review", style = createStyle(textDecoration = "bold"),
            rows = 1, cols = 1:ncol(df), gridExpand = TRUE)
 
+  # ----------------------------
+# Conditional formatting: highlight Override_* if Proposed_* is blank
+# ----------------------------
+red_style <- createStyle(bgFill = "#FFC7CE")
+
+for (oc in override_cols) {
+  pc <- sub("^Override_", "Proposed_", oc)
+
+  if (!(pc %in% names(df))) next
+
+  col_override <- match(oc, names(df))
+  col_proposed <- match(pc, names(df))
+
+  if (is.na(col_override) || is.na(col_proposed)) next
+
+  col_proposed_letter <- int2col(col_proposed)
+
+  conditionalFormatting(
+    wb,
+    sheet = "For_Review",
+    cols = col_override,
+    rows = 2:(nrow(df) + 1),
+    rule = paste0("$", col_proposed_letter, "2=\"\""),
+    style = red_style,
+    type = "expression"
+  )
+}
+
   addWorksheet(wb, "Excluded_by_BLAST")
 
   if (nrow(excluded_by_blast_df) == 0) {
@@ -1229,6 +1380,71 @@ if (length(missing_base) > 0) stop("Review XLSX missing columns: ", paste(missin
 
 missing_override <- setdiff(override_cols, names(rev))
 if (length(missing_override) > 0) stop("Review XLSX missing override columns: ", paste(missing_override, collapse = ", "), call. = FALSE)
+
+# Determine rows where overrides are required
+approve_vals <- tolower(trimws(as.character(rev$Approve)))
+disapproved <- approve_vals %in% c("n","no","disapprove","disapproved","false","f","0")
+
+override_matrix <- rev[, override_cols, drop = FALSE]
+override_matrix[] <- lapply(override_matrix, function(x) trimws(as.character(x)))
+
+any_override <- apply(override_matrix, 1, function(r) any(nzchar(r)))
+
+# Only enforce completeness if:
+#  - NOT removed
+#  - AND (approved OR has partial overrides)
+active_rows <- !tolower(trimws(as.character(rev$Remove_ASV))) %in%
+  c("y","yes","remove","removed","true","t","1")
+
+rows_requiring_full_override <- active_rows & (!disapproved | any_override)
+
+blank_mat <- is.na(override_matrix) | override_matrix == ""
+
+if (any(blank_mat[rows_requiring_full_override, , drop = FALSE])) {
+  bad <- which(rows_requiring_full_override)[
+    rowSums(blank_mat[rows_requiring_full_override, , drop = FALSE]) > 0
+  ]
+
+  stop(
+    "Some ASVs require complete Override_* values but have blanks.\n",
+    "Fill all Override_* columns with a value or 'NA', or remove the ASV.\n",
+    call. = FALSE
+  )
+}
+
+# ----------------------------
+# Safety check: stop if active rows have blank override cells
+# ----------------------------
+active_rows <- !tolower(trimws(as.character(rev$Remove_ASV))) %in%
+  c("y", "yes", "remove", "removed", "true", "t", "1")
+
+blank_override <- rev[active_rows, override_cols, drop = FALSE]
+blank_override[] <- lapply(blank_override, function(x) trimws(as.character(x)))
+
+blank_mat <- is.na(blank_override) | blank_override == ""
+
+if (any(blank_mat)) {
+  bad <- which(active_rows)[rowSums(blank_mat) > 0]
+
+  examples <- paste0(
+    "  ASV ", rev$ASV[bad],
+    ": missing ",
+    apply(blank_mat[rowSums(blank_mat) > 0, , drop = FALSE], 1, function(x) {
+      paste(names(blank_override)[x], collapse = ", ")
+    }),
+    collapse = "\n"
+  )
+
+  stop(
+    "Review workbook still has blank Override_* cells for ASVs not marked for removal.\n\n",
+    "Please fill every Override_* cell with the correct taxon value or 'NA'.\n",
+    "Rows marked Remove_ASV = yes are allowed to remain blank.\n\n",
+    "Examples:\n",
+    examples,
+    "\n",
+    call. = FALSE
+  )
+}
 
 rev <- rev %>%
   mutate(

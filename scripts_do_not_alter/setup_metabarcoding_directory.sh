@@ -204,9 +204,9 @@ echo -e "${GREEN}Example input files created.${RESET}"
 # ---------------------------
 #  COPY CORRECT nf-params.json (ALWAYS named ${PROJECT}_nf-params.json)
 # ---------------------------
-SRC_STANDARD="$HOME/Metabarcoding/scripts_do_not_alter/nf-params_with_standardized_RSD.json"
-SRC_CUSTOM="$HOME/Metabarcoding/scripts_do_not_alter/nf-params_with_custom_RSD.json"
-SRC_NONE="$HOME/Metabarcoding/scripts_do_not_alter/nf-params_no_RSD.json"
+SRC_STANDARD="/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/nf-params_with_standardized_RSD.json"
+SRC_CUSTOM="/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/nf-params_with_custom_RSD.json"
+SRC_NONE="/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/nf-params_no_RSD.json"
 DEST_JSON="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT/params/${PROJECT}_nf-params.json"
 
 case "$DB_MODE" in
@@ -356,7 +356,7 @@ fi
 #  IF NO CUSTOM DB MODE: ASK WHICH PRIMERS UPDATE PARAMS JSON
 # ---------------------------
 if [[ "$DB_MODE" == "none" ]]; then
-    USER_INPUT_DIR="$HOME/Metabarcoding/$PROJECT/input"
+    USER_INPUT_DIR="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT/input"
 
     echo
     echo "No reference database selected (BLAST all ASVs)."

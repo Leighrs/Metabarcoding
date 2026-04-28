@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+export TZ=UTC
+
 # ----------------------------
 # Config
 # ----------------------------
@@ -98,7 +100,8 @@ fi
 export ASV_TABLE_TSV="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/output/dada2/DADA2_table.tsv"
 
 # Export project directory:
-export PROJECT_DIR="/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME"
+export BASE_DIR="/group/ajfingergrp/Metabarcoding/Project_Runs"
+export PROJECT_DIR="${BASE_DIR}/${PROJECT_NAME}"
 
 # Export phyloseq object (for those who used a reference database):
 export PHYLOSEQ_RDS="${PROJECT_DIR}/output/phyloseq/dada2_phyloseq.rds"
@@ -131,12 +134,10 @@ if [[ ! -f "${BLAST_ALL_TSV}" ]]; then
   exit 1
 fi
 
-
-
 # ----------------------------
 # Run
 # ----------------------------
-SCRIPT_PATH="$HOME/Metabarcoding/scripts_do_not_alter/review_and_update_phyloseq.R"
+SCRIPT_PATH="/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/review_and_update_phyloseq.R"
 
 if [[ ! -f "$SCRIPT_PATH" ]]; then
   echo "ERROR: R script not found: $SCRIPT_PATH" >&2
@@ -172,6 +173,31 @@ esac
 
 echo "Selected mode: $REVIEW_RUN_MODE"
 echo
+
+# ----------------------------
+# Prompt user for extra ranks
+# ----------------------------
+export EXTRA_TAX_RANKS=""
+
+if [[ "$REVIEW_RUN_MODE" == "first" || "$REVIEW_RUN_MODE" == "reprocess" ]]; then
+  if [[ -f "$PHYLOSEQ_RDS" ]]; then
+    echo
+    echo "Existing phyloseq object detected:"
+    echo "  $PHYLOSEQ_RDS"
+    echo
+
+    echo "Current tax_table ranks:"
+    TZ=UTC Rscript -e "
+      suppressPackageStartupMessages(library(phyloseq))
+      ps <- readRDS(Sys.getenv('PHYLOSEQ_RDS'))
+      cat(paste(colnames(as(tax_table(ps), 'matrix')), collapse=', '), '\n')
+    "
+
+    echo
+    read -rp "Add any extra taxa/rank columns to preserve/show in review sheet? Enter comma-separated names or leave blank: " EXTRA_TAX_RANKS
+    export EXTRA_TAX_RANKS
+  fi
+fi
 
 # ----------------------------
 # Optional auto-treatment settings

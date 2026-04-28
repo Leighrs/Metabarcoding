@@ -124,6 +124,6 @@ for (script in script_files) {
   message("✓ Finished ", basename(script), "\n")
 }
 
-message("Decontamination complete! Final phyloseq object stored at: $HOME/Metabarcoding/$PROJECT_NAME/output/ASV_cleanup_output/dada2_phyloseq_cleaned.rds")
+message("Decontamination complete! Final phyloseq object stored at: /group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/output/ASV_cleanup_output/dada2_phyloseq_cleaned.rds")
 
 

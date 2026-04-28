@@ -137,8 +137,35 @@ if (nrow(taxa.na) == 0) {
 }
 
 # Keep only unique ASVs (rows with NA)
+# Keep only unique ASVs (rows with NA)
 asv_rows <- unique(taxa.na[, "row"])
-asv_raw  <- as.character(taxa[asv_rows, 10]) # may contain ID + sequence
+
+# --- NEW robust sequence extraction ---
+candidate_raw <- rownames(taxa)[asv_rows]
+
+if (all(grepl("^[ACGTURYKMSWBDHVN]+$", toupper(candidate_raw)))) {
+  asv_raw <- candidate_raw
+  cat("Using ASV sequences from rownames(taxa).\n")
+} else {
+  is_dna_col <- function(x) {
+    x <- toupper(as.character(x))
+    x <- x[!is.na(x) & x != ""]
+    if (length(x) == 0) return(FALSE)
+    mean(grepl("^[ACGTURYKMSWBDHVN]+$", x)) > 0.8
+  }
+
+  dna_cols <- which(apply(taxa, 2, is_dna_col))
+
+  if (length(dna_cols) == 0) {
+    stop("Could not find ASV sequences in rownames or tax_table columns.")
+  }
+
+  seq_col <- dna_cols[1]
+  cat("Using ASV sequences from tax_table column: ",
+      colnames(taxa)[seq_col], " (column ", seq_col, ")\n", sep = "")
+
+  asv_raw <- as.character(taxa[asv_rows, seq_col])
+}
 
 extract_seq <- function(x) {
   x_upper <- toupper(x)
