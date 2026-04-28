@@ -71,13 +71,10 @@ This repository contains scripts and configuration files to:
   
 <br>
 
-**1. Clone the Repository**
-
-> Ensure you are in your home directory and clone in the Metabarcoding repository from Github.
+**1. Change to group directory:**
 >
 >```
->cd ~
->git clone https://github.com/Leighrs/Metabarcoding.git
+>cd /group/ajfingergrp/Metabarcoding/
 >```
 
 **2. Set Up Your Project Directory**
@@ -197,7 +194,7 @@ This repository contains scripts and configuration files to:
 > To BLAST your ASVs that did not assign during the nf-core/ampliseq pipeline, run the following code:
 >
 >```
->"$HOME/Metabarcoding/scripts_do_not_alter/submit_retrieve_phyloseq_unassigned_asv_and_blast.sh"
+>"/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/submit_retrieve_phyloseq_unassigned_asv_and_blast.sh"
 >```
 >- **When prompted:**
 >    - *What do you want to do?:* ${\color{green}1A}$
@@ -214,7 +211,7 @@ This repository contains scripts and configuration files to:
 >- Hopefully this will make parsing through and proofreading BLAST assignments much easier.
 >
 >```
->"$HOME/Metabarcoding/scripts_do_not_alter/submit_blast_cleanup.sh"
+>"/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/submit_blast_cleanup.sh"
 >```
 >
 ><details>
@@ -347,13 +344,10 @@ This repository contains scripts and configuration files to:
   
 <br>
 
-**1. Clone the Repository**
-
-> Ensure you are in your home directory and clone in the Metabarcoding repository from Github.
+**1. Change to group directory:**
 >
 >```
->cd ~
->git clone https://github.com/Leighrs/Metabarcoding.git
+>cd /group/ajfingergrp/Metabarcoding/
 >```
 
 **2. Set Up Your Project Directory**
@@ -361,7 +355,7 @@ This repository contains scripts and configuration files to:
 > Execute a shell script that will set up a project directory for you.
 >
 >```
->$HOME/Metabarcoding/scripts_do_not_alter/setup_metabarcoding_directory.sh
+>"/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/setup_metabarcoding_directory.sh"
 >```
 >- **When prompted:**
 >    - ${\color{green}Enter}$ ${\color{green}project}$ ${\color{green}name:}$ Enter a unique project name of your choice.
@@ -474,7 +468,7 @@ This repository contains scripts and configuration files to:
 >- To view an example metadata file, run the following code:
 >```
 >PROJECT_NAME=$(cat "/group/ajfingergrp/Metabarcoding/Project_Runs/Project_IDs/$USER/current_project_name.txt")
->nano $HOME/Metabarcoding/$PROJECT_NAME/Example_files/Example_metadata.txt
+>nano "/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/test_data/metadata.txt"
 >```
 >- **Summary Checklist**
 >   - Before running `nf-core/ampliseq`, confirm:
@@ -494,7 +488,7 @@ This repository contains scripts and configuration files to:
 >
 >**After uploading, run this code to confirm your metadata is likely formatted correctly:**
 >```
->"$HOME/Metabarcoding/scripts_do_not_alter/validate_metadata.sh"
+>"/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/validate_metadata.sh"
 >```
 > - Checks for:
 >   - Filename contains "metadata"
@@ -508,7 +502,7 @@ This repository contains scripts and configuration files to:
 
 **3C. Import custom reference sequence database (optional):**
 
-> If your custom pipeline has been logged into this pipeline, your custom RSD should already be uploaded and in the subfolder (`$HOME/Metabarcoding/${PROJECT_NAME}/input/`).
+> If your custom RSD has been logged into this pipeline, your custom RSD should already be uploaded and in the subfolder (`/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT/input/`).
 >   - Naviate to this subfolder to confirm it is there. If not follow these directions to transfer RSD into your project folder:
 >
 >If storing your RSD on FARM already copy file to the subfolder (`/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/input`) created for your project:
@@ -544,7 +538,7 @@ This repository contains scripts and configuration files to:
 > To view the example RSD, run the following code:
 >```
 >PROJECT_NAME=$(cat "/group/ajfingergrp/Metabarcoding/Project_Runs/Project_IDs/$USER/current_project_name.txt")
->nano $HOME/Metabarcoding/$PROJECT_NAME/Example_files/Example_RSD.txt
+>nano "/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/test_data/12S_RSD.txt"
 >```
 
 **4. Generate a samplesheet file.**
@@ -557,7 +551,7 @@ This repository contains scripts and configuration files to:
 > *If you sequenced your samples in multiple runs and specified run IDs in your metadata, this script will also autopopulate your run IDs to your samplesheet.*
 >
 >```
->"$HOME/Metabarcoding/scripts_do_not_alter/generate_samplesheet_table.sh" 
+>"/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/generate_samplesheet_table.sh"
 >```
 >
 >**When prompted:**
@@ -596,7 +590,7 @@ This repository contains scripts and configuration files to:
 > Execute the following shell script.
 >
 >```
->"$HOME/Metabarcoding/scripts_do_not_alter/check_ids_match.sh"
+>"/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/check_ids_match.sh"
 >```
 >This script will also locate your metafile and add that path to your params file.
 >
@@ -606,10 +600,10 @@ This repository contains scripts and configuration files to:
 
 > Open the parameter file for the nf-core/ampliseq pipeline:
 > 
-> - The `$HOME/Metabarcoding/${PROJECT_NAME}/params/${PROJECT_NAME}_nf-params.json` file contains all the parameters needed to run the nf-core/ampliseq workflow for your specific project.
+> - The `/group/ajfingergrp/Metabarcoding/Project_Runs/${PROJECT_NAME}/params/${PROJECT_NAME}_nf-params.json` file contains all the parameters needed to run the nf-core/ampliseq workflow for your specific project.
 > - In ideal cases, you may find your samplesheet is already completely filled out and no space holder PATHs/variables exist. 
 >      - But double check everything is correct and edit as necessary so that your input paths, primer sequences, and filtering settings match your dataset.
->      - Environmental variables, `$HOME` and `$PROJECT_NAME` should be left as is.
+>      - Environmental variables, like `$PROJECT_NAME` should be left as is.
 >
 >```
 >PROJECT_NAME=$(cat "/group/ajfingergrp/Metabarcoding/Project_Runs/Project_IDs/$USER/current_project_name.txt")
@@ -731,7 +725,7 @@ This repository contains scripts and configuration files to:
 > Execute the following shell script.
 >
 >```
->$HOME/Metabarcoding/scripts_do_not_alter/submit_ampliseq.sh
+>"/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/submit_ampliseq.sh"
 >```
 > Check your current running slurm job and get your jobID:
 >```
@@ -744,7 +738,7 @@ This repository contains scripts and configuration files to:
 >*Note: This script is not 100% effective and determining success or reason for failure. It is only designed to look for certain key output files that indicate success was likely. Regarding unsuccessful runs, it only looks for causes associated with samples that failed trimming or filtering. For a complete error log, check your SLURM logs.*
 >   - To view your slurm error and output logs, navigate to `/group/ajfingergrp/Metabarcoding/intermediates_logs_cache/slurm_logs/` and locate the files called `ampliseq_<jobID>.err` and `ampliseq_<jobID>.out`. 
 >```
->"$HOME/Metabarcoding/scripts_do_not_alter/check_ampliseq_success.sh"
+>"/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/check_ampliseq_success.sh"
 >```
 >**Script prompts you may get below:**
 >
@@ -766,7 +760,7 @@ This repository contains scripts and configuration files to:
 >          - If you want to add these parameter and resume your current run, be sure to run the following code block to make sure your `${PROJECT_NAME}_nf-params_expanded.json` file is updated with these parameters because the expanded *.json* file is the file the nf-core/ampliseq pipeline will use.
 >```
 >export PROJECT_NAME=$(cat "/group/ajfingergrp/Metabarcoding/Project_Runs/Project_IDs/$USER/current_project_name.txt")
->envsubst '$HOME $PROJECT_NAME' \
+>envsubst '$PROJECT_NAME' \
 >  < "/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/params/${PROJECT_NAME}_nf-params.json" \
 >  > "/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/params/${PROJECT_NAME}_nf-params_expanded.json"
 >```
@@ -786,7 +780,7 @@ This repository contains scripts and configuration files to:
 >*Optionally, if you used a reference database, you can choose to retrieve your unassigned/incomplete assigned ASVs from your phyloseq object and not BLAST them.*
 >   - *This is useful for folks who want their unassigned ASVs but prefer ID them using some other method than BLAST.*
 >```
->"$HOME/Metabarcoding/scripts_do_not_alter/submit_retrieve_phyloseq_unassigned_asv_and_blast.sh"
+>"/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/submit_retrieve_phyloseq_unassigned_asv_and_blast.sh"
 >```
 > **Script prompts:**
 >   - **What do you want to do?**
@@ -812,7 +806,7 @@ This repository contains scripts and configuration files to:
 >*Note: This script is not 100% effective and determining success or reason for failure. It is only designed to look for certain key output files that indicate success was likely. For unsuccessful runs, check your SLURM logs.*
 >   - To view your slurm error and output logs, navigate to `/group/ajfingergrp/Metabarcoding/intermediates_logs_cache/slurm_logs/` and locate the files called `blast_asv_<jobID>.err` and `blast_asv_<jobID>.out`. 
 >```
->"$HOME/Metabarcoding/scripts_do_not_alter/check_blast_run_success.sh"
+>"/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/check_blast_run_success.sh"
 >```
 ><details>
 ><summary><strong>Files exported (click here to expand).</strong></summary>
@@ -841,7 +835,7 @@ This repository contains scripts and configuration files to:
 >- Explanations for the final taxonomic assignment will be provided for each ASV.
 >- Hopefully this will make parsing through and proofreading BLAST assignments much easier.
 >```
->"$HOME/Metabarcoding/scripts_do_not_alter/submit_blast_cleanup.sh"
+>"/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/submit_blast_cleanup.sh"
 >```
 >
 >Check your current running slurm job and get your jobID:
@@ -856,7 +850,7 @@ This repository contains scripts and configuration files to:
 >*Note: This script is not 100% effective and determining success or reason for failure. It is only designed to look for certain key output files that indicate success was likely. For unsuccessful runs, check your SLURM logs.*
 >   - To view your slurm error and output logs, navigate to `/group/ajfingergrp/Metabarcoding/intermediates_logs_cache/slurm_logs/` and locate the files called `blast_cleanup_<jobID>.err` and `blast_cleanup_<jobID>.out`. 
 >```
->"$HOME/Metabarcoding/scripts_do_not_alter/check_blast_cleanup_success.sh"
+>"/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/check_blast_cleanup_success.sh"
 >```
 ><details>
 ><summary><strong>Expected output files in BLAST folder (click to expand).</strong></summary>
@@ -881,7 +875,7 @@ This repository contains scripts and configuration files to:
 >*Note: This script requires a manual review step to approve/dissaprove and change BLAST taxonomic assignments if needed.*
 >
 >```
->"$HOME/Metabarcoding/scripts_do_not_alter/run_review_and_update_phyloseq.sh" 
+>"/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/run_review_and_update_phyloseq.sh"
 >```
 > **Script prompts:**
 >   - **Select run mode for review/update: Enter choice [1,2,3]**
@@ -946,7 +940,7 @@ This repository contains scripts and configuration files to:
 > **D. After uploading edited spreadsheet into FARM, navigate back to terminal with FARM and re-run the following code:**
 > 
 > ```
->"$HOME/Metabarcoding/scripts_do_not_alter/run_review_and_update_phyloseq.sh" 
+>"/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/run_review_and_update_phyloseq.sh"
 > ```
 > - Your phyloseq object will now be updated with these taxonomic assignments.
 >    - Updated phyloseq object can be found at `"/group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/output/BLAST/Review/phyloseq_${PROJECT_NAME}_UPDATED_reviewed_taxonomy.rds"`.
@@ -957,7 +951,7 @@ This repository contains scripts and configuration files to:
 **11. Remove contaminant reads from ASVs:**
 > Run this shell script to start decontamination process and follow on-screen prompts:
 >```
->"$HOME/Metabarcoding/scripts_do_not_alter/run_GVL_metabarcoding_cleanup_main.sh" 
+>"/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/run_GVL_metabarcoding_cleanup_main.sh"
 >```
 > **Script prompts:**
 >
@@ -1024,7 +1018,7 @@ This repository contains scripts and configuration files to:
 >
 > *NOTE: This script will submit an sbatch run.*
 >```
->"$HOME/Metabarcoding/scripts_do_not_alter/archive_metabarcoding_project.sh"
+>"/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/archive_metabarcoding_project.sh"
 >```
 >
 >   - To download your project directory to your local directory:
