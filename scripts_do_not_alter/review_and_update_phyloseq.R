@@ -1372,7 +1372,12 @@ if (RUN_MODE == "second") {
 # ----------------------------
 # Step 2: Read review Excel
 # ----------------------------
-rev <- read.xlsx(review_xlsx, sheet = "For_Review", detectDates = FALSE)
+rev <- read.xlsx(
+  review_xlsx,
+  sheet = "For_Review",
+  detectDates = FALSE,
+  na.strings = ""
+)
 
 needed_base <- c("ASV", "Final_Taxon", "Approve", "Disapprove_Reason", "Remove_ASV")
 missing_base <- setdiff(needed_base, names(rev))
@@ -1398,19 +1403,6 @@ active_rows <- !tolower(trimws(as.character(rev$Remove_ASV))) %in%
 
 rows_requiring_full_override <- active_rows & (!disapproved | any_override)
 
-blank_mat <- is.na(override_matrix) | override_matrix == ""
-
-if (any(blank_mat[rows_requiring_full_override, , drop = FALSE])) {
-  bad <- which(rows_requiring_full_override)[
-    rowSums(blank_mat[rows_requiring_full_override, , drop = FALSE]) > 0
-  ]
-
-  stop(
-    "Some ASVs require complete Override_* values but have blanks.\n",
-    "Fill all Override_* columns with a value or 'NA', or remove the ASV.\n",
-    call. = FALSE
-  )
-}
 
 # ----------------------------
 # Safety check: stop if active rows have blank override cells
@@ -1421,27 +1413,27 @@ active_rows <- !tolower(trimws(as.character(rev$Remove_ASV))) %in%
 blank_override <- rev[active_rows, override_cols, drop = FALSE]
 blank_override[] <- lapply(blank_override, function(x) trimws(as.character(x)))
 
-blank_mat <- is.na(blank_override) | blank_override == ""
+blank_mat <- is.na(override_matrix) | override_matrix == ""
 
-if (any(blank_mat)) {
-  bad <- which(active_rows)[rowSums(blank_mat) > 0]
+if (any(blank_mat[rows_requiring_full_override, , drop = FALSE])) {
+  bad <- which(rows_requiring_full_override)[
+    rowSums(blank_mat[rows_requiring_full_override, , drop = FALSE]) > 0
+  ]
 
-  examples <- paste0(
-    "  ASV ", rev$ASV[bad],
-    ": missing ",
-    apply(blank_mat[rowSums(blank_mat) > 0, , drop = FALSE], 1, function(x) {
-      paste(names(blank_override)[x], collapse = ", ")
+  bad_msg <- paste0(
+    rev$ASV[bad],
+    ": ",
+    apply(blank_mat[bad, , drop = FALSE], 1, function(x) {
+      paste(colnames(blank_mat)[x], collapse = ", ")
     }),
     collapse = "\n"
   )
 
   stop(
-    "Review workbook still has blank Override_* cells for ASVs not marked for removal.\n\n",
-    "Please fill every Override_* cell with the correct taxon value or 'NA'.\n",
-    "Rows marked Remove_ASV = yes are allowed to remain blank.\n\n",
-    "Examples:\n",
-    examples,
-    "\n",
+    "Some ASVs require complete Override_* values but have blanks.\n",
+    "Fill all Override_* columns with a value or 'NA', or mark Remove_ASV = yes.\n\n",
+    "Problem rows:\n",
+    bad_msg,
     call. = FALSE
   )
 }
@@ -1595,7 +1587,7 @@ removed_by_reviewer <- intersect(removed_by_reviewer, taxa_names(ps))
 
 taxm2 <- as(tax_table(ps), "matrix")
 incomplete_asvs <- rownames(taxm2)[
-  apply(taxm2[, tax_cols_taxrank, drop = FALSE], 1, function(x) any(is.na(x) | trimws(x) == ""))
+  apply(taxm2[, tax_cols_rank, drop = FALSE], 1, function(x) any(is.na(x) | trimws(x) == ""))
 ]
 incomplete_asvs <- intersect(incomplete_asvs, taxa_names(ps))
 

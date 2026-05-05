@@ -65,6 +65,9 @@ CUTADAPT_END="Please check whether the correct primer sequences for trimming wer
 DADA2_START="The following samples had too few reads (<1) after quality filtering with DADA2:"
 DADA2_END="Please check settings related to quality filtering such as \`--max_ee\` (increase), \`--trunc_qmin\` (increase) or \`--trunclenf\`/\`--trunclenr\` (decrease). Ignore that samples using \`--ignore_failed_filtering\` or adjust the threshold with \`--min_read_counts\`."
 
+RAW_INPUT_START="At least one input file for the following sample(s) had too few reads (<1):"
+RAW_INPUT_END="Either remove those samples, adjust the threshold with \`--min_read_counts\`, or ignore that samples using \`--ignore_empty_input_files\`."
+
 # -----------------------------
 # Helpers
 # -----------------------------
@@ -307,11 +310,12 @@ echo "Using SLURM out log: $LOGFILE"
 # -----------------------------
 # 3) Scan for BOTH failure blocks
 # -----------------------------
+RAW_INPUT_FAILED="$(extract_samples_between_markers "$LOGFILE" "$RAW_INPUT_START" "$RAW_INPUT_END" || true)"
 CUTADAPT_FAILED="$(extract_samples_between_markers "$LOGFILE" "$CUTADAPT_START" "$CUTADAPT_END" || true)"
 DADA2_FAILED="$(extract_samples_between_markers "$LOGFILE" "$DADA2_START" "$DADA2_END" || true)"
 
-if [[ -z "$CUTADAPT_FAILED" && -z "$DADA2_FAILED" ]]; then
-  echo "Could not locate cutadapt or DADA2 'too few reads' sample blocks in the SLURM log."
+if [[ -z "$RAW_INPUT_FAILED" && -z "$CUTADAPT_FAILED" && -z "$DADA2_FAILED" ]]; then
+  echo "Could not locate if reason for failture was 'too few reads' at a particular step in the SLURM log."
   echo "Please check your SLURM logs for other run errors to see why the pipeline may not have succeeded."
   exit 0
 fi
@@ -319,6 +323,22 @@ fi
 # -----------------------------
 # 4) Present and optionally remove (separately)
 # -----------------------------
+if [[ -n "$RAW_INPUT_FAILED" ]]; then
+  echo ""
+  echo "Samples with too few reads (<1) in the original input files:"
+  echo "$RAW_INPUT_FAILED" | paste -sd ", " -
+  echo ""
+  if [[ "$(prompt_yn "Remove these raw-input-failed samples from samplesheet + metadata?" "no")" == "yes" ]]; then
+    remove_samples_workflow \
+      "Failed initial input read-count check (too few reads in raw input files)" \
+      "$REMOVED_DIR/Samples_Removed_Failed_Raw_Input.txt" \
+      "$LOGFILE" \
+      "$RAW_INPUT_FAILED"
+  else
+    echo "Skipped removal for raw-input-failed samples."
+  fi
+fi
+
 if [[ -n "$CUTADAPT_FAILED" ]]; then
   echo ""
   echo "Samples with too few reads (<1) after trimming with cutadapt:"
