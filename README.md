@@ -109,6 +109,23 @@ This repository contains scripts and configuration files to:
 >cp "/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/test_data/metadata.txt" \
 >  /group/ajfingergrp/Metabarcoding/Project_Runs/$PROJECT_NAME/input/${PROJECT_NAME}_metadata.txt
 >```
+> Renaming fastq files (*If needed*):
+>  - If you aren't sure if this is needed for your files, email Leigh (lrsanders@ucdavis.edu)
+>  - To rename your fastq files, upload a *.csv* file with the old and new file names to you project fastq folder.
+>    - Do not include file extension info (e.g., _R1.fastq.gz, _R001.fastq.gz, etc). The script will account for them.
+>    - Example:
+>| old | new |
+>|------|-------------|
+>| Meow_P4_A_GG_C | Meow_1 |
+>| 16S_MEOW_A | Meow_2 |
+> Run the following dry run to make sure files are being read and renamed how you want:
+>```
+>"/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/rename_metadata.sh"
+>```
+> If everything looks correct, run the script again with `--execute` command:
+>```
+>"/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/rename_metadata.sh --execute"
+>```
 
 **4. Generate a samplesheet file.**
 
