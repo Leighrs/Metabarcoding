@@ -396,10 +396,12 @@ This repository contains scripts and configuration files to:
 >  - To rename your fastq files, upload a *.csv* file with the old and new file names to you project fastq folder.
 >    - Do not include file extension info (e.g., _R1.fastq.gz, _R001.fastq.gz, etc). The script will account for them.
 >    - Example:
+>      
 >| old | new |
 >|------|-------------|
 >| Meow_P4_A_GG_C | Meow_1 |
 >| 16S_MEOW_A | Meow_2 |
+>
 > Run the following dry run to make sure files are being read and renamed how you want:
 >```
 >"/group/ajfingergrp/Metabarcoding/GVL_ampliseq_scripts/scripts_do_not_alter/rename_metadata.sh"
